@@ -1,0 +1,17 @@
+<h2>Login</h2>
+<form (ngSubmit)="login()">
+  <label>
+    Username:
+    <input [(ngModel)]="form.username" name="username" required>
+  </label>
+  <br>
+  <label>
+    Password:
+    <input [(ngModel)]="form.password" name="password" type="password" required>
+  </label>
+  <br>
+  <button type="submit" [disabled]="loading">{{ loading ? 'Logging in...' : 'Login' }}</button>
+</form>
+<p>
+  Don't have an account? <a routerLink="/register">Register</a>
+</p>

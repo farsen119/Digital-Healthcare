@@ -1,0 +1,89 @@
+<h2>Register</h2>
+<form #regForm="ngForm" (ngSubmit)="register()" enctype="multipart/form-data">
+  <label>
+    Role:
+    <select [(ngModel)]="form.role" name="role" required>
+      <option value="doctor">Doctor</option>
+      <option value="patient">Patient</option>
+    </select>
+  </label>
+  <br>
+
+  <label>
+    First Name:
+    <input [(ngModel)]="form.first_name" name="first_name" required>
+  </label>
+  <br>
+
+  <label>
+    Last Name:
+    <input [(ngModel)]="form.last_name" name="last_name" required>
+  </label>
+  <br>
+
+  <label>
+    Username:
+    <input [(ngModel)]="form.username" name="username" required>
+  </label>
+  <br>
+
+  <label>
+    Email:
+    <input [(ngModel)]="form.email" name="email" required email>
+  </label>
+  <br>
+
+  <label>
+    Password:
+    <input [(ngModel)]="form.password" name="password" type="password" required minlength="6">
+  </label>
+  <br>
+
+  <div *ngIf="form.role === 'patient'">
+    <label>
+      Confirm Password:
+      <input [(ngModel)]="form.confirm_password" name="confirm_password" type="password" required>
+    </label>
+    <div *ngIf="form.confirm_password && form.password !== form.confirm_password" style="color:red;">
+      Passwords do not match!
+    </div>
+    <br>
+  </div>
+
+  <label>
+    Phone Number:
+    <input [(ngModel)]="form.phone" name="phone" required>
+  </label>
+  <br>
+
+  <div *ngIf="form.role === 'doctor'">
+    <label>
+      Specialization:
+      <input [(ngModel)]="form.specialization" name="specialization" required>
+    </label>
+    <br>
+  </div>
+
+  <label>
+    City:
+    <input [(ngModel)]="form.city" name="city">
+  </label>
+  <br>
+
+  <label>
+    Profile Photo:
+    <input type="file" (change)="onFileChange($event)" name="photo" [required]="form.role === 'patient' || form.role === 'doctor'">
+  </label>
+  <br>
+
+  <button type="submit"
+    [disabled]="
+      !regForm.form.valid ||
+      (form.role === 'patient' && form.password !== form.confirm_password)
+    ">
+    Register
+  </button>
+</form>
+<p>
+  Already have an account? <a routerLink="/login">Login</a>
+</p>

@@ -1,0 +1,11 @@
+<div style="text-align: center; margin-top: 40px;">
+  <h1>Welcome to the Healthcare App</h1>
+  <ng-container *ngIf="auth.isLoggedIn(); else notLoggedIn">
+    <p>You are logged in as <strong>{{ user?.role }}</strong> ({{ user?.username }}).</p>
+    <button (click)="logout()">Logout</button>
+  </ng-container>
+  <ng-template #notLoggedIn>
+    <button type="button" routerLink="/login">Login</button>
+    <button type="button" routerLink="/register">Register</button>
+  </ng-template>
+</div>

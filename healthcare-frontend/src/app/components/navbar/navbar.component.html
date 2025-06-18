@@ -1,0 +1,17 @@
+<nav style="background: #f0f0f0; padding: 10px;">
+  <a routerLink="/" style="font-weight: bold; font-size: 20px; text-decoration: none; color: inherit;">
+  Healthcare App
+  </a>
+  <span style="float: right;">
+    <ng-container *ngIf="auth.isLoggedIn(); else loggedOut">
+      <span *ngIf="user">
+        Welcome, {{ user.username }} ({{ user.role }})
+      </span>
+      <a *ngIf="user?.role === 'admin'" routerLink="/admin-dashboard" style="margin-left: 10px;">Admin Panel</a>
+      <button (click)="logout()" style="margin-left: 10px;">Logout</button>
+    </ng-container>
+    <ng-template #loggedOut>
+      <a routerLink="/login" style="margin-left: 10px;">Login</a>
+    </ng-template>
+  </span>
+</nav>

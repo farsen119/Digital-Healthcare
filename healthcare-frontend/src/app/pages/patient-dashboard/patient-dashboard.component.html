@@ -1,0 +1,58 @@
+<h2>Patient Dashboard</h2>
+
+<!-- Show user info -->
+<div *ngIf="user && !showUpdateForm">
+  <p><strong>First Name:</strong> {{ user.first_name }}</p>
+  <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+  <p><strong>Username:</strong> {{ user.username }}</p>
+  <p><strong>Email:</strong> {{ user.email }}</p>
+  <p><strong>Phone:</strong> {{ user.phone }}</p>
+  <p><strong>City:</strong> {{ user.city }}</p>
+  <img *ngIf="user.photo" [src]="getPhotoUrl()" width="100" alt="Profile Photo">
+  <br>
+  <button (click)="openUpdateForm()">Update Details</button>
+</div>
+
+<!-- Update form -->
+<form *ngIf="user && showUpdateForm" (ngSubmit)="update()" enctype="multipart/form-data">
+  <div *ngIf="errorMsg" style="color: red; margin-bottom: 10px;">{{ errorMsg }}</div>
+  <label>
+    First Name:
+    <input [(ngModel)]="user.first_name" name="first_name" required>
+  </label>
+  <br>
+  <label>
+    Last Name:
+    <input [(ngModel)]="user.last_name" name="last_name" required>
+  </label>
+  <br>
+  <label>
+    Username:
+    <input [value]="user.username" disabled>
+  </label>
+  <br>
+  <label>
+    Email:
+    <input [(ngModel)]="user.email" name="email" required>
+  </label>
+  <br>
+  <label>
+    Phone:
+    <input [(ngModel)]="user.phone" name="phone" required>
+  </label>
+  <br>
+  <label>
+    City:
+    <input [(ngModel)]="user.city" name="city">
+  </label>
+  <br>
+  <label>
+    Profile Photo:
+    <input type="file" (change)="onFileChange($event)">
+  </label>
+  <br>
+  <img *ngIf="user.photo" [src]="getPhotoUrl()" width="100" alt="Profile Photo">
+  <br>
+  <button type="submit" [disabled]="loading">{{ loading ? 'Updating...' : 'Update' }}</button>
+  <button type="button" (click)="cancelUpdate()">Cancel</button>
+</form>

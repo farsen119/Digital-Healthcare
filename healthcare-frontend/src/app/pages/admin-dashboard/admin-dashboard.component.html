@@ -1,0 +1,57 @@
+<h2>Admin Dashboard</h2>
+<table border="1" style="width:100%; text-align:left;">
+  <tr>
+    <th>Username</th>
+    <th>Role</th>
+    <th>Email</th>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Specialization</th>
+    <th>Phone</th>
+    <th>City</th>
+    <th>Photo</th>
+    <th>Actions</th>
+  </tr>
+  <tr *ngFor="let user of users">
+    <ng-container *ngIf="editUserId !== user.id; else editRow">
+      <td>{{ user.username }}</td>
+      <td>{{ user.role }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.first_name }}</td>
+      <td>{{ user.last_name }}</td>
+      <td>{{ user.specialization }}</td>
+      <td>{{ user.phone }}</td>
+      <td>{{ user.city }}</td>
+      <td>
+        <img *ngIf="user.photo" [src]="getPhotoUrl(user)" width="40" alt="Profile Photo">
+      </td>
+      <td>
+        <button (click)="startEdit(user)">Edit</button>
+        <button (click)="deleteUser(user.id)">Delete</button>
+      </td>
+    </ng-container>
+    <ng-template #editRow>
+      <td><input [(ngModel)]="editForm.username"></td>
+      <td>
+        <select [(ngModel)]="editForm.role">
+          <option value="admin">Admin</option>
+          <option value="doctor">Doctor</option>
+          <option value="patient">Patient</option>
+        </select>
+      </td>
+      <td><input [(ngModel)]="editForm.email"></td>
+      <td><input [(ngModel)]="editForm.first_name"></td>
+      <td><input [(ngModel)]="editForm.last_name"></td>
+      <td><input [(ngModel)]="editForm.specialization"></td>
+      <td><input [(ngModel)]="editForm.phone"></td>
+      <td><input [(ngModel)]="editForm.city"></td>
+      <td>
+        <input type="file" (change)="onEditFileChange($event)">
+      </td>
+      <td>
+        <button (click)="saveEdit()">Save</button>
+        <button (click)="cancelEdit()">Cancel</button>
+      </td>
+    </ng-template>
+  </tr>
+</table>
