@@ -10,8 +10,11 @@ export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
-  // Add access token if present
-  let access = localStorage.getItem('access');
+  // Safely check for localStorage
+  let access: string | null = null;
+  if (typeof window !== 'undefined' && window.localStorage) {
+    access = localStorage.getItem('access');
+  }
   if (access) {
     req = req.clone({
       setHeaders: { Authorization: `Bearer ${access}` }
