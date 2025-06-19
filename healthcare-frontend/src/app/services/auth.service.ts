@@ -20,8 +20,9 @@ export class AuthService {
     }
   }
 
+  // Login using Django SimpleJWT endpoint
   login(username: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login/`, { username, password }).pipe(
+    return this.http.post<any>(`${this.apiUrl}/token/`, { username, password }).pipe(
       tap(res => {
         if (isBrowser()) {
           localStorage.setItem('access', res.access);
@@ -32,7 +33,7 @@ export class AuthService {
     );
   }
 
-  logout() {
+  logout(): void {
     if (isBrowser()) {
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
@@ -53,7 +54,7 @@ export class AuthService {
 
   getProfile(): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/profile/`).pipe(
-      tap(user => {
+      tap((user: any) => {
         if (isBrowser()) {
           localStorage.setItem('user', JSON.stringify(user));
         }
@@ -70,8 +71,8 @@ export class AuthService {
       }
     }
     return this.http.put(`${this.apiUrl}/users/profile/`, formData).pipe(
-      tap(user => {
-        if (typeof window !== 'undefined' && window.localStorage) {
+      tap((user: any) => {
+        if (isBrowser()) {
           localStorage.setItem('user', JSON.stringify(user));
         }
         this.currentUserSubject.next(user);
@@ -86,5 +87,24 @@ export class AuthService {
   getRole(): string | null {
     const user = this.currentUserSubject.value;
     return user ? user.role : null;
+  }
+
+  // Refresh token support for automatic JWT refresh
+  refreshToken(): Observable<any> {
+    if (isBrowser()) {
+      const refresh = localStorage.getItem('refresh');
+      if (refresh) {
+        return this.http.post<any>(`${this.apiUrl}/token/refresh/`, { refresh }).pipe(
+          tap(res => {
+            if (res.access) {
+              localStorage.setItem('access', res.access);
+            }
+          })
+        );
+      }
+    }
+    return new Observable(observer => {
+      observer.error('No refresh token');
+    });
   }
 }

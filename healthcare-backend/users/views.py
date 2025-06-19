@@ -17,6 +17,8 @@ class UserViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser]
 
     def get_permissions(self):
+        if self.action == 'doctors':
+            return [permissions.AllowAny()]
         # Only admin can list, retrieve, update, or delete users
         if self.action in ['list', 'retrieve', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAdminUser()]
@@ -33,3 +35,10 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def doctors(self, request):
+        doctors = CustomUser.objects.filter(role='doctor')
+        serializer = self.get_serializer(doctors, many=True)
+        return Response(serializer.data)

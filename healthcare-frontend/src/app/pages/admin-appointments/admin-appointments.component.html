@@ -1,0 +1,62 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse" style="min-height: 100vh;">
+      <app-admin-sidebar></app-admin-sidebar>
+    </div>
+    <!-- Main Content -->
+    <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <h2>All Appointments</h2>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Doctor</th>
+              <th>Patient</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let appt of appointments">
+              <ng-container *ngIf="editId !== appt.id; else editRow">
+                <td>{{ appt.date }}</td>
+                <td>{{ appt.time }}</td>
+                <td>{{ appt.doctor_name }}</td>
+                <td>{{ appt.patient_name_display }}</td>
+                <td>{{ appt.reason }}</td>
+                <td>{{ appt.status }}</td>
+                <td>
+                  <button class="btn btn-warning btn-sm" (click)="startEdit(appt)">Edit</button>
+                  <button class="btn btn-danger btn-sm" (click)="deleteAppointment(appt.id)">Delete</button>
+                </td>
+              </ng-container>
+              <ng-template #editRow>
+                <td><input class="form-control form-control-sm" [(ngModel)]="editForm.date"></td>
+                <td><input class="form-control form-control-sm" [(ngModel)]="editForm.time"></td>
+                <td>{{ appt.doctor_name }}</td>
+                <td>{{ appt.patient_name_display }}</td>
+                <td><input class="form-control form-control-sm" [(ngModel)]="editForm.reason"></td>
+                <td>
+                  <select class="form-select form-select-sm" [(ngModel)]="editForm.status">
+                    <option value="pending">Pending</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </td>
+                <td>
+                  <button class="btn btn-success btn-sm" (click)="saveEdit()">Save</button>
+                  <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">Cancel</button>
+                </td>
+              </ng-template>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,17 +1,35 @@
-<h2>Login</h2>
-<form (ngSubmit)="login()">
-  <label>
-    Username:
-    <input [(ngModel)]="form.username" name="username" required>
-  </label>
-  <br>
-  <label>
-    Password:
-    <input [(ngModel)]="form.password" name="password" type="password" required>
-  </label>
-  <br>
-  <button type="submit" [disabled]="loading">{{ loading ? 'Logging in...' : 'Login' }}</button>
-</form>
-<p>
-  Don't have an account? <a routerLink="/register">Register</a>
-</p>
+<div class="container mt-5" style="max-width: 400px;">
+  <h2 class="mb-4">Login</h2>
+  <form (ngSubmit)="login()" #loginForm="ngForm">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input
+        type="text"
+        id="username"
+        class="form-control"
+        [(ngModel)]="form.username"
+        name="username"
+        required
+        autocomplete="username"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input
+        type="password"
+        id="password"
+        class="form-control"
+        [(ngModel)]="form.password"
+        name="password"
+        required
+        autocomplete="current-password"
+      />
+    </div>
+    <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+      {{ loading ? 'Logging in...' : 'Login' }}
+    </button>
+  </form>
+  <div class="mt-3">
+    <a routerLink="/register">Don't have an account? Register</a>
+  </div>
+</div>

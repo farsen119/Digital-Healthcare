@@ -38,7 +38,7 @@ export class LoginComponent {
         });
       },
       error: (err) => {
-        alert('Login failed. Please check your credentials.');
+        alert('Login failed: ' + (err?.error?.detail || 'Please check your credentials.'));
         this.loading = false;
       }
     });

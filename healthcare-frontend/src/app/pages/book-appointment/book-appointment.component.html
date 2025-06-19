@@ -1,0 +1,21 @@
+<h2>Book Appointment</h2>
+<form (ngSubmit)="book()">
+  <label>
+    Doctor:
+    <select [(ngModel)]="form.doctor" name="doctor" required>
+      <option value="" disabled selected>Select a doctor</option>
+      <option *ngFor="let doc of doctors" [value]="doc.id">
+        Dr. {{ doc.first_name }} {{ doc.last_name }} ({{ doc.specialization }})
+      </option>
+    </select>
+  </label>
+  <br>
+  <label>Date: <input type="date" [(ngModel)]="form.date" name="date" required></label><br>
+  <label>Time: <input type="time" [(ngModel)]="form.time" name="time" required></label><br>
+  <label>Reason: <textarea [(ngModel)]="form.reason" name="reason"></textarea></label><br>
+  <div *ngIf="!auth.isLoggedIn()">
+    <label>Name: <input [(ngModel)]="form.patient_name" name="patient_name" required></label><br>
+    <label>Email: <input [(ngModel)]="form.patient_email" name="patient_email" required></label><br>
+  </div>
+  <button type="submit">Book</button>
+</form>

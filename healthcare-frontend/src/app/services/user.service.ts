@@ -17,4 +17,7 @@ export class UserService {
     }
     return this.http.put(`${this.apiUrl}${id}/`, formData);
   }
+  getDoctors() {
+    return this.http.get<any[]>(this.apiUrl + 'doctors/');
+  }
 }

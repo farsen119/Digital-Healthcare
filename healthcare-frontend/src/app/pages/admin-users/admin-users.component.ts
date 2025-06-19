@@ -3,11 +3,13 @@ import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component'; // <-- Import this
+
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AdminSidebarComponent],
   templateUrl: './admin-users.component.html'
 })
 export class AdminUsersComponent implements OnInit {

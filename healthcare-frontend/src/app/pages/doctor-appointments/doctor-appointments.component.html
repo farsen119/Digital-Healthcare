@@ -1,0 +1,13 @@
+<h2>My Appointments</h2>
+<table>
+  <tr *ngFor="let appt of appointments">
+    <td>{{ appt.date }} {{ appt.time }}</td>
+    <td>{{ appt.patient_name_display }}</td>
+    <td>{{ appt.reason }}</td>
+    <td>{{ appt.status }}</td>
+    <td *ngIf="appt.status === 'pending'">
+      <button (click)="accept(appt.id)">Accept</button>
+      <button (click)="reject(appt.id)">Reject</button>
+    </td>
+  </tr>
+</table>

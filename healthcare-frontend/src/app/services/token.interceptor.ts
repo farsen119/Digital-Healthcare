@@ -1,11 +1,52 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { catchError, switchMap } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('access');
-  if (token) {
+  const router = inject(Router);
+  const authService = inject(AuthService);
+
+  // Add access token if present
+  let access = localStorage.getItem('access');
+  if (access) {
     req = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` }
+      setHeaders: { Authorization: `Bearer ${access}` }
     });
   }
-  return next(req);
+
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && !req.url.endsWith('/token/refresh/')) {
+        // Try to refresh the token
+        return authService.refreshToken().pipe(
+          switchMap((res) => {
+            // Retry the original request with new token
+            const newAccess = res.access;
+            if (newAccess) {
+              const newReq = req.clone({
+                setHeaders: { Authorization: `Bearer ${newAccess}` }
+              });
+              return next(newReq);
+            } else {
+              // No new access token, force logout
+              authService.logout();
+              router.navigate(['/login']);
+              return throwError(() => error);
+            }
+          }),
+          catchError((refreshError) => {
+            // Refresh failed, force logout
+            authService.logout();
+            router.navigate(['/login']);
+            return throwError(() => refreshError);
+          })
+        );
+      }
+      return throwError(() => error);
+    })
+  );
 };
