@@ -141,4 +141,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-CORS_ALLOW_ALL_ORIGINS = True  # For development only!
+CORS_ALLOWED_ORIGINS = [
+        "http://localhost:4200", # Your Angular app's address
+        "http://127.0.0.1:4200",
+    ]

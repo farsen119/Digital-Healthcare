@@ -12,7 +12,7 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
+    queryset = CustomUser.objects.all().order_by('-date_joined')  # <-- Add this
     serializer_class = UserSerializer
     parser_classes = [MultiPartParser, FormParser]
 
