@@ -13,6 +13,7 @@ import { BookAppointmentComponent } from './pages/book-appointment/book-appointm
 import { DoctorAppointmentsComponent } from './pages/doctor-appointments/doctor-appointments.component';
 import { AdminAppointmentsComponent } from './pages/admin-appointments/admin-appointments.component';
 import { PatientAppointmentsComponent } from './pages/patient-appointments/patient-appointments.component';
+import { AdminBookAppointmentComponent } from './pages/admin-book-appointment/admin-book-appointment.component';
 
 
 export const routes: Routes = [
@@ -27,6 +28,8 @@ export const routes: Routes = [
   { path: 'book-appointment', component: BookAppointmentComponent },
   { path: 'doctor-appointments', component: DoctorAppointmentsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },
   { path: 'admin-appointments', component: AdminAppointmentsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+  { path: 'admin-book-appointment', component: AdminBookAppointmentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+
   { path: 'patient-appointments', component: PatientAppointmentsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient'] } },
   
   { path: '**', redirectTo: '' },

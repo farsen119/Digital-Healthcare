@@ -6,10 +6,12 @@ export interface Appointment {
     time: string;
     doctor_name: string;
     patient_name_display: string;
+    patient_name?: string;      // <-- add this
+    patient_email?: string;
     reason: string;
     status: AppointmentStatus;
     doctor_id: number;
-    patient_id: number;
+    patient_id: number | null; // Patient can be null for guests
 }
 
 export interface AppointmentUpdateDTO {
@@ -22,10 +24,14 @@ export interface AppointmentUpdateDTO {
 export interface AppointmentCreateDTO {
     date: string;
     time: string;
-    doctor_id: number;
-    patient_id: number;
+    doctor: number; // Changed from doctor_id
     reason: string;
     status?: AppointmentStatus;
+
+    // For EITHER a registered patient OR a guest
+    patient?: number; // Changed from patient_id
+    patient_name?: string;
+    patient_email?: string;
 }
 
 export interface AppointmentResponse extends Appointment {
@@ -33,11 +39,10 @@ export interface AppointmentResponse extends Appointment {
     updated_at: string;
 }
 
-// export interface AppointmentStats {
-
-//     total: number;
-//     today: number;
-//     upcoming: number;
-//     completed: number;
-//     cancelled: number;
-// }
+export interface AppointmentStats {
+    total: number;
+    today: number;
+    upcoming: number;
+    completed: number;
+    cancelled: number;
+}

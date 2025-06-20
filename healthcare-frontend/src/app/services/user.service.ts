@@ -1,23 +1,55 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { User } from '../models/user.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class UserService {
-  private apiUrl = 'http://localhost:8000/api/users/';
+  private apiUrl = 'http://127.0.0.1:8000/api/users/';
+
   constructor(private http: HttpClient) {}
 
-  getUsers() { return this.http.get<any[]>(this.apiUrl); }
-  deleteUser(id: number) { return this.http.delete(`${this.apiUrl}${id}/`); }
-  updateUser(id: number, data: any) {
-    const formData = new FormData();
-    for (const key in data) {
-      if (data[key] !== undefined && data[key] !== null) {
-        formData.append(key, data[key]);
-      }
-    }
-    return this.http.put(`${this.apiUrl}${id}/`, formData);
+  /**
+   * Gets all users.
+   */
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.apiUrl);
   }
-  getDoctors() {
-    return this.http.get<any[]>(this.apiUrl + 'doctors/');
+
+  /**
+   * Gets a single user by their ID.
+   */
+  getUser(id: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}${id}/`);
+  }
+
+  /**
+   * Gets all users with the 'doctor' role.
+   */
+  getDoctors(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}?role=doctor`);
+  }
+
+  /**
+   * Gets all users with the 'patient' role.
+   */
+  getPatients(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}?role=patient`);
+  }
+
+  /**
+   * Updates a user's profile data.
+   */
+  updateUser(id: number, userData: Partial<User>): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}${id}/`, userData);
+  }
+
+  /**
+   * Deletes a user by their ID.
+   */
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}${id}/`);
   }
 }
