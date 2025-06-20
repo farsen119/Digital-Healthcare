@@ -13,9 +13,13 @@
   <label>Date: <input type="date" [(ngModel)]="form.date" name="date" required></label><br>
   <label>Time: <input type="time" [(ngModel)]="form.time" name="time" required></label><br>
   <label>Reason: <textarea [(ngModel)]="form.reason" name="reason"></textarea></label><br>
-  <div *ngIf="!auth.isLoggedIn()">
+  <div *ngIf="!(auth.isLoggedIn() && auth.getRole() === 'patient')">
     <label>Name: <input [(ngModel)]="form.patient_name" name="patient_name" required></label><br>
     <label>Email: <input [(ngModel)]="form.patient_email" name="patient_email" required></label><br>
+  </div>
+  <div *ngIf="auth.isLoggedIn() && auth.getRole() === 'patient'">
+    <label>Name: <input [value]="form.patient_name" name="patient_name" disabled></label><br>
+    <label>Email: <input [value]="form.patient_email" name="patient_email" disabled></label><br>
   </div>
   <button type="submit">Book</button>
 </form>
