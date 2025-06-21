@@ -1,13 +1,36 @@
 <h2>My Appointments</h2>
-<table>
-  <tr *ngFor="let appt of appointments">
-    <td>{{ appt.date }} {{ appt.time }}</td>
-    <td>{{ appt.patient_name_display }}</td>
-    <td>{{ appt.reason }}</td>
-    <td>{{ appt.status }}</td>
-    <td *ngIf="appt.status === 'pending'">
-      <button (click)="accept(appt.id)">Accept</button>
-      <button (click)="reject(appt.id)">Reject</button>
-    </td>
-  </tr>
+
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error" class="text-danger">{{ error }}</div>
+
+<table class="table table-striped" *ngIf="appointments.length > 0">
+  <thead>
+    <tr>
+      <th>Date & Time</th>
+      <th>Patient</th>
+      <th>Reason</th>
+      <th>Status</th>
+      <!-- CHANGE THIS LINE -->
+      <th *ngIf="hasPendingAppointments">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let appt of appointments">
+      <td>{{ appt.date }} {{ appt.time }}</td>
+      <td>{{ appt.patient_name_display || appt.patient_name }}</td>
+      <td>{{ appt.reason }}</td>
+      <td>{{ appt.status }}</td>
+      <td *ngIf="appt.status === 'pending'">
+        <button class="btn btn-success btn-sm" (click)="accept(appt.id)">Accept</button>
+        <button class="btn btn-danger btn-sm" (click)="reject(appt.id)">Reject</button>
+      </td>
+      <!-- Add this to keep table structure consistent -->
+      <td *ngIf="!hasPendingAppointments"></td>
+      <td *ngIf="hasPendingAppointments && appt.status !== 'pending'"></td>
+    </tr>
+  </tbody>
 </table>
+
+<div *ngIf="!loading && appointments.length === 0">
+  No appointments found.
+</div>
