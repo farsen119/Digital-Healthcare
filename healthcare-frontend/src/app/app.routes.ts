@@ -14,6 +14,10 @@ import { DoctorAppointmentsComponent } from './pages/doctor-appointments/doctor-
 import { AdminAppointmentsComponent } from './pages/admin-appointments/admin-appointments.component';
 import { PatientAppointmentsComponent } from './pages/patient-appointments/patient-appointments.component';
 import { AdminBookAppointmentComponent } from './pages/admin-book-appointment/admin-book-appointment.component';
+import { PrescriptionWriteComponent } from './pages/prescriptions/prescription-write/prescription-write.component';
+import { PrescriptionViewComponent } from './pages/prescriptions/prescription-view/prescription-view.component'; 
+import { PatientPrescriptionViewComponent } from './pages/patient/patient-prescription-view/patient-prescription-view.component';
+
 
 
 export const routes: Routes = [
@@ -31,6 +35,15 @@ export const routes: Routes = [
   { path: 'admin-book-appointment', component: AdminBookAppointmentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
 
   { path: 'patient-appointments', component: PatientAppointmentsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient'] } },
+
+  { path: 'prescriptions/write/:appointmentId', component: PrescriptionWriteComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },
+
+  { path: 'prescriptions/view/:appointmentId', component: PrescriptionViewComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor', 'patient'] } },
+
+  { path: 'patient/prescriptions/view/:appointmentId', component: PatientPrescriptionViewComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient'] } },
+
+
+
   
   { path: '**', redirectTo: '' },
 

@@ -3,30 +3,49 @@
 <div *ngIf="loading">Loading...</div>
 <div *ngIf="error" class="text-danger">{{ error }}</div>
 
-<table class="table table-striped" *ngIf="appointments.length > 0">
+<table class="table table-striped" *ngIf="!loading && appointments.length > 0">
   <thead>
     <tr>
       <th>Date & Time</th>
       <th>Patient</th>
       <th>Reason</th>
       <th>Status</th>
-      <!-- CHANGE THIS LINE -->
-      <th *ngIf="hasPendingAppointments">Actions</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let appt of appointments">
       <td>{{ appt.date }} {{ appt.time }}</td>
       <td>{{ appt.patient_name_display || appt.patient_name }}</td>
-      <td>{{ appt.reason }}</td>
-      <td>{{ appt.status }}</td>
-      <td *ngIf="appt.status === 'pending'">
-        <button class="btn btn-success btn-sm" (click)="accept(appt.id)">Accept</button>
-        <button class="btn btn-danger btn-sm" (click)="reject(appt.id)">Reject</button>
+      <td>
+        {{ appt.reason }}
+        <!-- If a prescription exists, show a green badge for quick visual feedback -->
+        <div *ngIf="appt.prescription" class="mt-2">
+            <span class="badge bg-success">Prescription Added</span>
+        </div>
       </td>
-      <!-- Add this to keep table structure consistent -->
-      <td *ngIf="!hasPendingAppointments"></td>
-      <td *ngIf="hasPendingAppointments && appt.status !== 'pending'"></td>
+      <td>{{ appt.status }}</td>
+      <td>
+        <!-- Show Accept/Reject buttons for PENDING appointments -->
+        <div *ngIf="appt.status === 'pending'">
+          <button class="btn btn-success btn-sm me-1" (click)="accept(appt.id)">Accept</button>
+          <button class="btn btn-danger btn-sm" (click)="reject(appt.id)">Reject</button>
+        </div>
+
+        <!-- Show Add Prescription button for ACCEPTED appointments WITHOUT a prescription -->
+        <div *ngIf="appt.status === 'accepted' && !appt.prescription">
+          <a [routerLink]="['/prescriptions/write', appt.id]" class="btn btn-primary btn-sm">
+            Add Prescription
+          </a>
+        </div>
+
+        <!-- Show View Prescription button if a prescription already exists -->
+        <div *ngIf="appt.prescription">
+          <a [routerLink]="['/prescriptions/view', appt.id]" class="btn btn-info btn-sm">
+            View Prescription
+          </a>
+        </div>
+      </td>
     </tr>
   </tbody>
 </table>

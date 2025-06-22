@@ -1,5 +1,6 @@
 <h2>My Appointments</h2>
-<a routerLink="/book-appointment" class="btn btn-primary">Book an Appointment</a>
+<a routerLink="/book-appointment" class="btn btn-primary mb-3">Book an Appointment</a>
+
 <table class="table table-striped">
   <thead>
     <tr>
@@ -8,6 +9,8 @@
       <th>Doctor</th>
       <th>Reason</th>
       <th>Status</th>
+      <!-- Add a new column header -->
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -17,6 +20,15 @@
       <td>{{ appt.doctor_name }}</td>
       <td>{{ appt.reason }}</td>
       <td>{{ appt.status }}</td>
+      <!-- Add the new cell for the button -->
+      <td>
+        <!-- This button will only appear if a prescription exists for the appointment -->
+        <div *ngIf="appt.prescription">
+          <a [routerLink]="['/patient/prescriptions/view', appt.id]" class="btn btn-info btn-sm">
+            View Prescription
+          </a>
+        </div>
+      </td>
     </tr>
   </tbody>
 </table>

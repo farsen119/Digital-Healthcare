@@ -1,0 +1,47 @@
+<div class="container mt-4">
+  <div *ngIf="isLoading">Loading...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="appointment && appointment.prescription" class="prescription-container">
+    <header class="prescription-header">
+      <h1>Prescription</h1>
+      <div class="doctor-details">
+        <strong>Dr. {{ appointment.doctor_name }}</strong>
+        <!-- This line displays the specialization -->
+        <p>{{ appointment.doctor_specialization || 'General Physician' }}</p>
+      </div>
+    </header>
+
+    <section class="patient-details">
+      <div class="row">
+        <div class="col">
+          <strong>Patient:</strong> {{ appointment.patient_name_display }}
+        </div>
+        <div class="col text-end">
+          <strong>Date:</strong> {{ appointment.prescription.created_at | date: 'longDate' }}
+        </div>
+      </div>
+    </section>
+
+    <main class="prescription-body">
+      <div class="symbol">Rx</div>
+      <div class="details">
+        <pre>{{ appointment.prescription.details }}</pre>
+      </div>
+    </main>
+
+    <footer class="prescription-footer">
+      <p>This is a computer-generated prescription and does not require a physical signature.</p>
+    </footer>
+  </div>
+
+  <div class="d-print-none mt-4 text-center">
+    <button class="btn btn-primary" (click)="printPrescription()" [disabled]="!appointment?.prescription">
+      Print Prescription
+    </button>
+    <a *ngIf="appointment" [routerLink]="['/prescriptions/write', appointment.id]" class="btn btn-warning ms-2">
+      Edit Prescription
+    </a>
+    <a routerLink="/doctor-appointments" class="btn btn-secondary ms-2">Back to Appointments</a>
+  </div>
+</div>

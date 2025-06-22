@@ -1,0 +1,40 @@
+<div class="container mt-4">
+  <div *ngIf="isLoading">Loading...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!isLoading && appointment">
+    <h2>
+      <!-- Dynamic Title -->
+      <ng-container *ngIf="isEditMode; else createTitle">Edit Prescription for:</ng-container>
+      <ng-template #createTitle>Write Prescription for:</ng-template>
+      <small class="text-muted">{{ appointment.patient_name_display }}</small>
+    </h2>
+    <p>
+      Appointment on {{ appointment.date }} at {{ appointment.time }}
+    </p>
+
+    <!-- The form now calls the new combined method -->
+    <form [formGroup]="prescriptionForm" (ngSubmit)="saveOrUpdatePrescription()">
+      <div class="mb-3">
+        <label for="details" class="form-label">Prescription Details</label>
+        <textarea
+          id="details"
+          formControlName="details"
+          class="form-control"
+          rows="10"
+          placeholder="e.g., Paracetamol 500mg, twice a day for 3 days."
+        ></textarea>
+        <div *ngIf="prescriptionForm.get('details')?.invalid && prescriptionForm.get('details')?.touched" class="text-danger mt-1">
+          Prescription details are required.
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="prescriptionForm.invalid || isLoading">
+        <!-- Dynamic Button Text -->
+        <ng-container *ngIf="isEditMode; else createButton">Update Prescription</ng-container>
+        <ng-template #createButton>Save Prescription</ng-template>
+      </button>
+      <a routerLink="/doctor-appointments" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+  </div>
+</div>

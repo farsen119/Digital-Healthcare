@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { AppointmentService } from '../../services/appointment.service';
 import { AppointmentResponse } from '../../models/appointment.model';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router'; // Use RouterModule instead of RouterLink
 
 @Component({
   selector: 'app-doctor-appointments',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule], // Use RouterModule
   templateUrl: './doctor-appointments.component.html'
 })
 export class DoctorAppointmentsComponent implements OnInit {
@@ -15,11 +16,6 @@ export class DoctorAppointmentsComponent implements OnInit {
   error: string | null = null;
 
   constructor(private appointmentService: AppointmentService) {}
-
-  // ADD THIS GETTER
-  get hasPendingAppointments(): boolean {
-    return this.appointments.some(a => a.status === 'pending');
-  }
 
   ngOnInit() {
     this.load();
@@ -40,16 +36,30 @@ export class DoctorAppointmentsComponent implements OnInit {
     });
   }
 
+  // --- THIS IS THE CORRECTED METHOD ---
   accept(id: number) {
     this.appointmentService.updateAppointmentStatus(id, 'accepted').subscribe({
-      next: () => this.load(),
+      next: (updatedAppointment) => {
+        // Find the appointment in our local array
+        const index = this.appointments.findIndex(a => a.id === id);
+        if (index !== -1) {
+          // Replace the old item with the new one from the server
+          this.appointments[index] = updatedAppointment;
+        }
+      },
       error: () => this.error = 'Failed to update appointment'
     });
   }
 
+  // --- THIS IS THE CORRECTED METHOD ---
   reject(id: number) {
     this.appointmentService.updateAppointmentStatus(id, 'rejected').subscribe({
-      next: () => this.load(),
+      next: (updatedAppointment) => {
+        const index = this.appointments.findIndex(a => a.id === id);
+        if (index !== -1) {
+          this.appointments[index] = updatedAppointment;
+        }
+      },
       error: () => this.error = 'Failed to update appointment'
     });
   }
