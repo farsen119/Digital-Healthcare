@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Prescription, PrescriptionCreateDTO } from '../models/prescription.model';
+import { Prescription, PrescriptionCreateDTO, } from '../models/prescription.model';
 
 export interface PrescriptionUpdateDTO {
   details: string;
 }
+export interface AdminNotesUpdateDTO {
+  admin_notes: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,5 +30,12 @@ export class PrescriptionService {
   updatePrescription(id: number, data: PrescriptionUpdateDTO): Observable<Prescription> {
     // The PUT request goes to the specific prescription URL, e.g., /api/prescriptions/123/
     return this.http.patch<Prescription>(`${this.apiUrl}${id}/`, data);
+  }
+  updateAdminNotes(id: number, data: AdminNotesUpdateDTO): Observable<Prescription> {
+    // We use PATCH to send only the admin_notes field.
+    return this.http.patch<Prescription>(`${this.apiUrl}${id}/`, data);
+  }
+  getAllPrescriptions(): Observable<Prescription[]> {
+    return this.http.get<Prescription[]>(this.apiUrl);
   }
 }

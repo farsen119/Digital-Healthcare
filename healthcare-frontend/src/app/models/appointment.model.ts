@@ -7,11 +7,11 @@ export interface Appointment {
     date: string;
     time: string;
     doctor_name: string;
-    
-    // Add this line to define the new property
     doctor_specialization?: string; 
-    
     patient_name_display: string;
+    patient_name?: string;
+    patient_email?: string;
+
     reason: string;
     status: AppointmentStatus;
     doctor_id: number;
@@ -19,7 +19,7 @@ export interface Appointment {
     prescription?: Prescription;
 }
 
-// No changes needed below this line, but this is the full file for completeness
+// No changes needed below, this is the full file for completeness
 export interface AppointmentUpdateDTO {
     date?: string;
     time?: string;
@@ -32,7 +32,7 @@ export interface AppointmentCreateDTO {
     date: string;
     time: string;
     doctor: number;
-    reason: string;
+    reason:string;
     status?: AppointmentStatus;
     patient?: number;
     patient_name?: string;
@@ -51,3 +51,5 @@ export interface AppointmentStats {
     completed: number;
     cancelled: number;
 }
+//  // Add this line to define the new property
+//     doctor_specialization?: string;

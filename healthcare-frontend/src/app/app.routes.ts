@@ -18,6 +18,10 @@ import { PrescriptionWriteComponent } from './pages/prescriptions/prescription-w
 import { PrescriptionViewComponent } from './pages/prescriptions/prescription-view/prescription-view.component'; 
 import { PatientPrescriptionViewComponent } from './pages/patient/patient-prescription-view/patient-prescription-view.component';
 
+import { AdminPrescriptionListComponent } from './pages/admin/admin-prescription-list/admin-prescription-list.component';
+import { AdminPrescriptionViewComponent } from './pages/admin/admin-prescription-view/admin-prescription-view.component';
+
+
 
 
 export const routes: Routes = [
@@ -41,6 +45,10 @@ export const routes: Routes = [
   { path: 'prescriptions/view/:appointmentId', component: PrescriptionViewComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor', 'patient'] } },
 
   { path: 'patient/prescriptions/view/:appointmentId', component: PatientPrescriptionViewComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient'] } },
+
+  { path: 'admin/prescriptions', component: AdminPrescriptionListComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+  { path: 'admin/prescriptions/view/:appointmentId', component: AdminPrescriptionViewComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+
 
 
 

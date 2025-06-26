@@ -1,0 +1,53 @@
+<div class="container mt-4">
+  <div *ngIf="isLoading && !appointment">Loading...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- Section 1: Display the Original Prescription -->
+  <div *ngIf="appointment && appointment.prescription" class="prescription-container mb-4">
+    <header class="prescription-header">
+      <h1>Prescription Details</h1>
+      <div class="doctor-details">
+        <strong>Dr. {{ appointment.doctor_name }}</strong>
+      </div>
+    </header>
+    <section class="patient-details">
+      <div class="row">
+        <div class="col"><strong>Patient:</strong> {{ appointment.patient_name_display }}</div>
+        <div class="col text-end"><strong>Date Issued:</strong> {{ appointment.prescription.created_at | date:'longDate' }}</div>
+      </div>
+    </section>
+    <main class="prescription-body">
+      <div class="reason-section mb-3">
+        <h6 class="notes-header">Reason for Appointment</h6>
+        <p class="reason-text">{{ appointment.reason }}</p>
+      </div>
+      <h6>Prescription</h6>
+      <!-- This 'details' field is read-only for the admin -->
+      <div class="details"><pre>{{ appointment.prescription.details }}</pre></div>
+    </main>
+  </div>
+
+  <!-- Section 2: Admin Notes Area -->
+  <div *ngIf="appointment && appointment.prescription" class="card">
+    <div class="card-header">
+      <h3>Administrative Notes</h3>
+    </div>
+    <div class="card-body">
+      <p class="card-text">These notes are for internal use and are not visible to the patient or doctor.</p>
+      <form [formGroup]="notesForm" (ngSubmit)="saveAdminNotes()">
+        <div class="mb-3">
+          <textarea formControlName="admin_notes" class="form-control" rows="4" placeholder="Add official notes, payment info, or follow-up actions..."></textarea>
+        </div>
+        <div *ngIf="notesSuccess" class="alert alert-success">{{ notesSuccess }}</div>
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Save Notes</span>
+          <span *ngIf="isLoading">Saving...</span>
+        </button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="mt-4 text-center">
+    <a routerLink="/admin-appointments" class="btn btn-secondary ms-2">Back to All Appointments</a>
+  </div>
+</div>

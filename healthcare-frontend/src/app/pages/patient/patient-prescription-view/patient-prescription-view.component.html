@@ -2,13 +2,12 @@
   <div *ngIf="isLoading">Loading...</div>
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
-  <!-- This is the printable prescription area -->
   <div *ngIf="appointment && appointment.prescription" class="prescription-container">
     <header class="prescription-header">
       <h1>Prescription</h1>
       <div class="doctor-details">
         <strong>Dr. {{ appointment.doctor_name }}</strong>
-        <p>{{ appointment.doctor_specialization}}</p>
+        <p>{{ appointment.doctor_specialization || 'General Physician' }}</p>
       </div>
     </header>
 
@@ -24,23 +23,29 @@
     </section>
 
     <main class="prescription-body">
-      <div class="symbol">Rx</div>
       <div class="details">
         <pre>{{ appointment.prescription.details }}</pre>
       </div>
     </main>
 
+    <!-- === THIS IS THE NEW SECTION TO ADD === -->
+    <!-- It will only appear if admin_notes exist -->
+    <section *ngIf="appointment.prescription.admin_notes" class="admin-notes">
+      <h5 class="notes-header">Official Notes</h5>
+      <div class="notes-content">
+        <pre>{{ appointment.prescription.admin_notes }}</pre>
+      </div>
+    </section>
+    
     <footer class="prescription-footer">
       <p>This is a computer-generated prescription and does not require a physical signature.</p>
     </footer>
   </div>
 
-  <!-- These buttons will be hidden when printing -->
   <div class="d-print-none mt-4 text-center">
     <button class="btn btn-primary" (click)="printPrescription()" [disabled]="!appointment?.prescription">
       Print Prescription
     </button>
-    <!-- This button navigates back to the PATIENT's appointment list -->
     <a routerLink="/patient-appointments" class="btn btn-secondary ms-2">Back to Appointments</a>
   </div>
 </div>
