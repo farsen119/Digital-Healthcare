@@ -46,6 +46,31 @@
           </div>
         </div>
       </div>
+      <div class="card mb-4">
+  <div class="card-header bg-dark text-white">
+    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i> Recent Activity</h5>
+  </div>
+  <div class="card-body">
+    <div *ngIf="loadingActivities" class="text-center text-muted">Loading...</div>
+    <div *ngIf="activityError" class="alert alert-danger">{{ activityError }}</div>
+    <ul class="list-group" *ngIf="!loadingActivities && !activityError">
+      <li *ngFor="let activity of activities" class="list-group-item d-flex justify-content-between align-items-center">
+        <span>
+          <i [ngClass]="{
+            'bi-person-plus': activity.type === 'user',
+            'bi-calendar-plus': activity.type === 'appointment',
+            'bi-file-earmark-medical': activity.type === 'prescription'
+          }" class="me-2"></i>
+          {{ activity.message }}
+        </span>
+        <span class="badge bg-secondary">{{ activity.date | date:'medium' }}</span>
+      </li>
+      <li *ngIf="activities.length === 0" class="list-group-item text-center text-muted">
+        No recent activity.
+      </li>
+    </ul>
+  </div>
+</div>
 
       <!-- Latest Users Table (only 5) -->
       <div class="card">

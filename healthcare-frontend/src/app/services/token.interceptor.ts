@@ -18,6 +18,8 @@ export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
     refresh = localStorage.getItem('refresh');
   }
   if (access) {
+    // Debug log to confirm interceptor runs
+    console.log('Attaching token to:', req.url);
     req = req.clone({
       setHeaders: { Authorization: `Bearer ${access}` }
     });
