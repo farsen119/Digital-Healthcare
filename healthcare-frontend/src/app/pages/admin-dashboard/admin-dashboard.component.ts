@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { AppointmentService } from '../../services/appointment.service';
-import { ActivityService, Activity } from '../../services/activity.service'; // <-- Add this
+import { ActivityService, Activity } from '../../services/activity.service';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
@@ -16,20 +16,20 @@ export class AdminDashboardComponent implements OnInit {
   users: any[] = [];
   latestUsers: any[] = [];
   appointments: any[] = [];
-  activities: Activity[] = []; // <-- Add this
-  loadingActivities = true;    // <-- Add this
-  activityError = '';          // <-- Add this
+  activities: Activity[] = []; 
+  loadingActivities = true;   
+  activityError = '';          
 
   constructor(
     private userService: UserService,
     private appointmentService: AppointmentService,
-    private activityService: ActivityService // <-- Add this
+    private activityService: ActivityService 
   ) {}
 
   ngOnInit() {
     this.loadUsers();
     this.loadAppointments();
-    this.loadActivities(); // <-- Add this
+    this.loadActivities(); 
   }
 
   loadUsers() {
@@ -45,7 +45,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  loadActivities() { // <-- Add this
+  loadActivities() { 
     this.activityService.getRecentActivities().subscribe({
       next: (data) => {
         this.activities = data;

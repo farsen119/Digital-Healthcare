@@ -1,5 +1,3 @@
-
-
 <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h2>Patient Dashboard</h2>
@@ -7,11 +5,12 @@
       <button class="btn btn-primary" routerLink="/patient-appointments">
         <i class="bi bi-plus-circle me-2"></i>View Appointment
       </button>
+      <button class="btn btn-success ms-2" routerLink="/medicine-store">
+        <i class="bi bi-bag-plus me-2"></i>Go to Medicine Store
+      </button>
     </div>
   </div>
 </div>
-
-
 
 <!-- Show user info -->
 <div *ngIf="user && !showUpdateForm">

@@ -1,0 +1,32 @@
+<div class="container my-4">
+  <h2>Your Cart</h2>
+  <div *ngIf="cart.items.length === 0" class="alert alert-info">Cart is empty.</div>
+  <table *ngIf="cart.items.length > 0" class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Medicine</th>
+        <th>Quantity</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of cart.items">
+        <td>{{ item.medicine.name }}</td>
+        <td>
+          <input type="number" min="1" [value]="item.quantity"
+                 class="form-control form-control-sm w-50 d-inline"
+                 #qtyInput
+                 (change)="changeQuantity(item.medicine.id, qtyInput.value)">
+        </td>
+        <td>
+          <button class="btn btn-danger btn-sm" (click)="removeItem(item.medicine.id)">Remove</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="btn btn-success" (click)="checkout()" [disabled]="cart.items.length === 0">Checkout</button>
+  <div *ngIf="message" class="alert alert-success mt-2">{{ message }}</div>
+  <div class="mt-3">
+    <a routerLink="/medicine-store" class="btn btn-outline-primary">Back to Store</a>
+  </div>
+</div>

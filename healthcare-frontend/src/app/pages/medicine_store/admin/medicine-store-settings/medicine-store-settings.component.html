@@ -1,0 +1,89 @@
+<div class="container my-4">
+  <h2>Medicine Store Settings</h2>
+  <div *ngIf="message" class="alert alert-info">{{ message }}</div>
+
+  <!-- Add Medicine Form -->
+  <div class="card mb-4">
+    <div class="card-header">Add New Medicine</div>
+    <div class="card-body">
+      <form (ngSubmit)="addMedicine()">
+        <div class="mb-2">
+          <input class="form-control" placeholder="Name" [(ngModel)]="newMedicine.name" name="name" required>
+        </div>
+        <div class="mb-2">
+          <textarea class="form-control" placeholder="Description" [(ngModel)]="newMedicine.description" name="description"></textarea>
+        </div>
+        <div class="mb-2">
+          <input class="form-control" type="number" placeholder="Price" [(ngModel)]="newMedicine.price" name="price" required>
+        </div>
+        <div class="mb-2">
+          <input class="form-control" type="number" placeholder="Stock" [(ngModel)]="newMedicine.stock" name="stock" required>
+        </div>
+        <div class="mb-2">
+          <input class="form-control" type="file" (change)="handleFileInput($event)">
+        </div>
+        <button class="btn btn-success" type="submit">Add Medicine</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Medicine Form -->
+  <div *ngIf="editMedicine" class="card mb-4">
+    <div class="card-header">Edit Medicine</div>
+    <div class="card-body">
+      <form (ngSubmit)="updateMedicine()">
+        <div class="mb-2">
+          <input class="form-control" placeholder="Name" [(ngModel)]="editMedicine.name" name="editName" required>
+        </div>
+        <div class="mb-2">
+          <textarea class="form-control" placeholder="Description" [(ngModel)]="editMedicine.description" name="editDescription"></textarea>
+        </div>
+        <div class="mb-2">
+          <input class="form-control" type="number" placeholder="Price" [(ngModel)]="editMedicine.price" name="editPrice" required>
+        </div>
+        <div class="mb-2">
+          <input class="form-control" type="number" placeholder="Stock" [(ngModel)]="editMedicine.stock" name="editStock" required>
+        </div>
+        <div class="mb-2">
+          <input class="form-control" type="file" (change)="handleFileInput($event, true)">
+        </div>
+        <button class="btn btn-primary" type="submit">Update</button>
+        <button class="btn btn-secondary ms-2" type="button" (click)="editMedicine = null">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Medicines Table -->
+  <div class="card">
+    <div class="card-header">All Medicines</div>
+    <div class="card-body p-0">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Image</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let med of medicines">
+            <td>{{ med.name }}</td>
+            <td>{{ med.description }}</td>
+            <td>₹{{ med.price }}</td>
+            <td>{{ med.stock }}</td>
+            <td>
+              <img *ngIf="med.image" [src]="med.image" width="50">
+            </td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" (click)="startEdit(med)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteMedicine(med.id)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

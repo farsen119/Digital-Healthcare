@@ -22,6 +22,11 @@ import { AdminPrescriptionListComponent } from './pages/admin/admin-prescription
 import { AdminPrescriptionViewComponent } from './pages/admin/admin-prescription-view/admin-prescription-view.component';
 
 
+import { MedicineStoreComponent } from './pages/medicine_store/medicine-store/medicine-store.component';
+import { CartComponent } from './pages/medicine_store/cart/cart.component';
+import { OrdersComponent } from './pages/medicine_store/orders/orders.component';
+import { MedicineStoreSettingsComponent } from './pages/medicine_store/admin/medicine-store-settings/medicine-store-settings.component';
+
 
 
 export const routes: Routes = [
@@ -48,6 +53,17 @@ export const routes: Routes = [
 
   { path: 'admin/prescriptions', component: AdminPrescriptionListComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
   { path: 'admin/prescriptions/view/:appointmentId', component: AdminPrescriptionViewComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+
+
+
+  { path: 'medicine-store', component: MedicineStoreComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'doctor', 'admin'] } },
+  { path: 'cart', component: CartComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'doctor', 'admin'] } },
+  { path: 'orders', component: OrdersComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'doctor', 'admin'] } },
+  { path: 'medicine-store-settings', component: MedicineStoreSettingsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+
+  
+
+
 
 
 

@@ -1,0 +1,36 @@
+<div class="container my-4">
+  <h2 class="mb-4">Medicine Store</h2>
+  <div class="text-end mb-3">
+    <a routerLink="/cart" class="btn btn-outline-secondary position-relative">
+      <i class="bi bi-cart"></i>
+      <span *ngIf="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ cartCount }}
+      </span>
+      Cart
+    </a>
+    <a routerLink="/orders" class="btn btn-outline-primary ms-2">Orders</a>
+  </div>
+  <div class="input-group mb-3">
+    <input [(ngModel)]="searchQuery" class="form-control" placeholder="Search medicines">
+    <button class="btn btn-primary" (click)="search()">Search</button>
+  </div>
+  <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+  <div class="row">
+    <div *ngFor="let med of medicines" class="col-md-4 mb-4">
+      <div class="card h-100">
+        <img *ngIf="med.image" [src]="med.image" class="card-img-top" style="height:180px;object-fit:contain;">
+        <div class="card-body">
+          <h5 class="card-title">{{ med.name }}</h5>
+          <p class="card-text">{{ med.description }}</p>
+          <p class="card-text"><strong>Price:</strong> ₹{{ med.price }}</p>
+          <p class="card-text"><strong>Stock:</strong> {{ med.stock }}</p>
+        </div>
+        <div class="card-footer bg-white">
+          <button class="btn btn-success w-100" (click)="addToCart(med.id)" [disabled]="med.stock < 1">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

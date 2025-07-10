@@ -45,6 +45,8 @@ INSTALLED_APPS = [
 
     'prescriptions',
     'activity',
+    'medicine_store',
+
 
     
 
@@ -143,8 +145,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
 }
 
 CORS_ALLOWED_ORIGINS = [
