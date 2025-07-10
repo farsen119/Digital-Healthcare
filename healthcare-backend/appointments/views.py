@@ -5,9 +5,6 @@ from .models import Appointment
 from .serializers import AppointmentSerializer
 
 class IsDoctorOrAdmin(permissions.BasePermission):
-    """
-    Custom permission to allow only admins or the assigned doctor to update status.
-    """
     def has_object_permission(self, request, view, obj):
         user = request.user
         if not user.is_authenticated:
@@ -23,14 +20,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
 
     def get_permissions(self):
-        # Allow admins and assigned doctor to update the status
         if self.action in ['update', 'partial_update', 'destroy', 'update_status']:
             return [IsDoctorOrAdmin()]
-        # Allow any authenticated user to list or view appointments (queryset will filter them)
-        if self.action in ['list', 'retrieve']:
+        if self.action in ['list', 'retrieve', 'create']:
             return [permissions.IsAuthenticated()]
-        # Allow any user to create (perform_create will handle patient assignment)
-        return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
         user = self.request.user
@@ -48,26 +42,15 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         if user.is_authenticated and hasattr(user, 'role') and user.role == 'patient':
             serializer.save(patient=user)
         else:
-            # This allows an admin to create an appointment for anyone
             serializer.save()
 
     @action(detail=True, methods=['patch'], url_path='status', url_name='update_status', permission_classes=[IsDoctorOrAdmin])
     def update_status(self, request, pk=None):
-        """
-        Custom action to update the status of a single appointment.
-        Called via PATCH /api/appointments/{id}/status/
-        """
         appointment = self.get_object()
         new_status = request.data.get('status')
-
         if not new_status:
-            return Response(
-                {'error': 'The "status" field is required.'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+            return Response({'error': 'The \"status\" field is required.'}, status=status.HTTP_400_BAD_REQUEST)
         appointment.status = new_status
-        appointment.save(update_fields=['status']) # More efficient save
-
+        appointment.save(update_fields=['status'])
         serializer = self.get_serializer(appointment)
         return Response(serializer.data)
