@@ -5,6 +5,7 @@ import { ActivityService, Activity } from '../../services/activity.service';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
+import { OrderService } from '../../services/medicine_store_services/order.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -16,20 +17,26 @@ export class AdminDashboardComponent implements OnInit {
   users: any[] = [];
   latestUsers: any[] = [];
   appointments: any[] = [];
-  activities: Activity[] = []; 
-  loadingActivities = true;   
-  activityError = '';          
+  activities: Activity[] = [];
+  loadingActivities = true;
+  activityError = '';
+
+  orders: any[] = [];
+  latestOrders: any[] = [];
+  totalRevenue: number = 0; // <-- Add this
 
   constructor(
     private userService: UserService,
     private appointmentService: AppointmentService,
-    private activityService: ActivityService 
+    private activityService: ActivityService,
+    private orderService: OrderService // <-- Inject here
   ) {}
 
   ngOnInit() {
     this.loadUsers();
     this.loadAppointments();
-    this.loadActivities(); 
+    this.loadActivities();
+    this.loadOrders(); // <-- Load orders and revenue
   }
 
   loadUsers() {
@@ -45,7 +52,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  loadActivities() { 
+  loadActivities() {
     this.activityService.getRecentActivities().subscribe({
       next: (data) => {
         this.activities = data;
@@ -55,6 +62,14 @@ export class AdminDashboardComponent implements OnInit {
         this.activityError = 'Could not load recent activities.';
         this.loadingActivities = false;
       }
+    });
+  }
+
+  loadOrders() {
+    this.orderService.getAllOrdersAndRevenue().subscribe(data => {
+      this.orders = data.orders;
+      this.latestOrders = this.orders.slice(0, 5);
+      this.totalRevenue = data.total_revenue;
     });
   }
 }

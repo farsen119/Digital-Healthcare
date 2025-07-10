@@ -3,6 +3,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Medicine, Cart, CartItem, Order, OrderItem
 from .serializers import MedicineSerializer, CartSerializer, CartItemSerializer, OrderSerializer
+from django.db.models import Sum
+from rest_framework.permissions import IsAdminUser
+
 
 # Medicine APIs
 class MedicineListCreateView(generics.ListCreateAPIView):
@@ -87,5 +90,15 @@ class UserOrdersView(generics.ListAPIView):
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
     
+class AdminOrdersView(APIView):
+    permission_classes = [IsAdminUser]
 
+    def get(self, request):
+        orders = Order.objects.all().order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+        total_revenue = orders.aggregate(total=Sum('total_price'))['total'] or 0
+        return Response({
+            'orders': serializer.data,
+            'total_revenue': total_revenue
+        })
 

@@ -6,6 +6,8 @@ import { Observable } from 'rxjs';
 export class OrderService {
   private orderUrl = 'http://localhost:8000/api/orders/';
   private myOrdersUrl = 'http://localhost:8000/api/my-orders/';
+  private adminOrdersUrl = 'http://localhost:8000/api/admin-orders/';
+
 
   constructor(private http: HttpClient) {}
 
@@ -15,5 +17,9 @@ export class OrderService {
 
   getMyOrders(): Observable<any> {
     return this.http.get(this.myOrdersUrl);
+  }
+
+  getAllOrdersAndRevenue(): Observable<any> {
+    return this.http.get(this.adminOrdersUrl);
   }
 }
