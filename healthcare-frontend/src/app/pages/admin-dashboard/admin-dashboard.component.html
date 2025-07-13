@@ -61,7 +61,8 @@
           <i [ngClass]="{
             'bi-person-plus': activity.type === 'user',
             'bi-calendar-plus': activity.type === 'appointment',
-            'bi-file-earmark-medical': activity.type === 'prescription'
+            'bi-file-earmark-medical': activity.type === 'prescription',
+            'bi-bag': activity.type === 'order',
           }" class="me-2"></i>
           {{ activity.message }}
         </span>

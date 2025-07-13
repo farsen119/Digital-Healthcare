@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MedicineService } from '../../../../services/medicine_store_services/medicine.service';
+import { AdminSidebarComponent } from '../../../../components/admin-sidebar/admin-sidebar.component';
 
 @Component({
   selector: 'app-medicine-store-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminSidebarComponent],
   templateUrl: './medicine-store-settings.component.html',
 })
 export class MedicineStoreSettingsComponent implements OnInit {

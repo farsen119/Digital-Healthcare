@@ -27,7 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == 'profile':
             return [permissions.IsAuthenticated()]
         if self.action == 'list':
-            return [permissions.IsAdminUser()]
+            return [permissions.IsAuthenticated()]
         # Only admins can retrieve, update, or delete other users
         return [permissions.IsAdminUser()]
 

@@ -1,13 +1,56 @@
-<div style="text-align: center; margin-top: 40px;">
-  <h1>Welcome to the Healthcare App</h1>
-  <ng-container *ngIf="auth.isLoggedIn(); else notLoggedIn">
-    <p>You are logged in as <strong>{{ user?.role }}</strong> ({{ user?.username }}).</p>
-    <button (click)="logout()">Logout</button>
-    <a routerLink="/book-appointment" class="btn btn-primary">Book an Appointment</a>
-  </ng-container>
-  <ng-template #notLoggedIn>
-    <button type="button" routerLink="/login">Login</button>
-    <button type="button" routerLink="/register">Register</button>
-    <a routerLink="/book-appointment" class="btn btn-primary">Book an Appointment</a>
-  </ng-template>
+<!-- Main Content -->
+<div class="container-fluid" style="background-color: #eaf9e7; min-height: calc(100vh - 72px); padding: 40px 0;">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 text-center">
+      <div class="p-5 rounded-3" style="background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <!-- Logo at the top of the content -->
+        <img src="assets/Logo1.png" alt="Healthcare App Logo" style="height: 80px; margin-bottom: 20px;">
+        
+        <h1 class="display-4 mb-4" style="color: #013237;">Welcome to Digital Healthcare System</h1>
+        <p class="lead mb-5" style="color: #4ca771;">Your health is our priority</p>
+      
+        <ng-container *ngIf="auth.isLoggedIn(); else notLoggedIn">
+          <div class="card border-0 mx-auto" style="max-width: 500px; background-color: #c0e6ba;">
+            <div class="card-body py-4">
+              <p class="card-text fs-5">You are logged in as <strong style="color: #013237;">{{ user?.role }}</strong> ({{ user?.username }}).</p>
+              <div class="d-flex justify-content-center gap-3 mt-4">
+                <button (click)="logout()" class="btn btn-outline-dark">
+                  <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </button>
+                <a routerLink="/book-appointment" class="btn text-white" style="background-color: #4ca771;">
+                  <i class="fas fa-calendar-check me-1"></i>Book Appointment
+                </a>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        
+        <ng-template #notLoggedIn>
+          <div class="card border-0 mx-auto" style="max-width: 500px; background-color: #c0e6ba;">
+            <div class="card-body py-4">
+              <p class="card-text fs-5 mb-4">Please login or register to access all features</p>
+              <div class="d-flex justify-content-center gap-3 mb-3">
+                <a routerLink="/login" class="btn text-white" style="background-color: #4ca771;">
+                  <i class="fas fa-sign-in-alt me-1"></i>Login
+                </a>
+                <a routerLink="/register" class="btn text-white" style="background-color: #013237;">
+                  <i class="fas fa-user-plus me-1"></i>Register
+                </a>
+              </div>
+              <a routerLink="/book-appointment" class="btn btn-outline-dark">
+                <i class="fas fa-calendar-alt me-1"></i>Book as Guest
+              </a>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
 </div>
+
+<footer class="text-center py-3" style="background-color: #013237; color: #eaf9e7;">
+  <div class="container">
+    <img src="assets/Logo1.png" alt="Healthcare App Logo" style="height: 30px; margin-bottom: 10px;">
+    <p class="mb-0">© 2023 Healthcare App. All rights reserved.</p>
+  </div>
+</footer>

@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser
 from appointments.models import Appointment
 from prescriptions.models import Prescription
+from medicine_store.models import Order
 
 class RecentActivityView(APIView):
     permission_classes = [IsAuthenticated]
@@ -30,6 +31,16 @@ class RecentActivityView(APIView):
                 'message': f"Prescription added for {patient_name} by Dr. {pres.appointment.doctor.username}",
                 'date': pres.created_at,
             })
+
+        # Latest orders (NEW)
+        for order in Order.objects.order_by('-created_at')[:6]:
+            activities.append({
+                'type': 'order',
+                'message': f"Order placed for ₹{order.total_price:,.2f} by {order.user.username}",
+                'date': order.created_at,
+            })
+
+        # Sort all activities by date descending and take the top 6  
         activities.sort(key=lambda x: x['date'], reverse=True)
         activities = activities[:6]
         return Response(activities)
