@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser
 from appointments.models import Appointment
 from prescriptions.models import Prescription
-from medicine_store.models import Order
+from order_management.models import Order
 
 class RecentActivityView(APIView):
     permission_classes = [IsAuthenticated]

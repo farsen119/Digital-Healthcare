@@ -66,7 +66,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadOrders() {
-    this.orderService.getAllOrdersAndRevenue().subscribe(data => {
+    this.orderService.getAllOrders().subscribe(data => {
       this.orders = data.orders;
       this.latestOrders = this.orders.slice(0, 5);
       this.totalRevenue = data.total_revenue;

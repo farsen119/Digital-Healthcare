@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MedicineService } from '../../../../services/medicine_store_services/medicine.service';
 import { AdminSidebarComponent } from '../../../../components/admin-sidebar/admin-sidebar.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-medicine-store-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSidebarComponent],
+  imports: [CommonModule, FormsModule, AdminSidebarComponent,RouterLink],
   templateUrl: './medicine-store-settings.component.html',
 })
 export class MedicineStoreSettingsComponent implements OnInit {

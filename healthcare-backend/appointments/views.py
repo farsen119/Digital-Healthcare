@@ -22,6 +22,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['update', 'partial_update', 'destroy', 'update_status']:
             return [IsDoctorOrAdmin()]
+        if self.action == 'create':
+            return [permissions.AllowAny()]  
         if self.action in ['list', 'retrieve', 'create']:
             return [permissions.IsAuthenticated()]
         return [permissions.IsAuthenticated()]

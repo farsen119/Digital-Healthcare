@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'prescriptions',
     'activity',
     'medicine_store',
+    'order_management',
+
 
 
     

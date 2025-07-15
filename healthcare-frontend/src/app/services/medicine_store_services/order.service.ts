@@ -1,25 +1,34 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
-  private orderUrl = 'http://localhost:8000/api/orders/';
-  private myOrdersUrl = 'http://localhost:8000/api/my-orders/';
-  private adminOrdersUrl = 'http://localhost:8000/api/admin-orders/';
-
+  private baseUrl = environment.apiBaseUrl + 'order-management/';
 
   constructor(private http: HttpClient) {}
 
-  checkout(): Observable<any> {
-    return this.http.post(this.orderUrl, {});
+  getMyOrders() {
+    return this.http.get<any[]>(this.baseUrl + 'my-orders/');
   }
 
-  getMyOrders(): Observable<any> {
-    return this.http.get(this.myOrdersUrl);
+  checkout() {
+    return this.http.post(this.baseUrl + 'create/', {});
   }
 
-  getAllOrdersAndRevenue(): Observable<any> {
-    return this.http.get(this.adminOrdersUrl);
+  // Admin
+  getAllOrders() {
+    return this.http.get<any>(this.baseUrl + 'admin-orders/');
+  }
+
+  updateOrderStatus(orderId: number, status: string) {
+    return this.http.patch(this.baseUrl + `orders/${orderId}/status/`, { status });
+  }
+
+  cancelOrder(orderId: number, reason: string) {
+    return this.http.patch(this.baseUrl + `orders/${orderId}/status/`, {
+      status: 'cancelled',
+      cancel_reason: reason
+    });
   }
 }

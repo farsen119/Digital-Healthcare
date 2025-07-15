@@ -1,0 +1,26 @@
+<div class="container my-4">
+  <h2>All Orders</h2>
+  <div class="mb-3"><strong>Total Revenue:</strong> ₹{{ totalRevenue }}</div>
+  <div *ngIf="message" class="alert alert-info">{{ message }}</div>
+  <div *ngFor="let order of orders" class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">
+        Order #{{ order.id }}
+        <span class="badge bg-secondary">{{ order.status }}</span>
+      </h5>
+      <div>
+        <label>Status:</label>
+        <select [(ngModel)]="order.status" (change)="changeStatus(order, order.status)">
+          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li *ngFor="let item of order.items" class="list-group-item">
+          {{ item.medicine.name }} (x{{ item.quantity }}) - ₹{{ item.price }}
+        </li>
+      </ul>
+      <p class="mt-2"><strong>Total:</strong> ₹{{ order.total_price }}</p>
+      <p><strong>Date:</strong> {{ order.created_at | date:'short' }}</p>
+    </div>
+  </div>
+</div>

@@ -27,10 +27,9 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == 'profile':
             return [permissions.IsAuthenticated()]
         if self.action == 'list':
-            return [permissions.IsAuthenticated()]
+            return [permissions.AllowAny()]  # <-- This line allows public access to list users
         # Only admins can retrieve, update, or delete other users
         return [permissions.IsAdminUser()]
-
     @action(detail=False, methods=['get', 'put'], url_path='profile')
     def profile(self, request):
         user = request.user

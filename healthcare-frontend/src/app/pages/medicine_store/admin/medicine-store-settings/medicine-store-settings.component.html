@@ -8,6 +8,11 @@
     <!-- Main Content -->
     <div class="col-md-9 col-lg-10 pt-3">
       <h2>Medicine Store Settings</h2>
+        <!-- Admin Orders Button -->
+        <a class="btn btn-info mb-3" routerLink="/admin-orders">
+          <i class="bi bi-list-ul"></i> Admin Orders
+        </a>
+      
       <div *ngIf="message" class="alert alert-info">{{ message }}</div>
 
       <!-- Add Medicine Form -->
