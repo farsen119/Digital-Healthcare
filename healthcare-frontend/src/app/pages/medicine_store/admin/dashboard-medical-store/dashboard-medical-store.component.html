@@ -1,0 +1,65 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar Navigation -->
+    <div class="col-md-3 col-lg-2 bg-dark sidebar" style="min-height: 100vh;">
+      <app-admin-sidebar></app-admin-sidebar>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9 col-lg-10 pt-3">
+      <app-admin-medical-store-nav-bar></app-admin-medical-store-nav-bar>
+
+      <h2 class="mb-4">Medical Store Dashboard</h2>
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <h5 class="card-title">Total Orders</h5>
+              <h3 class="card-text">{{ totalOrders }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <h5 class="card-title">Total Revenue</h5>
+              <h3 class="card-text">₹{{ totalRevenue }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card bg-info text-white">
+            <div class="card-body">
+              <h5 class="card-title">Pending Orders</h5>
+              <h3 class="card-text">{{ pendingOrders }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Add more dashboard widgets or charts here -->
+      <div class="card">
+        <div class="card-header">Recent Orders</div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of recentOrders">
+                <td>{{ order.id }}</td>
+                <td><span class="badge bg-secondary">{{ order.status }}</span></td>
+                <td>₹{{ order.total_price }}</td>
+                <td>{{ order.created_at | date:'short' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

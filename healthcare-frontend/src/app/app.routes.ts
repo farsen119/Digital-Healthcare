@@ -27,6 +27,7 @@ import { CartComponent } from './pages/medicine_store/cart/cart.component';
 import { OrdersComponent } from './pages/medicine_store/orders/orders.component';
 import { MedicineStoreSettingsComponent } from './pages/medicine_store/admin/medicine-store-settings/medicine-store-settings.component';
 import { AdminOrdersComponent } from './pages/medicine_store/admin/admin-orders/admin-orders.component';
+import { DashboardMedicalStoreComponent } from './pages/medicine_store/admin/dashboard-medical-store/dashboard-medical-store.component';
 
 
 
@@ -62,6 +63,7 @@ export const routes: Routes = [
   { path: 'orders', component: OrdersComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'doctor', 'admin'] } },
   { path: 'medicine-store-settings', component: MedicineStoreSettingsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
   { path: 'admin-orders', component:AdminOrdersComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+  { path: 'dashboard-medical-store', component:DashboardMedicalStoreComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
 
 
 
