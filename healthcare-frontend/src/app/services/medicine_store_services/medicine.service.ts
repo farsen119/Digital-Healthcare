@@ -28,4 +28,9 @@ export class MedicineService {
   deleteMedicine(id: number) {
     return this.http.delete(`${this.apiUrl}${id}/`);
   }
+
+  // --- Add this method for restocking ---
+  // restockMedicine(id: number, amount: number) {
+  //   return this.http.post(`${this.apiUrl}${id}/restock/`, { amount });
+  // }
 }

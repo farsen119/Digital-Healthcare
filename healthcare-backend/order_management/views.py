@@ -5,7 +5,8 @@ from rest_framework.decorators import action
 from django.db.models import Sum
 from .models import Order, OrderItem
 from .serializers import OrderSerializer
-from medicine_store.models import Cart, CartItem, Medicine
+from medicine_store.models import Cart, CartItem, Medicine, StockHistory
+
 
 class OrderCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -24,6 +25,13 @@ class OrderCreateView(APIView):
             OrderItem.objects.create(order=order, medicine=item.medicine, quantity=item.quantity, price=price)
             item.medicine.stock -= item.quantity
             item.medicine.save()
+            #stock history added
+            StockHistory.objects.create(
+                medicine=item.medicine,
+                change=-item.quantity,
+                reason='sold',
+                user=request.user
+            )
             total_price += price
         order.total_price = total_price
         order.save()

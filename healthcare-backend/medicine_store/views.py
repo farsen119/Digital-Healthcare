@@ -1,8 +1,8 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Medicine, Cart, CartItem
-from .serializers import MedicineSerializer, CartSerializer
+from .models import Medicine, Cart, CartItem, StockHistory
+from .serializers import MedicineSerializer, CartSerializer, StockHistorySerializer
 from django.shortcuts import get_object_or_404
 
 # Medicine APIs
@@ -56,3 +56,8 @@ class CartView(APIView):
         CartItem.objects.filter(cart=cart, medicine=medicine).delete()
         serializer = CartSerializer(cart)
         return Response(serializer.data)
+    
+class StockHistoryListView(generics.ListAPIView):
+    queryset = StockHistory.objects.select_related('medicine', 'user').order_by('-date')
+    serializer_class = StockHistorySerializer
+    permission_classes = [permissions.IsAdminUser]

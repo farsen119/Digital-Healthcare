@@ -10,6 +10,18 @@
       <app-admin-medical-store-nav-bar></app-admin-medical-store-nav-bar>
 
       <h2 class="mb-4">Medical Store Dashboard</h2>
+
+      <!-- Low Stock Alert -->
+      <div *ngIf="lowStockMedicines.length > 0" class="alert alert-warning">
+        <strong>Low Stock Alert!</strong>
+        <ul>
+          <li *ngFor="let med of lowStockMedicines">
+            {{ med.name }} (Stock: {{ med.stock }})
+          </li>
+        </ul>
+      </div>
+
+      <!-- Dashboard Stats -->
       <div class="row mb-4">
         <div class="col-md-4">
           <div class="card bg-primary text-white">
@@ -36,8 +48,9 @@
           </div>
         </div>
       </div>
-      <!-- Add more dashboard widgets or charts here -->
-      <div class="card">
+
+      <!-- Recent Orders Table -->
+      <div class="card mb-4">
         <div class="card-header">Recent Orders</div>
         <div class="card-body p-0">
           <table class="table table-striped mb-0">
@@ -60,6 +73,3 @@
           </table>
         </div>
       </div>
-    </div>
-  </div>
-</div>

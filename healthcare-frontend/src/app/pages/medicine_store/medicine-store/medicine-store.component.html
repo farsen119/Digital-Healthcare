@@ -23,7 +23,10 @@
           <h5 class="card-title">{{ med.name }}</h5>
           <p class="card-text">{{ med.description }}</p>
           <p class="card-text"><strong>Price:</strong> ₹{{ med.price }}</p>
-          <p class="card-text"><strong>Stock:</strong> {{ med.stock }}</p>
+          <p class="card-text">
+            <strong>Stock:</strong> {{ med.stock }}
+            <span *ngIf="med.stock > 0 && med.stock < 10" class="badge bg-danger ms-2">Only a few left!</span>
+          </p>
         </div>
         <div class="card-footer bg-white">
           <button class="btn btn-success w-100" (click)="addToCart(med.id)" [disabled]="med.stock < 1">
