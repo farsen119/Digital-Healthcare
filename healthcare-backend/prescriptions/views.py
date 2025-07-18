@@ -1,8 +1,10 @@
-from rest_framework import viewsets, permissions, serializers
+from rest_framework import viewsets, permissions, serializers, status
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
 from .models import Prescription
 from .serializers import PrescriptionSerializer
 from appointments.models import Appointment
+from notifications.models import Notification  # <-- Import Notification
 
 class PrescriptionViewSet(viewsets.ModelViewSet):
     queryset = Prescription.objects.all()
@@ -28,7 +30,15 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError("Prescriptions can only be added to 'accepted' appointments.")
         if Prescription.objects.filter(appointment=appointment).exists():
             raise serializers.ValidationError("A prescription already exists for this appointment.")
-        serializer.save()
+        prescription = serializer.save()
+
+        # --- Notification for Patient ---
+        if appointment.patient:
+            Notification.objects.create(
+                user=appointment.patient,
+                message=f"A new prescription has been added for your appointment on {appointment.date} at {appointment.time} with Dr. {appointment.doctor.get_full_name()}.",
+                appointment=appointment
+            )
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()

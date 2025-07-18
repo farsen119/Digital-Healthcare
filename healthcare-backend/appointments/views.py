@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Appointment
 from .serializers import AppointmentSerializer
+from notifications.models import Notification  # Make sure this import is correct
 
 class IsDoctorOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -42,17 +43,30 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         if user.is_authenticated and hasattr(user, 'role') and user.role == 'patient':
-            serializer.save(patient=user)
+            appointment = serializer.save(patient=user)
         else:
-            serializer.save()
+            appointment = serializer.save()
+        # --- Notification for Doctor ---
+        Notification.objects.create(
+            user=appointment.doctor,
+            message=f"New appointment booked by {appointment.patient.get_full_name() if appointment.patient else appointment.patient_name} for {appointment.date} at {appointment.time}.",
+            appointment=appointment
+        )
 
     @action(detail=True, methods=['patch'], url_path='status', url_name='update_status', permission_classes=[IsDoctorOrAdmin])
     def update_status(self, request, pk=None):
         appointment = self.get_object()
         new_status = request.data.get('status')
         if not new_status:
-            return Response({'error': 'The \"status\" field is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'The "status" field is required.'}, status=status.HTTP_400_BAD_REQUEST)
         appointment.status = new_status
         appointment.save(update_fields=['status'])
+        # --- Notification for Patient ---
+        if appointment.patient:
+            Notification.objects.create(
+                user=appointment.patient,
+                message=f"Your appointment on {appointment.date} at {appointment.time} with Dr. {appointment.doctor.get_full_name()} was {new_status}.",
+                appointment=appointment
+            )
         serializer = self.get_serializer(appointment)
         return Response(serializer.data)

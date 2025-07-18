@@ -3,11 +3,12 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { DashboardNotificationComponent } from '../dashboard-notification/dashboard-notification.component';
 
 @Component({
   selector: 'app-doctor-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule,RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, DashboardNotificationComponent],
   templateUrl: './doctor-dashboard.component.html'
 })
 export class DoctorDashboardComponent implements OnInit {
@@ -42,7 +43,6 @@ export class DoctorDashboardComponent implements OnInit {
   update() {
     this.loading = true;
     this.errorMsg = '';
-    // Prepare data for FormData
     const data: any = {
       first_name: this.user.first_name,
       last_name: this.user.last_name,

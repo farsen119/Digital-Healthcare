@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'medicine_store',
     'order_management',
 
+    'notifications'
+
 
 
     

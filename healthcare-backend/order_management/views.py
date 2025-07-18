@@ -6,7 +6,7 @@ from django.db.models import Sum
 from .models import Order, OrderItem
 from .serializers import OrderSerializer
 from medicine_store.models import Cart, CartItem, Medicine, StockHistory
-
+from notifications.models import Notification  # <-- Import Notification
 
 class OrderCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -25,7 +25,7 @@ class OrderCreateView(APIView):
             OrderItem.objects.create(order=order, medicine=item.medicine, quantity=item.quantity, price=price)
             item.medicine.stock -= item.quantity
             item.medicine.save()
-            #stock history added
+            # Stock history added
             StockHistory.objects.create(
                 medicine=item.medicine,
                 change=-item.quantity,
@@ -88,7 +88,18 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.status = new_status
             order.cancel_reason = cancel_reason
             order.save(update_fields=['status', 'cancel_reason'])
+            # Notify patient about cancellation
+            Notification.objects.create(
+                user=order.user,
+                message=f"Your order #{order.id} has been cancelled. Reason: {cancel_reason}"
+            )
         else:
             order.status = new_status
             order.save(update_fields=['status'])
+            # Notify patient about status update
+            Notification.objects.create(
+                user=order.user,
+                message=f"Your order #{order.id} status has been updated to '{new_status}'."
+            )
+
         return Response(OrderSerializer(order).data)

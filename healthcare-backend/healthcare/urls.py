@@ -12,6 +12,8 @@ urlpatterns = [
     path('api/', include('medicine_store.urls')),
     path('api/order-management/', include('order_management.urls')),
 
+    path('api/notifications/', include('notifications.urls')),
+
 
 
 ]
