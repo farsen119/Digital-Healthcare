@@ -3,12 +3,14 @@ import { AppointmentService } from '../../services/appointment.service';
 import { AppointmentResponse } from '../../models/appointment.model';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router'; // Use RouterModule instead of RouterLink
+import { SideNavbarComponent } from '../doctor-dashboard/side-navbar/side-navbar.component';
 
 @Component({
   selector: 'app-doctor-appointments',
   standalone: true,
-  imports: [CommonModule, RouterModule], // Use RouterModule
-  templateUrl: './doctor-appointments.component.html'
+  imports: [CommonModule, RouterModule, SideNavbarComponent], // Use RouterModule
+  templateUrl: './doctor-appointments.component.html',
+  styleUrls: ['./doctor-appointments.component.css']
 })
 export class DoctorAppointmentsComponent implements OnInit {
   appointments: AppointmentResponse[] = [];

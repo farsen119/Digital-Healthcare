@@ -5,6 +5,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 import { DoctorDashboardComponent } from './pages/doctor-dashboard/doctor-dashboard.component';
+import { DoctorProfileComponent } from './pages/doctor-dashboard/doctor-profile/doctor-profile.component';
 import { PatientDashboardComponent } from './pages/patient-dashboard/patient-dashboard.component';
 import { PatientProfileComponent } from './pages/patient-dashboard/patient-profile/patient-profile.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
@@ -37,6 +38,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [NoAuthGuard] },
   { path: 'doctor-dashboard', component: DoctorDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },
+  { path: 'doctor-profile', component: DoctorProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },
   { path: 'patient-dashboard', component: PatientDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient'] } },
   { path: 'patient-profile', component: PatientProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient'] } },
   { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },

@@ -1,19 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { DashboardNotificationComponent } from '../dashboard-notification/dashboard-notification.component';
-import { SideNavbarComponent } from './side-navbar/side-navbar.component';
+import { SideNavbarComponent } from '../side-navbar/side-navbar.component';
 
 @Component({
-  selector: 'app-doctor-dashboard',
+  selector: 'app-doctor-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, DashboardNotificationComponent, SideNavbarComponent],
-  templateUrl: './doctor-dashboard.component.html',
-  styleUrls: ['./doctor-dashboard.component.css']
+  imports: [CommonModule, FormsModule, RouterLink, SideNavbarComponent],
+  templateUrl: './doctor-profile.component.html',
+  styleUrl: './doctor-profile.component.css'
 })
-export class DoctorDashboardComponent implements OnInit {
+export class DoctorProfileComponent implements OnInit {
   user: any = null;
   photo: File | null = null;
   loading = false;
@@ -50,8 +49,7 @@ export class DoctorDashboardComponent implements OnInit {
       last_name: this.user.last_name,
       email: this.user.email,
       phone: this.user.phone,
-      city: this.user.city,
-      specialization: this.user.specialization
+      city: this.user.city
     };
     if (this.photo) data.photo = this.photo;
     this.auth.updateProfile(data).subscribe({

@@ -1,74 +1,22 @@
-<div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h2>Doctor Dashboard</h2>
-    <div class="btn-toolbar mb-2 mb-md-0">
-      <button class="btn btn-primary" routerLink="/doctor-appointments">
-        <i class="bi bi-plus-circle me-2"></i>View Appointments
-      </button>
-      <app-dashboard-notification></app-dashboard-notification>
+<!-- Doctor Dashboard with Scrollable Main Content -->
+<div class="admin-dashboard-layout">
+  <!-- Fixed Sidebar -->
+  <div class="sidebar">
+    <app-side-navbar></app-side-navbar>
+  </div>
+
+  <!-- Scrollable Main Content -->
+  <div class="main-content-scrollable">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><i class="bi bi-person-badge me-2"></i> Doctor Dashboard</h2>
+      <div class="btn-group">
+        <button class="btn btn-primary" routerLink="/doctor-appointments">
+          <i class="bi bi-calendar-check me-2"></i>View Appointments
+        </button>
+        <app-dashboard-notification></app-dashboard-notification>
+      </div>
     </div>
+    <!-- You can add dashboard widgets or summary cards here if needed -->
   </div>
 </div>
-
-<!-- Show user info -->
-<div *ngIf="user && !showUpdateForm">
-  <p><strong>First Name:</strong> {{ user.first_name }}</p>
-  <p><strong>Last Name:</strong> {{ user.last_name }}</p>
-  <p><strong>Username:</strong> {{ user.username }}</p>
-  <p><strong>Email:</strong> {{ user.email }}</p>
-  <p><strong>Phone:</strong> {{ user.phone }}</p>
-  <p><strong>City:</strong> {{ user.city }}</p>
-  <p><strong>Specialization:</strong> {{ user.specialization }}</p>
-  <img *ngIf="user.photo" [src]="getPhotoUrl()" width="100" alt="Profile Photo">
-  <br>
-  <button (click)="openUpdateForm()">Update Details</button>
-</div>
-
-<!-- Update form -->
-<form *ngIf="user && showUpdateForm" (ngSubmit)="update()" enctype="multipart/form-data">
-  <div *ngIf="errorMsg" style="color: red; margin-bottom: 10px;">{{ errorMsg }}</div>
-  <label>
-    First Name:
-    <input [(ngModel)]="user.first_name" name="first_name" required>
-  </label>
-  <br>
-  <label>
-    Last Name:
-    <input [(ngModel)]="user.last_name" name="last_name" required>
-  </label>
-  <br>
-  <label>
-    Username:
-    <input [value]="user.username" disabled>
-  </label>
-  <br>
-  <label>
-    Email:
-    <input [(ngModel)]="user.email" name="email" required>
-  </label>
-  <br>
-  <label>
-    Phone:
-    <input [(ngModel)]="user.phone" name="phone" required>
-  </label>
-  <br>
-  <label>
-    City:
-    <input [(ngModel)]="user.city" name="city">
-  </label>
-  <br>
-  <label>
-    Specialization:
-    <input [(ngModel)]="user.specialization" name="specialization" required>
-  </label>
-  <br>
-  <label>
-    Profile Photo:
-    <input type="file" (change)="onFileChange($event)">
-  </label>
-  <br>
-  <img *ngIf="user.photo" [src]="getPhotoUrl()" width="100" alt="Profile Photo">
-  <br>
-  <button type="submit" [disabled]="loading">{{ loading ? 'Updating...' : 'Update' }}</button>
-  <button type="button" (click)="cancelUpdate()">Cancel</button>
-</form>

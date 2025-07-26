@@ -1,4 +1,4 @@
-/* Patient Sidebar - Blue Gradient for All Patient Pages */
+/* Doctor Sidebar - Blue Gradient for All Doctor Pages */
 .sidebar {
   background: linear-gradient(180deg, #2563eb 0%, #3b82f6 100%);
   color: #fff;
@@ -59,6 +59,13 @@
   font-size: 0.85rem;
   margin-bottom: 5px;
   font-weight: 500;
+}
+
+.debug-info {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.7rem;
+  display: block;
+  margin-top: 5px;
 }
 
 /* Sidebar Navigation Styles */

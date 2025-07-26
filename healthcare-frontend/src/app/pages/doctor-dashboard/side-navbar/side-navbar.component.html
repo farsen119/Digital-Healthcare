@@ -8,8 +8,8 @@
       </div>
     </div>
     <div class="profile-info">
-      <h6 class="profile-name">{{ user?.first_name || 'Patient' }} {{ user?.last_name || '' }}</h6>
-      <p class="profile-role">Patient</p>
+      <h6 class="profile-name">{{ user?.first_name || 'Doctor' }} {{ user?.last_name || '' }}</h6>
+      <p class="profile-role">Doctor</p>
     </div>
   </div>
   
@@ -17,24 +17,24 @@
   
   <ul class="nav flex-column">
     <li class="nav-item mb-2">
-      <a class="nav-link" routerLink="/patient-dashboard" routerLinkActive="active">
+      <a class="nav-link" routerLink="/doctor-dashboard" routerLinkActive="active">
         <i class="bi bi-speedometer2 me-2"></i> Dashboard
       </a>
     </li>
     <li class="nav-item mb-2">
-      <a class="nav-link" routerLink="/patient-appointments" routerLinkActive="active">
+      <a class="nav-link" routerLink="/doctor-appointments" routerLinkActive="active">
         <i class="bi bi-calendar-check me-2"></i> Appointments
       </a>
     </li>
     <li class="nav-item mb-2">
-      <a class="nav-link" routerLink="/patient-profile" routerLinkActive="active">
+      <a class="nav-link" routerLink="/doctor-profile" routerLinkActive="active">
         <i class="bi bi-person me-2"></i> Profile
       </a>
     </li>
     <li class="nav-item mb-2">
-      <a class="nav-link" routerLink="/patient-settings" routerLinkActive="active">
-        <i class="bi bi-gear me-2"></i> Settings
-      </a>
+        <a class="nav-link" routerLink="/patient-settings" routerLinkActive="active">
+            <i class="bi bi-gear me-2"></i> Settings
+        </a>
     </li>
   </ul>
   <hr class="text-white">
@@ -46,8 +46,8 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" routerLink="/patient-notifications">
-        <i class="bi bi-bell me-2"></i> Notifications
+      <a class="nav-link" routerLink="/book-appointment">
+        <i class="bi bi-calendar-plus me-2"></i> Book Appointment
       </a>
     </li>
   </ul>
