@@ -4,14 +4,15 @@ from .models import CustomUser
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ['username', 'email', 'role', 'first_name', 'last_name', 'specialization', 'phone', 'city']
-    list_filter = ['role', 'specialization', 'city']
+    list_display = ['username', 'email', 'role', 'first_name', 'last_name', 'specialization', 'phone', 'city', 'age', 'gender', 'is_live']
+    list_filter = ['role', 'specialization', 'city', 'gender', 'is_live']
     search_fields = ['username', 'email', 'first_name', 'last_name', 'specialization']
     
     # Fields to display in the admin form
     fieldsets = UserAdmin.fieldsets + (
-        ('Role Information', {'fields': ('role', 'specialization')}),
+        ('Role Information', {'fields': ('role', 'specialization', 'is_live')}),
         ('Contact Information', {'fields': ('phone', 'city', 'photo')}),
+        ('Personal Information', {'fields': ('age', 'gender')}),
         ('Doctor Information', {
             'fields': (
                 'license_number', 'experience_years', 'qualification', 
@@ -24,8 +25,9 @@ class CustomUserAdmin(UserAdmin):
     
     # Fields to display when adding a new user
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Role Information', {'fields': ('role', 'specialization')}),
+        ('Role Information', {'fields': ('role', 'specialization', 'is_live')}),
         ('Contact Information', {'fields': ('phone', 'city', 'photo')}),
+        ('Personal Information', {'fields': ('age', 'gender')}),
         ('Doctor Information', {
             'fields': (
                 'license_number', 'experience_years', 'qualification', 

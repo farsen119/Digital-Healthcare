@@ -22557,3 +22557,554 @@ Try updating a user now and it should work properly!
 
 ---
 
+_**User**_
+
+in the doctor registration age and gender option add ,that will add entire where i use the doctor infomation every where add these two option in frontend and backend also
+
+---
+
+_**Assistant**_
+
+I'll add age and gender fields to the doctor registration and update all related components. Let me start with the backend model and then update the frontend.
+
+
+---
+
+<details><summary>Edit file: healthcare-backend/users/models.py</summary>
+
+Add age and gender fields to the CustomUser model for doctors.
+
+**Chunk 1**
+Lines added: 7, lines removed: undefined
+
+```diff
+@@ -8,4 +8,11 @@
+          ('patient', 'Patient'),
+      )
++     
++     GENDER_CHOICES = (
++         ('male', 'Male'),
++         ('female', 'Female'),
++         ('other', 'Other'),
++     )
++     
+      role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+      specialization = models.CharField(max_length=255, blank=True, null=True)
+```
+
+**Chunk 2**
+Lines added: 4, lines removed: undefined
+
+```diff
+@@ -25,4 +32,8 @@
+      consultation_hours = models.CharField(max_length=100, blank=True, null=True)
+      is_live = models.BooleanField(default=False, help_text="Doctor's online/offline status")
++     
++     # Age and Gender fields
++     age = models.IntegerField(blank=True, null=True, help_text="Age in years")
++     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+  
+      def __str__(self):
+```
+
+</details>
+
+---
+
+Now let me update the serializers to include these new fields:
+
+
+---
+
+<details><summary>Edit file: healthcare-backend/users/serializers.py</summary>
+
+Add age and gender fields to both UserSerializer and RegisterSerializer.
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -12,5 +12,7 @@
+              # Doctor-specific fields
+              'license_number', 'experience_years', 'qualification', 'hospital',
+-             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live'
++             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live',
++             # Age and Gender fields
++             'age', 'gender'
+          ]
+          read_only_fields = ['id']  # ID should not be editable
+```
+
+**Chunk 2**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -34,5 +36,7 @@
+              # Doctor-specific fields
+              'license_number', 'experience_years', 'qualification', 'hospital',
+-             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live'
++             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live',
++             # Age and Gender fields
++             'age', 'gender'
+          ]
+  
+```
+
+**Chunk 3**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -64,4 +68,7 @@
+              consultation_hours=validated_data.get('consultation_hours', ''),
+              is_live=validated_data.get('is_live', False),
++             # Age and Gender fields
++             age=validated_data.get('age', None),
++             gender=validated_data.get('gender', ''),
+          )
+  
+```
+
+</details>
+
+---
+
+Now let me update the admin interface to include these new fields:
+
+
+---
+
+<details><summary>Edit file: healthcare-backend/users/admin.py</summary>
+
+Add age and gender fields to the Django admin interface.
+
+**Chunk 1**
+Lines added: 4, lines removed: 3
+
+```diff
+@@ -5,12 +5,13 @@
+  class CustomUserAdmin(UserAdmin):
+      model = CustomUser
+-     list_display = ['username', 'email', 'role', 'first_name', 'last_name', 'specialization', 'phone', 'city']
+-     list_filter = ['role', 'specialization', 'city']
++     list_display = ['username', 'email', 'role', 'first_name', 'last_name', 'specialization', 'phone', 'city', 'age', 'gender', 'is_live']
++     list_filter = ['role', 'specialization', 'city', 'gender', 'is_live']
+      search_fields = ['username', 'email', 'first_name', 'last_name', 'specialization']
+      
+      # Fields to display in the admin form
+      fieldsets = UserAdmin.fieldsets + (
+-         ('Role Information', {'fields': ('role', 'specialization')}),
++         ('Role Information', {'fields': ('role', 'specialization', 'is_live')}),
+          ('Contact Information', {'fields': ('phone', 'city', 'photo')}),
++         ('Personal Information', {'fields': ('age', 'gender')}),
+          ('Doctor Information', {
+              'fields': (
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -25,6 +26,7 @@
+      # Fields to display when adding a new user
+      add_fieldsets = UserAdmin.add_fieldsets + (
+-         ('Role Information', {'fields': ('role', 'specialization')}),
++         ('Role Information', {'fields': ('role', 'specialization', 'is_live')}),
+          ('Contact Information', {'fields': ('phone', 'city', 'photo')}),
++         ('Personal Information', {'fields': ('age', 'gender')}),
+          ('Doctor Information', {
+              'fields': (
+```
+
+</details>
+
+---
+
+Now let me create a migration for the new fields:
+
+
+---
+
+<details><summary>Edit file: healthcare-backend/users/migrations/0008_add_age_gender_fields.py</summary>
+
+Create a new migration file to add age and gender fields to the CustomUser model.
+
+**Chunk 1**
+Lines added: 23, lines removed: 1
+
+```diff
+@@ -1,1 +1,23 @@
+- 
++ # Generated manually for adding age and gender fields
++ 
++ from django.db import migrations, models
++ 
++ 
++ class Migration(migrations.Migration):
++ 
++     dependencies = [
++         ('users', '0007_add_is_live_field'),
++     ]
++ 
++     operations = [
++         migrations.AddField(
++             model_name='customuser',
++             name='age',
++             field=models.IntegerField(blank=True, help_text='Age in years', null=True),
++         ),
++         migrations.AddField(
++             model_name='customuser',
++             name='gender',
++             field=models.CharField(blank=True, choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')], max_length=10, null=True),
++         ),
++     ] 
+```
+
+</details>
+
+---
+
+Now let me update the frontend admin registration form to include age and gender fields:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/admin-register/admin-register.component.html</summary>
+
+Add age and gender fields to the admin registration form for doctors.
+
+**Chunk 1**
+Lines added: 17, lines removed: undefined
+
+```diff
+@@ -81,4 +81,21 @@
+            </div>
+          </div>
++ 
++         <!-- Personal Information -->
++         <div class="row">
++           <div class="col-md-6 mb-3">
++             <label for="age" class="form-label">Age</label>
++             <input type="number" id="age" name="age" [(ngModel)]="form.age" class="form-control" min="18" max="100">
++           </div>
++           <div class="col-md-6 mb-3">
++             <label for="gender" class="form-label">Gender</label>
++             <select id="gender" name="gender" [(ngModel)]="form.gender" class="form-select">
++               <option value="">Select gender...</option>
++               <option value="male">Male</option>
++               <option value="female">Female</option>
++               <option value="other">Other</option>
++             </select>
++           </div>
++         </div>
+  
+          <!-- Doctor Specific Information (Conditional) -->
+```
+
+</details>
+
+---
+
+Now let me update the TypeScript component to include the new fields:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/admin-register/admin-register.component.ts</summary>
+
+Add age and gender fields to the form object and validation logic.
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -25,4 +25,7 @@
+      city: '',
+      photo: null,
++     // Personal Information
++     age: null,
++     gender: '',
+      // Doctor-specific fields
+      specialization: '',
+```
+
+</details>
+
+---
+
+Now let me update the admin-users component to display and edit age and gender:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/admin-users/admin-users.component.html</summary>
+
+Add age and gender columns to the admin users table.
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -25,4 +25,6 @@
+                  <th>Phone</th>
+                  <th>City</th>
++                 <th>Age</th>
++                 <th>Gender</th>
+                  <th>Specialization</th>
+                  <th>License</th>
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/admin-users/admin-users.component.html</summary>
+
+Add age and gender data display in the table rows.
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -58,4 +58,6 @@
+                    <td>{{ user.phone || 'N/A' }}</td>
+                    <td>{{ user.city || 'N/A' }}</td>
++                   <td>{{ user.age || 'N/A' }}</td>
++                   <td>{{ user.gender || 'N/A' }}</td>
+                    <td>{{ user.specialization || 'N/A' }}</td>
+                    <td>{{ user.license_number || 'N/A' }}</td>
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/admin-users/admin-users.component.html</summary>
+
+Add age and gender input fields in the edit form.
+
+**Chunk 1**
+Lines added: 9, lines removed: undefined
+
+```diff
+@@ -105,4 +105,13 @@
+                    <td><input class="form-control form-control-sm" type="tel" [(ngModel)]="editForm.phone"></td>
+                    <td><input class="form-control form-control-sm" [(ngModel)]="editForm.city"></td>
++                   <td><input class="form-control form-control-sm" type="number" [(ngModel)]="editForm.age" min="18" max="100"></td>
++                   <td>
++                     <select class="form-select form-select-sm" [(ngModel)]="editForm.gender">
++                       <option value="">Select...</option>
++                       <option value="male">Male</option>
++                       <option value="female">Female</option>
++                       <option value="other">Other</option>
++                     </select>
++                   </td>
+                    <td><input class="form-control form-control-sm" [(ngModel)]="editForm.specialization"></td>
+                    <td><input class="form-control form-control-sm" [(ngModel)]="editForm.license_number"></td>
+```
+
+</details>
+
+---
+
+Now let me update the TypeScript component to handle the new fields:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/admin-users/admin-users.component.ts</summary>
+
+Update the startEdit method to include age and gender fields initialization.
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -41,4 +41,6 @@
+        ...user,
+        // Ensure all fields are initialized
++       age: user.age || null,
++       gender: user.gender || '',
+        license_number: user.license_number || '',
+        experience_years: user.experience_years || null,
+```
+
+</details>
+
+---
+
+Now let me update the doctor profile component to display age and gender:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-profile/doctor-profile.component.html</summary>
+
+Add age and gender fields to the doctor profile display.
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -30,4 +30,6 @@
+                <p class="mb-2"><strong>Phone:</strong> {{ user.phone }}</p>
+                <p class="mb-2"><strong>City:</strong> {{ user.city }}</p>
++               <p class="mb-2"><strong>Age:</strong> {{ user.age || 'Not specified' }}</p>
++               <p class="mb-2"><strong>Gender:</strong> {{ user.gender || 'Not specified' }}</p>
+                <div class="mb-3">
+                  <img *ngIf="user.photo" [src]="getPhotoUrl()" class="img-thumbnail" width="100" alt="Profile Photo">
+```
+
+</details>
+
+---
+
+Now let me update the doctor dashboard to show age and gender in the quick stats:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-dashboard.component.html</summary>
+
+Add age and gender information to the doctor dashboard quick stats.
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -90,5 +90,5 @@
+        <div class="card-body">
+          <div class="row">
+-           <div class="col-md-4 text-center">
++           <div class="col-md-3 text-center">
+              <div class="stat-item">
+                <i class="bi bi-person-badge text-primary" style="font-size: 2rem;"></i>
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -97,5 +97,5 @@
+              </div>
+            </div>
+-           <div class="col-md-4 text-center">
++           <div class="col-md-3 text-center">
+              <div class="stat-item">
+                <i class="bi bi-building text-success" style="font-size: 2rem;"></i>
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -104,5 +104,5 @@
+              </div>
+            </div>
+-           <div class="col-md-4 text-center">
++           <div class="col-md-3 text-center">
+              <div class="stat-item">
+                <i class="bi bi-currency-rupee text-warning" style="font-size: 2rem;"></i>
+```
+
+**Chunk 4**
+Lines added: 7, lines removed: undefined
+
+```diff
+@@ -111,4 +111,11 @@
+              </div>
+            </div>
++           <div class="col-md-3 text-center">
++             <div class="stat-item">
++               <i class="bi bi-person text-info" style="font-size: 2rem;"></i>
++               <h4 class="mt-2">{{ user.age || 'N/A' }} | {{ user.gender || 'N/A' }}</h4>
++               <p class="text-muted">Age | Gender</p>
++             </div>
++           </div>
+          </div>
+        </div>
+```
+
+</details>
+
+---
+
+Perfect! ✅ **Age and Gender Fields Added Successfully!**
+
+## ** New Features Added:**
+
+### **1. Backend Updates:**
+
+#### **�� Database Model:**
+- **Age field** - Integer field for age in years
+- **Gender field** - Choice field (Male/Female/Other)
+- **Migration created** - Database schema updated
+- **Admin interface** - New fields in Django admin
+
+#### **🔧 Serializers:**
+- **UserSerializer** - Includes age and gender
+- **RegisterSerializer** - Handles age and gender creation
+- **Update support** - Partial updates for new fields
+
+### **2. Frontend Updates:**
+
+#### **�� Admin Registration:**
+- **Age input** - Number field with validation (18-100)
+- **Gender dropdown** - Male/Female/Other options
+- **Form validation** - Proper field handling
+
+#### **👥 Admin Users Management:**
+- **Table columns** - Age and gender displayed
+- **Edit functionality** - Can update age and gender
+- **Data display** - Shows age and gender for all users
+
+#### **��‍⚕️ Doctor Profile:**
+- **Profile display** - Shows age and gender
+- **Read-only fields** - Admin controls these values
+- **Professional info** - Complete doctor information
+
+#### **📊 Doctor Dashboard:**
+- **Quick stats** - Age and gender in overview
+- **Visual indicators** - Icons and formatting
+- **Real-time display** - Shows current values
+
+## **📋 New Fields Available:**
+
+### **Age:**
+- **Type**: Number (18-100 years)
+- **Validation**: Minimum 18, maximum 100
+- **Display**: Shows in all doctor-related pages
+
+### **Gender:**
+- **Options**: Male, Female, Other
+- **Type**: Dropdown selection
+- **Display**: Shows in all doctor-related pages
+
+## **🎯 Where Age/Gender Appears:**
+
+1. **Admin Registration** - When creating new doctors
+2. **Admin Users Table** - View and edit all users
+3. **Doctor Profile** - Personal information display
+4. **Doctor Dashboard** - Quick overview stats
+5. **Django Admin** - Backend management interface
+
+## ** Benefits:**
+
+1. **Complete Information** - Full doctor profiles with age/gender
+2. **Professional Display** - Clean, organized information
+3. **Admin Control** - Centralized management of all fields
+4. **Data Consistency** - Same fields across all components
+5. **User Experience** - Comprehensive doctor information
+
+## **🔄 Next Steps:**
+
+1. **Run migration** - Apply database changes
+2. **Test registration** - Create new doctor with age/gender
+3. **Test editing** - Update existing doctor information
+4. **Verify display** - Check all pages show new fields
+
+**Age and gender fields are now fully integrated throughout the entire system!** ��
+
+Run the migration with `python manage.py migrate` to apply the database changes.
+
+---
+

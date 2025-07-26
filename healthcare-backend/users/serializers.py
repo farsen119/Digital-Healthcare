@@ -11,7 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
             'specialization', 'photo', 'phone', 'city',
             # Doctor-specific fields
             'license_number', 'experience_years', 'qualification', 'hospital',
-            'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live'
+            'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live',
+            # Age and Gender fields
+            'age', 'gender'
         ]
         read_only_fields = ['id']  # ID should not be editable
 
@@ -33,7 +35,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             'specialization', 'photo', 'phone', 'city',
             # Doctor-specific fields
             'license_number', 'experience_years', 'qualification', 'hospital',
-            'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live'
+            'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live',
+            # Age and Gender fields
+            'age', 'gender'
         ]
 
     def validate_username(self, value):
@@ -63,6 +67,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             available_days=validated_data.get('available_days', ''),
             consultation_hours=validated_data.get('consultation_hours', ''),
             is_live=validated_data.get('is_live', False),
+            # Age and Gender fields
+            age=validated_data.get('age', None),
+            gender=validated_data.get('gender', ''),
         )
 
         return user

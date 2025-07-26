@@ -81,6 +81,23 @@
           </div>
         </div>
 
+        <!-- Personal Information -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="age" class="form-label">Age</label>
+            <input type="number" id="age" name="age" [(ngModel)]="form.age" class="form-control" min="18" max="100">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="gender" class="form-label">Gender</label>
+            <select id="gender" name="gender" [(ngModel)]="form.gender" class="form-select">
+              <option value="">Select gender...</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
         <!-- Doctor Specific Information (Conditional) -->
         <div *ngIf="form.role === 'doctor'">
           <hr class="my-4">

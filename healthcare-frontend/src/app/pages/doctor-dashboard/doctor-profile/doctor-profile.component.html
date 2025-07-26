@@ -29,6 +29,8 @@
             <div class="col-md-6">
               <p class="mb-2"><strong>Phone:</strong> {{ user.phone }}</p>
               <p class="mb-2"><strong>City:</strong> {{ user.city }}</p>
+              <p class="mb-2"><strong>Age:</strong> {{ user.age || 'Not specified' }}</p>
+              <p class="mb-2"><strong>Gender:</strong> {{ user.gender || 'Not specified' }}</p>
               <div class="mb-3">
                 <img *ngIf="user.photo" [src]="getPhotoUrl()" class="img-thumbnail" width="100" alt="Profile Photo">
               </div>

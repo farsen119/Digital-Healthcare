@@ -40,6 +40,8 @@ export class AdminUsersComponent implements OnInit {
     this.editForm = { 
       ...user,
       // Ensure all fields are initialized
+      age: user.age || null,
+      gender: user.gender || '',
       license_number: user.license_number || '',
       experience_years: user.experience_years || null,
       qualification: user.qualification || '',

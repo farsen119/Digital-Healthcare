@@ -24,6 +24,9 @@ export class AdminRegisterComponent {
     phone: '',
     city: '',
     photo: null,
+    // Personal Information
+    age: null,
+    gender: '',
     // Doctor-specific fields
     specialization: '',
     license_number: '',

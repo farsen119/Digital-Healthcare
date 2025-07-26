@@ -7,6 +7,13 @@ class CustomUser(AbstractUser):
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
     )
+    
+    GENDER_CHOICES = (
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    )
+    
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     specialization = models.CharField(max_length=255, blank=True, null=True)
     photo = models.ImageField(upload_to='profile/', blank=True, null=True)
@@ -24,6 +31,10 @@ class CustomUser(AbstractUser):
     available_days = models.CharField(max_length=100, blank=True, null=True)
     consultation_hours = models.CharField(max_length=100, blank=True, null=True)
     is_live = models.BooleanField(default=False, help_text="Doctor's online/offline status")
+    
+    # Age and Gender fields
+    age = models.IntegerField(blank=True, null=True, help_text="Age in years")
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
 
     def __str__(self):
         return f"{self.username} - {self.role}"
