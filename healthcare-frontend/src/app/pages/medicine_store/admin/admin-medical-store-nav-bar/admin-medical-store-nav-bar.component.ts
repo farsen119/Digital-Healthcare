@@ -6,6 +6,6 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   templateUrl: './admin-medical-store-nav-bar.component.html',
-  styleUrls: ['./admin-medical-store-nav-bar.component.scss']
+  styleUrls: ['./admin-medical-store-nav-bar.component.css']
 })
 export class AdminMedicalStoreNavBarComponent {}

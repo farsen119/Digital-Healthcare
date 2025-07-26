@@ -10,7 +10,8 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
   selector: 'app-admin-users',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, AdminSidebarComponent],
-  templateUrl: './admin-users.component.html'
+  templateUrl: './admin-users.component.html',
+  styleUrls: ['./admin-users.component.css']
 })
 export class AdminUsersComponent implements OnInit {
   users: any[] = [];

@@ -6,6 +6,6 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   templateUrl: './admin-sidebar.component.html',
-  styleUrl: './admin-sidebar.component.css'
+  styleUrls: ['./admin-sidebar.component.css']
 })
 export class AdminSidebarComponent {}

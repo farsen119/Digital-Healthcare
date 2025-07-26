@@ -1,46 +1,48 @@
-<div class="container-fluid">
-  <div class="row">
-    <!-- Sidebar Navigation (Grid column, not fixed) -->
-    <div class="col-md-3 col-lg-2 bg-dark sidebar" style="min-height: 100vh;">
-      <app-admin-sidebar></app-admin-sidebar>
-    </div>
+<!-- Admin Prescription List with Scrollable Main Content -->
+<div class="admin-dashboard-layout">
+  <!-- Fixed Sidebar -->
+  <div class="sidebar">
+    <app-admin-sidebar></app-admin-sidebar>
+  </div>
 
-    <!-- Main Content (Grid column) -->
-    <div class="col-md-9 col-lg-10 pt-3">
-      <!-- Your main content here -->
-      <h2>All Prescriptions</h2>
-      <p>A list of all prescriptions issued across the clinic.</p>
+  <!-- Scrollable Main Content -->
+  <div class="main-content-scrollable">
+    <h2>All Prescriptions</h2>
+    <p>A list of all prescriptions issued across the clinic.</p>
 
-      <div *ngIf="isLoading" class="text-center">Loading...</div>
-      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+    <div *ngIf="isLoading" class="text-center">Loading...</div>
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
-      <table class="table table-striped" *ngIf="!isLoading && prescriptions.length > 0">
-        <thead>
-          <tr>
-            <th>Issued On</th>
-            <th>Patient</th>
-            <th>Doctor</th>
-            <th>For Appointment On</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let pres of prescriptions">
-            <td>{{ pres.created_at | date: 'medium' }}</td>
-            <td>{{ pres.patient_name }}</td>
-            <td>Dr. {{ pres.doctor_name }}</td>
-            <td>{{ pres.appointment_date | date: 'longDate' }}</td>
-            <td>
-              <a [routerLink]="['/admin/prescriptions/view', pres.appointment]" class="btn btn-secondary btn-sm">
-                View / Manage
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card">
+      <div class="card-body">
+        <table class="table table-striped" *ngIf="!isLoading && prescriptions.length > 0">
+          <thead class="table-dark">
+            <tr>
+              <th>Issued On</th>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>For Appointment On</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let pres of prescriptions">
+              <td>{{ pres.created_at | date: 'medium' }}</td>
+              <td>{{ pres.patient_name }}</td>
+              <td>Dr. {{ pres.doctor_name }}</td>
+              <td>{{ pres.appointment_date | date: 'longDate' }}</td>
+              <td>
+                <a [routerLink]="['/admin/prescriptions/view', pres.appointment]" class="btn btn-secondary btn-sm">
+                  View / Manage
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-      <div *ngIf="!isLoading && prescriptions.length === 0">
-        <p>No prescriptions have been issued yet.</p>
+        <div *ngIf="!isLoading && prescriptions.length === 0">
+          <p>No prescriptions have been issued yet.</p>
+        </div>
       </div>
     </div>
   </div>

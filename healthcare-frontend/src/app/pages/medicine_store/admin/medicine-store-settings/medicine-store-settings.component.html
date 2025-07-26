@@ -1,15 +1,19 @@
-<div class="container-fluid">
-  <div class="row">
-    <!-- Sidebar Navigation -->
-    <div class="col-md-3 col-lg-2 bg-dark sidebar" style="min-height: 100vh;">
-      <app-admin-sidebar></app-admin-sidebar>
+<!-- Medicine Store Settings with Fixed Internal Navbar and Scrollable Main Content -->
+<div class="admin-dashboard-layout">
+  <!-- Fixed Sidebar -->
+  <div class="sidebar">
+    <app-admin-sidebar></app-admin-sidebar>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content-area">
+    <!-- Fixed Internal Navbar -->
+    <div class="fixed-internal-navbar">
+      <app-admin-medical-store-nav-bar></app-admin-medical-store-nav-bar>
     </div>
 
-    <!-- Main Content -->
-    <div class="col-md-9 col-lg-10 pt-3">
-    
-      <app-admin-medical-store-nav-bar></app-admin-medical-store-nav-bar>
-      
+    <!-- Scrollable Main Content -->
+    <div class="main-content-scrollable">
       <div *ngIf="message" class="alert alert-info">{{ message }}</div>
 
       <!-- Add Medicine Form -->

@@ -1,99 +1,98 @@
-<div class="container-fluid">
-  <div class="row">
-    <!-- Sidebar Navigation -->
-    <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse" style="min-height: 100vh;">
-      <app-admin-sidebar></app-admin-sidebar>
-    </div>
+<!-- Admin Users with Scrollable Main Content -->
+<div class="admin-dashboard-layout">
+  <!-- Fixed Sidebar -->
+  <div class="sidebar">
+    <app-admin-sidebar></app-admin-sidebar>
+  </div>
 
-    <!-- Main Content -->
-    <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4 py-4">
-      <h2>User Management</h2>
-      <div class="card">
-        <div class="card-header bg-dark text-white">
-          <h5 class="mb-0"><i class="bi bi-people me-2"></i> All Users</h5>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead class="table-dark">
-                <tr>
-                  <th>Username</th>
-                  <th>Role</th>
-                  <th>Email</th>
-                  <th>First Name</th>
-                  <th>Last Name</th>
-                  <th>Specialization</th>
-                  <th>Phone</th>
-                  <th>City</th>
-                  <th>Photo</th>
-                  <th class="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let user of users">
-                  <ng-container *ngIf="editUserId !== user.id; else editRow">
-                    <td>{{ user.username }}</td>
-                    <td>
-                      <span class="badge" [ngClass]="{
-                        'bg-primary': user.role === 'admin',
-                        'bg-success': user.role === 'doctor',
-                        'bg-info': user.role === 'patient'
-                      }">{{ user.role }}</span>
-                    </td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.first_name }}</td>
-                    <td>{{ user.last_name }}</td>
-                    <td>{{ user.specialization }}</td>
-                    <td>{{ user.phone }}</td>
-                    <td>{{ user.city }}</td>
-                    <td>
-                      <img *ngIf="user.photo" [src]="getPhotoUrl(user)" class="img-thumbnail rounded-circle" width="40" alt="Profile Photo">
-                      <span *ngIf="!user.photo" class="text-muted">No photo</span>
-                    </td>
-                    <td class="text-center">
-                      <div class="btn-group btn-group-sm" role="group">
-                        <button class="btn btn-warning" (click)="startEdit(user)">
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-danger" (click)="deleteUser(user.id)">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </ng-container>
-                  <ng-template #editRow>
-                    <td><input class="form-control form-control-sm" [(ngModel)]="editForm.username"></td>
-                    <td>
-                      <select class="form-select form-select-sm" [(ngModel)]="editForm.role">
-                        <option value="admin">Admin</option>
-                        <option value="doctor">Doctor</option>
-                        <option value="patient">Patient</option>
-                      </select>
-                    </td>
-                    <td><input class="form-control form-control-sm" type="email" [(ngModel)]="editForm.email"></td>
-                    <td><input class="form-control form-control-sm" [(ngModel)]="editForm.first_name"></td>
-                    <td><input class="form-control form-control-sm" [(ngModel)]="editForm.last_name"></td>
-                    <td><input class="form-control form-control-sm" [(ngModel)]="editForm.specialization"></td>
-                    <td><input class="form-control form-control-sm" type="tel" [(ngModel)]="editForm.phone"></td>
-                    <td><input class="form-control form-control-sm" [(ngModel)]="editForm.city"></td>
-                    <td>
-                      <input class="form-control form-control-sm" type="file" (change)="onEditFileChange($event)">
-                    </td>
-                    <td class="text-center">
-                      <div class="btn-group btn-group-sm" role="group">
-                        <button class="btn btn-success" (click)="saveEdit()">
-                          <i class="bi bi-check"></i>
-                        </button>
-                        <button class="btn btn-secondary" (click)="cancelEdit()">
-                          <i class="bi bi-x"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </ng-template>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+  <!-- Scrollable Main Content -->
+  <div class="main-content-scrollable">
+    <h2>User Management</h2>
+    <div class="card">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-people me-2"></i> All Users</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Specialization</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Photo</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of users">
+                <ng-container *ngIf="editUserId !== user.id; else editRow">
+                  <td>{{ user.username }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-primary': user.role === 'admin',
+                      'bg-success': user.role === 'doctor',
+                      'bg-info': user.role === 'patient'
+                    }">{{ user.role }}</span>
+                  </td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.first_name }}</td>
+                  <td>{{ user.last_name }}</td>
+                  <td>{{ user.specialization }}</td>
+                  <td>{{ user.phone }}</td>
+                  <td>{{ user.city }}</td>
+                  <td>
+                    <img *ngIf="user.photo" [src]="getPhotoUrl(user)" class="img-thumbnail rounded-circle" width="40" alt="Profile Photo">
+                    <span *ngIf="!user.photo" class="text-muted">No photo</span>
+                  </td>
+                  <td class="text-center">
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button class="btn btn-warning" (click)="startEdit(user)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button class="btn btn-danger" (click)="deleteUser(user.id)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+                <ng-template #editRow>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.username"></td>
+                  <td>
+                    <select class="form-select form-select-sm" [(ngModel)]="editForm.role">
+                      <option value="admin">Admin</option>
+                      <option value="doctor">Doctor</option>
+                      <option value="patient">Patient</option>
+                    </select>
+                  </td>
+                  <td><input class="form-control form-control-sm" type="email" [(ngModel)]="editForm.email"></td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.first_name"></td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.last_name"></td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.specialization"></td>
+                  <td><input class="form-control form-control-sm" type="tel" [(ngModel)]="editForm.phone"></td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.city"></td>
+                  <td>
+                    <input class="form-control form-control-sm" type="file" (change)="onEditFileChange($event)">
+                  </td>
+                  <td class="text-center">
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button class="btn btn-success" (click)="saveEdit()">
+                        <i class="bi bi-check"></i>
+                      </button>
+                      <button class="btn btn-secondary" (click)="cancelEdit()">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                  </td>
+                </ng-template>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

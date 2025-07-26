@@ -1,1 +1,46 @@
+/* Admin Sidebar Styles */
+.sidebar {
+  background-color: #343a40;
+  color: white;
+  height: 100%;
+  padding: 0;
+}
 
+.sidebar .nav-link {
+  color: white !important;
+  padding: 12px 20px;
+  border-radius: 0;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(255,255,255,0.1);
+  border-left-color: #4ca771;
+  color: #4ca771 !important;
+}
+
+.sidebar .nav-link.active {
+  background-color: rgba(76, 167, 113, 0.2);
+  border-left-color: #4ca771;
+  color: #4ca771 !important;
+}
+
+.sidebar .sidebar-heading {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  color: #6c757d;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin: 0;
+  padding: 0;
+}

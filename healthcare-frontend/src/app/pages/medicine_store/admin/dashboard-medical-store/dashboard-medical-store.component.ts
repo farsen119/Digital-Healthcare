@@ -16,7 +16,7 @@ import { StockHistoryService } from '../../../../services/medicine_store_service
     AdminMedicalStoreNavBarComponent
   ],
   templateUrl: './dashboard-medical-store.component.html',
-  styleUrls: ['./dashboard-medical-store.component.scss']
+  styleUrls: ['./dashboard-medical-store.component.css']
 })
 export class DashboardMedicalStoreComponent implements OnInit {
   totalOrders = 0;

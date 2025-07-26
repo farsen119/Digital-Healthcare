@@ -10,6 +10,7 @@ import { AdminSidebarComponent } from '../../../components/admin-sidebar/admin-s
   standalone: true,
   imports: [CommonModule, RouterModule, AdminSidebarComponent],
   templateUrl: './admin-prescription-list.component.html',
+  styleUrls: ['./admin-prescription-list.component.css']
 })
 export class AdminPrescriptionListComponent implements OnInit {
   prescriptions: Prescription[] = [];

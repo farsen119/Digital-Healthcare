@@ -11,7 +11,8 @@ import { OrderService } from '../../services/medicine_store_services/order.servi
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink, AdminSidebarComponent],
-  templateUrl: './admin-dashboard.component.html'
+  templateUrl: './admin-dashboard.component.html',
+  styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
   users: any[] = [];

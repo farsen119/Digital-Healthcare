@@ -11,6 +11,7 @@ import { AdminMedicalStoreNavBarComponent } from '../admin-medical-store-nav-bar
   standalone: true,
   imports: [CommonModule, FormsModule, AdminSidebarComponent,RouterLink, AdminMedicalStoreNavBarComponent],
   templateUrl: './medicine-store-settings.component.html',
+  styleUrls: ['./medicine-store-settings.component.css']
 })
 export class MedicineStoreSettingsComponent implements OnInit {
   medicines: any[] = [];
