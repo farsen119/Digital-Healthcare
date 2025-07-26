@@ -9,7 +9,9 @@ import { SideNavbarComponent } from '../patient-dashboard/side-navbar/side-navba
   selector: 'app-patient-appointments',
   standalone: true,
   imports: [CommonModule, RouterModule, SideNavbarComponent], // Use RouterModule
-  templateUrl: './patient-appointments.component.html'
+  templateUrl: './patient-appointments.component.html',
+  styleUrl: './patient-appointments.component.css'
+
 })
 export class PatientAppointmentsComponent implements OnInit {
   // Use the strong type here instead of any[]

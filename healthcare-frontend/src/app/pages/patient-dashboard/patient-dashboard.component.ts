@@ -10,7 +10,9 @@ import { SideNavbarComponent } from './side-navbar/side-navbar.component';
   selector: 'app-patient-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, DashboardNotificationComponent, SideNavbarComponent],
-  templateUrl: './patient-dashboard.component.html'
+  templateUrl: './patient-dashboard.component.html',
+  styleUrl: './patient-dashboard.component.css'
+
 })
 export class PatientDashboardComponent implements OnInit {
   user: any = null;
