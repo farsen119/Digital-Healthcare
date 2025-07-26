@@ -3,7 +3,7 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-header">
-          <h3>Register</h3>
+          <h3>Patient Registration</h3>
         </div>
         <div class="card-body">
           <!-- Use #registerForm="ngForm" to create a template-driven form -->
@@ -40,25 +40,6 @@
               <label for="confirm_password" class="form-label">Confirm Password</label>
               <input type="password" id="confirm_password" name="confirm_password" [(ngModel)]="form.confirm_password" class="form-control" required>
             </div>
-
-            <!-- Role Selection -->
-            <div class="mb-3">
-              <label for="role" class="form-label">I am a...</label>
-              <select id="role" name="role" [(ngModel)]="form.role" class="form-select">
-                <option value="patient">Patient</option>
-                <option value="doctor">Doctor</option>
-              </select>
-            </div>
-
-            <!-- === CONDITIONAL SPECIALIZATION FIELD === -->
-            <!-- This section will only be visible when form.role is 'doctor' -->
-            <div *ngIf="form.role === 'doctor'" class="mb-3">
-              <label for="specialization" class="form-label">Specialization</label>
-              <select id="specialization" name="specialization" [(ngModel)]="form.specialization" class="form-select" required>
-                <option value="" disabled>Select a specialization...</option>
-                <option *ngFor="let spec of specializations" [value]="spec">{{ spec }}</option>
-              </select>
-            </div>
             
             <!-- Other optional fields -->
             <div class="mb-3">
@@ -74,7 +55,7 @@
                 <input type="file" id="photo" name="photo" (change)="onFileChange($event)" class="form-control">
             </div>
 
-            <button type="submit" class="btn btn-primary w-100" [disabled]="registerForm.invalid">Register</button>
+            <button type="submit" class="btn btn-primary w-100" [disabled]="registerForm.invalid">Register as Patient</button>
           </form>
           <div class="mt-3 text-center">
             <p>Already have an account? <a routerLink="/login">Login here</a></p>

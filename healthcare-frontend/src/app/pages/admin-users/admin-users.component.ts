@@ -3,8 +3,7 @@ import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component'; // <-- Import this
-
+import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 
 @Component({
   selector: 'app-admin-users',
@@ -38,7 +37,19 @@ export class AdminUsersComponent implements OnInit {
 
   startEdit(user: any) {
     this.editUserId = user.id;
-    this.editForm = { ...user };
+    this.editForm = { 
+      ...user,
+      // Ensure all fields are initialized
+      license_number: user.license_number || '',
+      experience_years: user.experience_years || null,
+      qualification: user.qualification || '',
+      hospital: user.hospital || '',
+      consultation_fee: user.consultation_fee || null,
+      bio: user.bio || '',
+      available_days: user.available_days || '',
+      consultation_hours: user.consultation_hours || '',
+      is_live: user.is_live || false
+    };
     this.editForm.photo = null; // Reset photo for new upload
   }
 
@@ -49,10 +60,43 @@ export class AdminUsersComponent implements OnInit {
 
   saveEdit() {
     if (this.editUserId !== null) {
-      this.userService.updateUser(this.editUserId, this.editForm).subscribe(() => {
-        this.editUserId = null;
-        this.editForm = {};
-        this.loadUsers();
+      // Create a clean data object for submission
+      const updateData = { ...this.editForm };
+      
+      // Remove photo if not selected
+      if (!updateData.photo) {
+        delete updateData.photo;
+      }
+      
+      // Handle null values for numeric fields
+      if (updateData.experience_years === '') updateData.experience_years = null;
+      if (updateData.consultation_fee === '') updateData.consultation_fee = null;
+      
+      console.log('Sending update data:', updateData); // Debug log
+      
+      this.userService.updateUser(this.editUserId, updateData).subscribe({
+        next: (response) => {
+          console.log('Update successful:', response); // Debug log
+          this.editUserId = null;
+          this.editForm = {};
+          this.loadUsers();
+          alert('User updated successfully!');
+        },
+        error: (err) => {
+          console.error('Error updating user:', err);
+          console.error('Error details:', err.error); // Debug log
+          console.error('Error status:', err.status); // Debug log
+          
+          let errorMessage = 'Failed to update user. Please try again.';
+          if (err.error && typeof err.error === 'object') {
+            const errorDetails = Object.entries(err.error).map(([key, value]) => `${key}: ${value}`).join(', ');
+            errorMessage = `Update failed: ${errorDetails}`;
+          } else if (err.error && typeof err.error === 'string') {
+            errorMessage = `Update failed: ${err.error}`;
+          }
+          
+          alert(errorMessage);
+        }
       });
     }
   }

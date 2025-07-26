@@ -1,0 +1,170 @@
+<!-- Admin Registration Form -->
+<div class="container-fluid">
+  <!-- Dashboard Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person-plus me-2"></i> Add New User</h2>
+    <button class="btn btn-secondary" routerLink="/admin-dashboard">
+      <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+    </button>
+  </div>
+
+  <!-- Registration Form -->
+  <div class="card">
+    <div class="card-header bg-dark text-white">
+      <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>User Registration Form</h5>
+    </div>
+    <div class="card-body">
+      <!-- Use #registerForm="ngForm" to create a template-driven form -->
+      <form #registerForm="ngForm" (ngSubmit)="register()">
+        
+        <!-- Account Type (Moved to Top) -->
+        <h6 class="text-warning mb-3"><i class="bi bi-shield-check me-2"></i>Account Type</h6>
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label for="role" class="form-label">User Role</label>
+            <select id="role" name="role" [(ngModel)]="form.role" class="form-select" required>
+              <option value="" disabled>Select user role...</option>
+              <option value="patient">Patient</option>
+              <option value="doctor">Doctor</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Basic Information Section -->
+        <h6 class="text-primary mb-3"><i class="bi bi-person me-2"></i>Basic Information</h6>
+        
+        <!-- First Name and Last Name -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="first_name" class="form-label">First Name</label>
+            <input type="text" id="first_name" name="first_name" [(ngModel)]="form.first_name" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input type="text" id="last_name" name="last_name" [(ngModel)]="form.last_name" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Email, Username, etc. -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="username" [(ngModel)]="form.username" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" [(ngModel)]="form.email" class="form-control" required>
+          </div>
+        </div>
+        
+        <!-- Passwords -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" [(ngModel)]="form.password" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" [(ngModel)]="form.confirm_password" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="text" id="phone" name="phone" [(ngModel)]="form.phone" class="form-control">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="city" class="form-label">City</label>
+            <input type="text" id="city" name="city" [(ngModel)]="form.city" class="form-control">
+          </div>
+        </div>
+
+        <!-- Doctor Specific Information (Conditional) -->
+        <div *ngIf="form.role === 'doctor'">
+          <hr class="my-4">
+          <h6 class="text-success mb-3"><i class="bi bi-heart-pulse me-2"></i>Medical Information</h6>
+          
+          <!-- Medical Details -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="specialization" class="form-label">Specialization</label>
+              <select id="specialization" name="specialization" [(ngModel)]="form.specialization" class="form-select" required>
+                <option value="" disabled>Select a specialization...</option>
+                <option *ngFor="let spec of specializations" [value]="spec">{{ spec }}</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="license_number" class="form-label">Medical License Number</label>
+              <input type="text" id="license_number" name="license_number" [(ngModel)]="form.license_number" class="form-control">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="experience_years" class="form-label">Years of Experience</label>
+              <input type="number" id="experience_years" name="experience_years" [(ngModel)]="form.experience_years" class="form-control" min="0" max="50">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="qualification" class="form-label">Qualification</label>
+              <input type="text" id="qualification" name="qualification" [(ngModel)]="form.qualification" class="form-control" placeholder="e.g., MBBS, MD, etc.">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="hospital" class="form-label">Hospital/Clinic</label>
+              <input type="text" id="hospital" name="hospital" [(ngModel)]="form.hospital" class="form-control">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="consultation_fee" class="form-label">Consultation Fee (₹)</label>
+              <input type="number" id="consultation_fee" name="consultation_fee" [(ngModel)]="form.consultation_fee" class="form-control" min="0">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="bio" class="form-label">Professional Bio</label>
+            <textarea id="bio" name="bio" [(ngModel)]="form.bio" class="form-control" rows="3" placeholder="Brief description of expertise and experience..."></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="available_days" class="form-label">Available Days</label>
+              <select id="available_days" name="available_days" [(ngModel)]="form.available_days" class="form-select">
+                <option value="">Select available days...</option>
+                <option value="Monday-Friday">Monday - Friday</option>
+                <option value="Monday-Saturday">Monday - Saturday</option>
+                <option value="All Days">All Days</option>
+                <option value="Weekends Only">Weekends Only</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="consultation_hours" class="form-label">Consultation Hours</label>
+              <input type="text" id="consultation_hours" name="consultation_hours" [(ngModel)]="form.consultation_hours" class="form-control" placeholder="e.g., 9:00 AM - 5:00 PM">
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Photo -->
+        <hr class="my-4">
+        <h6 class="text-info mb-3"><i class="bi bi-image me-2"></i>Profile Photo</h6>
+        <div class="mb-3">
+          <label for="photo" class="form-label">Profile Photo (Optional)</label>
+          <input type="file" id="photo" name="photo" (change)="onFileChange($event)" class="form-control" accept="image/*">
+        </div>
+
+        <!-- Submit Buttons -->
+        <hr class="my-4">
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-fill" [disabled]="registerForm.invalid">
+            <i class="bi bi-person-plus me-2"></i>Add User
+          </button>
+          <button type="button" class="btn btn-secondary" routerLink="/admin-dashboard">
+            <i class="bi bi-arrow-left me-2"></i>Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

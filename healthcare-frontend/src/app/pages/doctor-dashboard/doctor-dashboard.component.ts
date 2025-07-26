@@ -15,79 +15,40 @@ import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 })
 export class DoctorDashboardComponent implements OnInit {
   user: any = null;
-  photo: File | null = null;
   loading = false;
-  showUpdateForm = false;
-  errorMsg: string = '';
 
   constructor(private auth: AuthService) {}
 
   ngOnInit() {
-    this.auth.getProfile().subscribe(user => this.user = user);
-  }
-
-  onFileChange(event: any) {
-    if (event.target.files.length > 0) {
-      this.photo = event.target.files[0];
-    }
-  }
-
-  getPhotoUrl(): string {
-    if (this.user && this.user.photo) {
-      if (this.user.photo.startsWith('http')) {
-        return this.user.photo;
-      }
-      return 'http://localhost:8000' + this.user.photo;
-    }
-    return '';
-  }
-
-  update() {
-    this.loading = true;
-    this.errorMsg = '';
-    const data: any = {
-      first_name: this.user.first_name,
-      last_name: this.user.last_name,
-      email: this.user.email,
-      phone: this.user.phone,
-      city: this.user.city,
-      specialization: this.user.specialization
-    };
-    if (this.photo) data.photo = this.photo;
-    this.auth.updateProfile(data).subscribe({
-      next: user => {
-        this.user = user;
-        this.loading = false;
-        this.showUpdateForm = false;
-        this.photo = null;
-        alert('Profile updated!');
-      },
-      error: (err) => {
-        this.loading = false;
-        if (err.error) {
-          if (typeof err.error === 'string') {
-            this.errorMsg = err.error;
-          } else if (typeof err.error === 'object') {
-            this.errorMsg = Object.values(err.error).join('\n');
-          } else {
-            this.errorMsg = 'Update failed. Unknown error.';
-          }
-        } else {
-          this.errorMsg = 'Update failed. Network or server error.';
-        }
-        alert(this.errorMsg);
+    this.auth.getProfile().subscribe(user => {
+      this.user = user;
+      // Initialize is_live if not present
+      if (this.user && this.user.is_live === undefined) {
+        this.user.is_live = false;
       }
     });
   }
 
-  openUpdateForm() {
-    this.showUpdateForm = true;
-    this.errorMsg = '';
-  }
-
-  cancelUpdate() {
-    this.showUpdateForm = false;
-    this.photo = null;
-    this.errorMsg = '';
+  toggleLiveStatus() {
+    this.loading = true;
+    
+    const data = {
+      is_live: this.user.is_live
+    };
+    
+    this.auth.updateProfile(data).subscribe({
+      next: user => {
+        this.user = user;
+        this.loading = false;
+        const status = this.user.is_live ? 'Online' : 'Offline';
+        alert(`Status updated! You are now ${status}.`);
+      },
+      error: (err) => {
+        this.loading = false;
+        // Revert the toggle if update failed
+        this.user.is_live = !this.user.is_live;
+        alert('Failed to update status. Please try again.');
+      }
+    });
   }
 }

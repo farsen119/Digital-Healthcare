@@ -9,6 +9,7 @@ import { DoctorProfileComponent } from './pages/doctor-dashboard/doctor-profile/
 import { PatientDashboardComponent } from './pages/patient-dashboard/patient-dashboard.component';
 import { PatientProfileComponent } from './pages/patient-dashboard/patient-profile/patient-profile.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
+import { AdminRegisterComponent } from './pages/admin-register/admin-register.component';
 import { AdminUsersComponent } from './pages/admin-users/admin-users.component';
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { BookAppointmentComponent } from './pages/book-appointment/book-appointment.component';
@@ -37,6 +38,7 @@ export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [NoAuthGuard] },
+  { path: 'admin-register', component: AdminRegisterComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
   { path: 'doctor-dashboard', component: DoctorDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },
   { path: 'doctor-profile', component: DoctorProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },
   { path: 'patient-dashboard', component: PatientDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient'] } },

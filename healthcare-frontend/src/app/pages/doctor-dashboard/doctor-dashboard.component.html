@@ -17,6 +17,101 @@
         <app-dashboard-notification></app-dashboard-notification>
       </div>
     </div>
-    <!-- You can add dashboard widgets or summary cards here if needed -->
+
+    <!-- Availability Status Card -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-clock me-2"></i> Availability Status</h5>
+      </div>
+      <div class="card-body">
+        <!-- Online/Offline Toggle Section -->
+        <div class="row align-items-center mb-4">
+          <div class="col-md-6">
+            <div class="d-flex align-items-center mb-3">
+              <div class="form-check form-switch me-3">
+                <input class="form-check-input" type="checkbox" id="liveStatus" 
+                       [(ngModel)]="user.is_live" (change)="toggleLiveStatus()">
+                <label class="form-check-label" for="liveStatus">
+                  <strong>Go Live / Online</strong>
+                </label>
+              </div>
+              <span class="badge" [ngClass]="user.is_live ? 'bg-success' : 'bg-secondary'">
+                {{ user.is_live ? 'Online' : 'Offline' }}
+              </span>
+            </div>
+            <p class="text-muted mb-0">
+              <i class="bi bi-info-circle me-1"></i>
+              Toggle online/offline to show patients your current availability status.
+            </p>
+          </div>
+          <div class="col-md-6 text-end">
+            <div class="status-indicator">
+              <div class="status-dot" [ngClass]="user.is_live ? 'online' : 'offline'"></div>
+              <span class="status-text">{{ user.is_live ? 'Available for Consultations' : 'Currently Offline' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Consultation Hours Section -->
+        <div>
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-primary"><i class="bi bi-clock me-2"></i>Scheduled Consultation Hours</h6>
+              <div class="mb-3">
+                <p class="mb-2">
+                  <strong>{{ user.consultation_hours || 'Not set by admin' }}</strong>
+                </p>
+                <small class="text-muted">
+                  These are your scheduled hours set by admin
+                </small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-primary"><i class="bi bi-calendar3 me-2"></i>Available Days</h6>
+              <p class="mb-3">
+                <strong>{{ user.available_days || 'Not specified' }}</strong>
+              </p>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Note:</strong> Your scheduled consultation hours are set by admin and shown in your profile. 
+            The online/offline toggle above controls your current availability for patients.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Card -->
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i> Quick Overview</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 text-center">
+            <div class="stat-item">
+              <i class="bi bi-person-badge text-primary" style="font-size: 2rem;"></i>
+              <h4 class="mt-2">{{ user.specialization || 'Not specified' }}</h4>
+              <p class="text-muted">Specialization</p>
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="stat-item">
+              <i class="bi bi-building text-success" style="font-size: 2rem;"></i>
+              <h4 class="mt-2">{{ user.hospital || 'Not specified' }}</h4>
+              <p class="text-muted">Hospital/Clinic</p>
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="stat-item">
+              <i class="bi bi-currency-rupee text-warning" style="font-size: 2rem;"></i>
+              <h4 class="mt-2">₹{{ user.consultation_fee || '0' }}</h4>
+              <p class="text-muted">Consultation Fee</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

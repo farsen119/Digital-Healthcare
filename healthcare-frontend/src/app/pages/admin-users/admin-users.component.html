@@ -17,21 +17,32 @@
           <table class="table table-striped table-hover">
             <thead class="table-dark">
               <tr>
+                <th>Photo</th>
                 <th>Username</th>
                 <th>Role</th>
+                <th>Name</th>
                 <th>Email</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Specialization</th>
                 <th>Phone</th>
                 <th>City</th>
-                <th>Photo</th>
+                <th>Specialization</th>
+                <th>License</th>
+                <th>Experience</th>
+                <th>Qualification</th>
+                <th>Hospital</th>
+                <th>Fee</th>
+                <th>Available Days</th>
+                <th>Hours</th>
+                <th>Status</th>
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let user of users">
                 <ng-container *ngIf="editUserId !== user.id; else editRow">
+                  <td>
+                    <img *ngIf="user.photo" [src]="getPhotoUrl(user)" class="img-thumbnail rounded-circle" width="40" alt="Profile Photo">
+                    <span *ngIf="!user.photo" class="text-muted">No photo</span>
+                  </td>
                   <td>{{ user.username }}</td>
                   <td>
                     <span class="badge" [ngClass]="{
@@ -40,15 +51,23 @@
                       'bg-info': user.role === 'patient'
                     }">{{ user.role }}</span>
                   </td>
+                  <td>{{ user.first_name }} {{ user.last_name }}</td>
                   <td>{{ user.email }}</td>
-                  <td>{{ user.first_name }}</td>
-                  <td>{{ user.last_name }}</td>
-                  <td>{{ user.specialization }}</td>
-                  <td>{{ user.phone }}</td>
-                  <td>{{ user.city }}</td>
+                  <td>{{ user.phone || 'N/A' }}</td>
+                  <td>{{ user.city || 'N/A' }}</td>
+                  <td>{{ user.specialization || 'N/A' }}</td>
+                  <td>{{ user.license_number || 'N/A' }}</td>
+                  <td>{{ user.experience_years || 'N/A' }} years</td>
+                  <td>{{ user.qualification || 'N/A' }}</td>
+                  <td>{{ user.hospital || 'N/A' }}</td>
+                  <td>₹{{ user.consultation_fee || 'N/A' }}</td>
+                  <td>{{ user.available_days || 'N/A' }}</td>
+                  <td>{{ user.consultation_hours || 'N/A' }}</td>
                   <td>
-                    <img *ngIf="user.photo" [src]="getPhotoUrl(user)" class="img-thumbnail rounded-circle" width="40" alt="Profile Photo">
-                    <span *ngIf="!user.photo" class="text-muted">No photo</span>
+                    <span *ngIf="user.role === 'doctor'" class="badge" [ngClass]="user.is_live ? 'bg-success' : 'bg-secondary'">
+                      {{ user.is_live ? 'Online' : 'Offline' }}
+                    </span>
+                    <span *ngIf="user.role !== 'doctor'" class="text-muted">-</span>
                   </td>
                   <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">
@@ -62,6 +81,10 @@
                   </td>
                 </ng-container>
                 <ng-template #editRow>
+                  <td>
+                    <input class="form-control form-control-sm" type="file" (change)="onEditFileChange($event)">
+                    <small class="text-muted">Current: {{ user.photo ? 'Yes' : 'No' }}</small>
+                  </td>
                   <td><input class="form-control form-control-sm" [(ngModel)]="editForm.username"></td>
                   <td>
                     <select class="form-select form-select-sm" [(ngModel)]="editForm.role">
@@ -70,14 +93,35 @@
                       <option value="patient">Patient</option>
                     </select>
                   </td>
+                  <td>
+                    <input class="form-control form-control-sm" [(ngModel)]="editForm.first_name" placeholder="First Name">
+                    <input class="form-control form-control-sm mt-1" [(ngModel)]="editForm.last_name" placeholder="Last Name">
+                  </td>
                   <td><input class="form-control form-control-sm" type="email" [(ngModel)]="editForm.email"></td>
-                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.first_name"></td>
-                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.last_name"></td>
-                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.specialization"></td>
                   <td><input class="form-control form-control-sm" type="tel" [(ngModel)]="editForm.phone"></td>
                   <td><input class="form-control form-control-sm" [(ngModel)]="editForm.city"></td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.specialization"></td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.license_number"></td>
+                  <td><input class="form-control form-control-sm" type="number" [(ngModel)]="editForm.experience_years"></td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.qualification"></td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.hospital"></td>
+                  <td><input class="form-control form-control-sm" type="number" [(ngModel)]="editForm.consultation_fee"></td>
                   <td>
-                    <input class="form-control form-control-sm" type="file" (change)="onEditFileChange($event)">
+                    <select class="form-select form-select-sm" [(ngModel)]="editForm.available_days">
+                      <option value="">Select days...</option>
+                      <option value="Monday-Friday">Monday - Friday</option>
+                      <option value="Monday-Saturday">Monday - Saturday</option>
+                      <option value="All Days">All Days</option>
+                      <option value="Weekends Only">Weekends Only</option>
+                    </select>
+                  </td>
+                  <td><input class="form-control form-control-sm" [(ngModel)]="editForm.consultation_hours" placeholder="e.g., 9:00 AM - 5:00 PM"></td>
+                  <td>
+                    <div class="form-check form-switch" *ngIf="editForm.role === 'doctor'">
+                      <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.is_live">
+                      <label class="form-check-label">Online</label>
+                    </div>
+                    <span *ngIf="editForm.role !== 'doctor'" class="text-muted">-</span>
                   </td>
                   <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">

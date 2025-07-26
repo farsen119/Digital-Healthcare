@@ -1,0 +1,77 @@
+/* Admin Registration Form Styling */
+.container-fluid {
+  padding: 24px;
+  background: #f8f9fa;
+  min-height: calc(100vh - 72px); /* Subtract navbar height */
+}
+
+/* Card styling */
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  border-radius: 8px 8px 0 0 !important;
+}
+
+/* Form styling */
+.form-control, .form-select {
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Button styling */
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #545b62;
+  border-color: #545b62;
+}
+
+/* Page header styling */
+h2 {
+  color: #343a40;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 16px;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .d-flex.justify-content-between .btn {
+    align-self: flex-start;
+  }
+}

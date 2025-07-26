@@ -13,6 +13,17 @@ class CustomUser(AbstractUser):
     phone = models.CharField(max_length=20, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(unique=True)
+    
+    # Doctor-specific fields
+    license_number = models.CharField(max_length=100, blank=True, null=True)
+    experience_years = models.IntegerField(blank=True, null=True)
+    qualification = models.CharField(max_length=255, blank=True, null=True)
+    hospital = models.CharField(max_length=255, blank=True, null=True)
+    consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    available_days = models.CharField(max_length=100, blank=True, null=True)
+    consultation_hours = models.CharField(max_length=100, blank=True, null=True)
+    is_live = models.BooleanField(default=False, help_text="Doctor's online/offline status")
 
     def __str__(self):
         return f"{self.username} - {self.role}"

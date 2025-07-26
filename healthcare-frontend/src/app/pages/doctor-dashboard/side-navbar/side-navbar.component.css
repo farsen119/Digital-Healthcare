@@ -16,6 +16,8 @@
 
 .profile-photo {
   margin-bottom: 10px;
+  position: relative;
+  display: inline-block;
 }
 
 .profile-photo img {
@@ -61,11 +63,53 @@
   font-weight: 500;
 }
 
-.debug-info {
-  color: rgba(255,255,255,0.6);
-  font-size: 0.7rem;
+/* Status Dot Styling */
+.status-dot {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #2563eb;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.online {
+  background-color: #28a745;
+  box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+}
+
+.status-dot.offline {
+  background-color: #dc3545;
+  box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(40, 167, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+  }
+}
+
+.status-text {
+  font-size: 0.75rem;
+  font-weight: 500;
   display: block;
   margin-top: 5px;
+}
+
+.status-text.text-success {
+  color: #28a745 !important;
+}
+
+.status-text.text-danger {
+  color: #dc3545 !important;
 }
 
 /* Sidebar Navigation Styles */

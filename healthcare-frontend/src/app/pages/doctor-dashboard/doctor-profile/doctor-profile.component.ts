@@ -19,6 +19,26 @@ export class DoctorProfileComponent implements OnInit {
   showUpdateForm = false;
   errorMsg: string = '';
 
+  // Predefined list of specializations for the dropdown
+  specializations = [
+    'Cardiology',
+    'Dermatology',
+    'Neurology',
+    'Orthopedics',
+    'Pediatrics',
+    'General Physician',
+    'Psychiatry',
+    'Gynecology',
+    'Ophthalmology',
+    'ENT (Ear, Nose, Throat)',
+    'Dental',
+    'Oncology',
+    'Radiology',
+    'Anesthesiology',
+    'Emergency Medicine',
+    'Other'
+  ];
+
   constructor(private auth: AuthService) {}
 
   ngOnInit() {
@@ -44,21 +64,20 @@ export class DoctorProfileComponent implements OnInit {
   update() {
     this.loading = true;
     this.errorMsg = '';
-    const data: any = {
-      first_name: this.user.first_name,
-      last_name: this.user.last_name,
-      email: this.user.email,
-      phone: this.user.phone,
-      city: this.user.city
-    };
+    
+    // Only send profile photo - all other fields are read-only
+    const data: any = {};
+    
+    // Add photo if selected
     if (this.photo) data.photo = this.photo;
+    
     this.auth.updateProfile(data).subscribe({
       next: user => {
         this.user = user;
         this.loading = false;
         this.showUpdateForm = false;
         this.photo = null;
-        alert('Profile updated!');
+        alert('Profile photo updated successfully!');
       },
       error: (err) => {
         this.loading = false;

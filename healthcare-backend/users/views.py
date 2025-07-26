@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .models import CustomUser
 from .serializers import UserSerializer, RegisterSerializer
 
@@ -13,7 +13,7 @@ class RegisterView(generics.CreateAPIView):
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     queryset = CustomUser.objects.all().order_by('-date_joined')
 
     def get_queryset(self):
@@ -30,6 +30,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return [permissions.AllowAny()]  # <-- This line allows public access to list users
         # Only admins can retrieve, update, or delete other users
         return [permissions.IsAdminUser()]
+        
     @action(detail=False, methods=['get', 'put'], url_path='profile')
     def profile(self, request):
         user = request.user
