@@ -55,7 +55,9 @@ means that your request to `/api/users/?role=doctor` is being denied with a **40
 To help you further, I need more information:
 - What backend framework are you using (Django, Flask, etc.)?
 - Are you making this request from a frontend, API client, or directly in the browser?
-- Are you authenticated? If so, what kind of authentication (session
+- Are you authenticated? If so, what kind of authentication (session, token, JWT, etc.)?
+
+If you can share your backend view code for `/api/users/` and your authentication setup, I can give more specific advice!
 
 ---
 

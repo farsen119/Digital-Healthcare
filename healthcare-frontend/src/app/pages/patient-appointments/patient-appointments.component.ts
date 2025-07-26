@@ -3,11 +3,12 @@ import { AppointmentService } from '../../services/appointment.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router'; // Use RouterModule
 import { AppointmentResponse } from '../../models/appointment.model'; // <-- IMPORT THE MODEL
+import { SideNavbarComponent } from '../patient-dashboard/side-navbar/side-navbar.component';
 
 @Component({
   selector: 'app-patient-appointments',
   standalone: true,
-  imports: [CommonModule, RouterModule], // Use RouterModule
+  imports: [CommonModule, RouterModule, SideNavbarComponent], // Use RouterModule
   templateUrl: './patient-appointments.component.html'
 })
 export class PatientAppointmentsComponent implements OnInit {

@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DashboardNotificationComponent } from '../dashboard-notification/dashboard-notification.component';
+import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, DashboardNotificationComponent],
+  imports: [CommonModule, FormsModule, RouterLink, DashboardNotificationComponent, SideNavbarComponent],
   templateUrl: './patient-dashboard.component.html'
 })
 export class PatientDashboardComponent implements OnInit {
