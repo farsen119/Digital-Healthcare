@@ -68,8 +68,8 @@
                   <td>{{ user.available_days || 'N/A' }}</td>
                   <td>{{ user.consultation_hours || 'N/A' }}</td>
                   <td>
-                    <span *ngIf="user.role === 'doctor'" class="badge" [ngClass]="user.is_live ? 'bg-success' : 'bg-secondary'">
-                      {{ user.is_live ? 'Online' : 'Offline' }}
+                    <span *ngIf="user.role === 'doctor'" class="badge" [ngClass]="user.is_available_for_consultation ? 'bg-success' : 'bg-secondary'">
+                      {{ user.is_available_for_consultation ? 'Available' : 'Unavailable' }}
                     </span>
                     <span *ngIf="user.role !== 'doctor'" class="text-muted">-</span>
                   </td>
@@ -131,8 +131,8 @@
                   <td><input class="form-control form-control-sm" [(ngModel)]="editForm.consultation_hours" placeholder="e.g., 9:00 AM - 5:00 PM"></td>
                   <td>
                     <div class="form-check form-switch" *ngIf="editForm.role === 'doctor'">
-                      <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.is_live">
-                      <label class="form-check-label">Online</label>
+                      <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.is_available_for_consultation">
+                      <label class="form-check-label">Available for Consultation</label>
                     </div>
                     <span *ngIf="editForm.role !== 'doctor'" class="text-muted">-</span>
                   </td>

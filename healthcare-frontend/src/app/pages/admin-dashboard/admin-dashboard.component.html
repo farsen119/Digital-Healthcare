@@ -20,7 +20,7 @@
 
     <!-- Stats Cards Row -->
     <div class="row mb-4">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="card bg-primary text-white">
           <div class="card-body">
             <h5 class="card-title">Total Users</h5>
@@ -29,53 +29,127 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="card bg-success text-white">
           <div class="card-body">
-            <h5 class="card-title">total Appointments</h5>
+            <h5 class="card-title">Total Appointments</h5>
             <h3 class="card-text">{{ appointments.length }}</h3>
             <span>+12% <i class="bi bi-arrow-up"></i></span>
           </div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="card bg-info text-white">
           <div class="card-body">
-            <h5 class="card-title">Total Order Revenue</h5>
+            <h5 class="card-title">Total Revenue</h5>
             <h3 class="card-text">{{ totalRevenue | currency:'INR':'symbol' }}</h3>
             <span>+8% <i class="bi bi-arrow-up"></i></span>
           </div>
         </div>
       </div>
+      <div class="col-md-3">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <h5 class="card-title">Available Doctors</h5>
+            <h3 class="card-text">{{ onlineCount }}/{{ totalDoctors }}</h3>
+            <span>
+              <i class="bi" [ngClass]="isWebSocketConnected ? 'bi-wifi' : 'bi-wifi-off'"></i>
+              {{ isWebSocketConnected ? 'Live' : 'Offline' }}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="card mb-4">
-  <div class="card-header bg-dark text-white">
-    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i> Recent Activity</h5>
-  </div>
-  <div class="card-body">
-    <div *ngIf="loadingActivities" class="text-center text-muted">Loading...</div>
-    <div *ngIf="activityError" class="alert alert-danger">{{ activityError }}</div>
-    <ul class="list-group" *ngIf="!loadingActivities && !activityError">
-      <li *ngFor="let activity of activities" class="list-group-item d-flex justify-content-between align-items-center">
-        <span>
-          <i [ngClass]="{
-            'bi-person-plus': activity.type === 'user',
-            'bi-calendar-plus': activity.type === 'appointment',
-            'bi-file-earmark-medical': activity.type === 'prescription',
-            'bi-bag': activity.type === 'order',
-          }" class="me-2"></i>
-          {{ activity.message }}
-        </span>
-        <span class="badge bg-secondary">{{ activity.date | date:'medium' }}</span>
-      </li>
-      <li *ngIf="activities.length === 0" class="list-group-item text-center text-muted">
-        No recent activity.
-      </li>
-    </ul>
-  </div>
-</div>
 
-    <!-- Latest Users Table (only 5) -->
+    <!-- Real-Time Doctor Status -->
+    <div class="card mb-4">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i> Live Doctor Status</h5>
+        <div class="d-flex align-items-center">
+          <div class="status-indicator me-3">
+            <div class="status-dot" [ngClass]="isWebSocketConnected ? 'online' : 'offline'"></div>
+            <span class="status-text">{{ isWebSocketConnected ? 'Connected' : 'Disconnected' }}</span>
+          </div>
+          <button class="btn btn-sm btn-outline-light" (click)="manualRefresh()" [disabled]="isRefreshing">
+            <i class="bi" [ngClass]="isRefreshing ? 'bi-arrow-clockwise spin' : 'bi-arrow-clockwise'"></i> 
+            {{ isRefreshing ? 'Refreshing...' : 'Refresh' }}
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+                            <div class="col-md-6">
+                    <h6 class="text-success"><i class="bi bi-circle-fill text-success me-2"></i>Available Doctors ({{ onlineCount }})</h6>
+                    <div class="list-group">
+                      <div *ngFor="let doctor of allDoctors" class="list-group-item d-flex justify-content-between align-items-center" 
+                           [ngClass]="{'list-group-item-success': doctor.is_available_for_consultation, 'list-group-item-secondary': !doctor.is_available_for_consultation}">
+                <div>
+                  <strong>Dr. {{ doctor.first_name }} {{ doctor.last_name }}</strong>
+                  <br>
+                  <small class="text-muted">{{ doctor.specialization || 'General' }} - {{ doctor.hospital || 'Not specified' }}</small>
+                </div>
+                <div class="text-end">
+                                      <span class="badge" [ngClass]="doctor.is_available_for_consultation ? 'bg-success' : 'bg-secondary'">
+                      {{ doctor.is_available_for_consultation ? 'Available' : 'Unavailable' }}
+                    </span>
+                  <br>
+                  <small *ngIf="doctor.is_available_for_consultation" class="text-success">
+                    {{ doctor.is_available_for_consultation ? 'Available' : 'Not Available' }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+                      <div class="col-md-6">
+              <h6 class="text-info"><i class="bi bi-clock me-2"></i>Consultation Hours</h6>
+              <div class="list-group">
+                <div *ngFor="let doctor of onlineDoctorsList" class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>Dr. {{ doctor.first_name }} {{ doctor.last_name }}</strong>
+                    <br>
+                    <small class="text-muted">{{ doctor.consultation_hours || 'Hours not set' }}</small>
+                  </div>
+                  <span class="badge" [ngClass]="doctor.is_available_for_consultation ? 'bg-success' : 'bg-warning'">
+                    {{ doctor.is_available_for_consultation ? 'Available' : 'Outside Hours' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card mb-4">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i> Recent Activity</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="loadingActivities" class="text-center text-muted">Loading...</div>
+        <div *ngIf="activityError" class="alert alert-danger">{{ activityError }}</div>
+        <ul class="list-group" *ngIf="!loadingActivities && !activityError">
+          <li *ngFor="let activity of activities" class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+              <i [ngClass]="{
+                'bi-person-plus': activity.type === 'user',
+                'bi-calendar-plus': activity.type === 'appointment',
+                'bi-file-earmark-medical': activity.type === 'prescription',
+                'bi-bag': activity.type === 'order',
+              }" class="me-2"></i>
+              {{ activity.message }}
+            </span>
+            <span class="badge bg-secondary">{{ activity.date | date:'medium' }}</span>
+          </li>
+          <li *ngIf="activities.length === 0" class="list-group-item text-center text-muted">
+            No recent activity.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Latest Users Table -->
     <div class="card">
       <div class="card-header bg-dark text-white">
         <h5 class="mb-0"><i class="bi bi-people me-2"></i> Latest Users</h5>
@@ -90,6 +164,7 @@
                 <th>Email</th>
                 <th>First Name</th>
                 <th>Last Name</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -105,11 +180,16 @@
                 <td>{{ user.email }}</td>
                 <td>{{ user.first_name }}</td>
                 <td>{{ user.last_name }}</td>
+                <td>
+                  <span *ngIf="user.role === 'doctor'" class="badge" [ngClass]="user.is_available_for_consultation ? 'bg-success' : 'bg-secondary'">
+                    {{ user.is_available_for_consultation ? 'Available' : 'Unavailable' }}
+                  </span>
+                  <span *ngIf="user.role !== 'doctor'" class="text-muted">-</span>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <a routerLink="/admin-users" class="btn btn-link">View All Users</a>
       </div>
     </div>
   </div>

@@ -50,7 +50,7 @@ export class AdminUsersComponent implements OnInit {
       bio: user.bio || '',
       available_days: user.available_days || '',
       consultation_hours: user.consultation_hours || '',
-      is_live: user.is_live || false
+      is_available_for_consultation: user.is_available_for_consultation || false
     };
     this.editForm.photo = null; // Reset photo for new upload
   }
@@ -74,15 +74,15 @@ export class AdminUsersComponent implements OnInit {
       if (updateData.experience_years === '') updateData.experience_years = null;
       if (updateData.consultation_fee === '') updateData.consultation_fee = null;
       
-      console.log('Sending update data:', updateData); // Debug log
-      
       this.userService.updateUser(this.editUserId, updateData).subscribe({
         next: (response) => {
-          console.log('Update successful:', response); // Debug log
-          this.editUserId = null;
-          this.editForm = {};
-          this.loadUsers();
-          alert('User updated successfully!');
+          // Update the user in the list
+          const index = this.users.findIndex(u => u.id === this.editUserId);
+          if (index !== -1) {
+            this.users[index] = { ...this.users[index], ...updateData };
+          }
+          this.cancelEdit();
+          this.loadUsers(); // Refresh the list
         },
         error: (err) => {
           console.error('Error updating user:', err);

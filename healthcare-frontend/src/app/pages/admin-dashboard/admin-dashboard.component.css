@@ -89,3 +89,17 @@ body {
   padding: 0;
   margin: 0;
 }
+
+/* Add spinning animation for refresh button */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

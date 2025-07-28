@@ -34,8 +34,7 @@ export class DashboardNotificationComponent implements OnInit, OnDestroy {
 
   loadNotifications() {
     this.notificationService.getNotifications().subscribe({
-      next: notifs => {
-        console.log('Fetched notifications:', notifs);
+      next: (notifs) => {
         this.notifications = notifs;
         this.unreadCount = notifs.filter(n => !n.is_read).length;
       },

@@ -39,22 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'channels',  # Add Django Channels
     'users',
     'corsheaders',
     'appointments',
-
     'prescriptions',
     'activity',
     'medicine_store',
     'order_management',
-
     'notifications'
-
-
-
-    
-
-    
 ]
 
 MIDDLEWARE = [
@@ -161,3 +154,13 @@ CORS_ALLOWED_ORIGINS = [
         "http://localhost:4200", # Your Angular app's address
         "http://127.0.0.1:4200",
     ]
+
+# ASGI Application
+ASGI_APPLICATION = 'healthcare.asgi.application'
+
+# Channel Layers for WebSocket
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}

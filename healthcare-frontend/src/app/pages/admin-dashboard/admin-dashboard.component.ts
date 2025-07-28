@@ -1,11 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { AppointmentService } from '../../services/appointment.service';
 import { ActivityService, Activity } from '../../services/activity.service';
+import { WebSocketService } from '../../services/websocket.service';
+import { WebSocketMessage, DoctorStatus } from '../../types/websocket.types';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { OrderService } from '../../services/medicine_store_services/order.service';
+import { Subscription } from 'rxjs';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -14,7 +18,7 @@ import { OrderService } from '../../services/medicine_store_services/order.servi
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   users: any[] = [];
   latestUsers: any[] = [];
   appointments: any[] = [];
@@ -24,20 +28,112 @@ export class AdminDashboardComponent implements OnInit {
 
   orders: any[] = [];
   latestOrders: any[] = [];
-  totalRevenue: number = 0; // <-- Add this
+  totalRevenue: number = 0;
+
+  // WebSocket related properties
+  onlineDoctors: any[] = [];
+  allDoctors: any[] = [];
+  totalDoctors: number = 0;
+  onlineCount: number = 0;
+  offlineCount: number = 0;
+  isWebSocketConnected: boolean = false;
+  isRefreshing: boolean = false;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private userService: UserService,
     private appointmentService: AppointmentService,
     private activityService: ActivityService,
-    private orderService: OrderService // <-- Inject here
+    private orderService: OrderService,
+    public webSocketService: WebSocketService
   ) {}
+
+  // Getter for online doctors
+  get onlineDoctorsList(): any[] {
+    return this.allDoctors.filter(d => d.is_available_for_consultation);
+  }
 
   ngOnInit() {
     this.loadUsers();
     this.loadAppointments();
     this.loadActivities();
-    this.loadOrders(); // <-- Load orders and revenue
+    this.loadOrders();
+    this.setupWebSocket();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  setupWebSocket() {
+    this.subscriptions.push(
+      this.webSocketService.connectionStatus$.subscribe(connected => {
+        this.isWebSocketConnected = connected;
+        if (connected) {
+          this.webSocketService.refreshDoctorStatuses();
+        }
+      })
+    );
+
+    this.subscriptions.push(
+      this.webSocketService.doctorStatus$.subscribe((statuses: any[]) => {
+        statuses.forEach(status => {
+          const doctorIndex = this.allDoctors.findIndex(d => d.id === status.doctor_id);
+          if (doctorIndex !== -1) {
+            this.allDoctors[doctorIndex].is_available_for_consultation = status.is_available_for_consultation;
+          }
+        });
+        
+        this.onlineDoctors = statuses.filter(status => status.is_available_for_consultation);
+        this.updateStats();
+      })
+    );
+
+    this.subscriptions.push(
+      this.webSocketService.messages$.subscribe(message => {
+        if (message && message.type === 'doctor_status_change') {
+          this.handleDoctorStatusChange(message);
+        }
+      })
+    );
+
+    this.loadInitialData();
+
+    this.subscriptions.push(
+      interval(3000).subscribe(() => {
+        if (!this.webSocketService.isConnected() && this.webSocketService.isInFallbackMode()) {
+          this.webSocketService.refreshDoctorStatuses();
+        }
+      })
+    );
+  }
+
+  loadInitialData() {
+    this.loadUsers();
+    this.loadAppointments();
+    this.loadActivities();
+    this.loadOrders();
+    
+    this.userService.getUsers().subscribe(users => {
+      this.allDoctors = users.filter(user => user.role === 'doctor');
+      this.totalDoctors = this.allDoctors.length;
+      this.updateStats();
+    });
+  }
+
+  handleDoctorStatusChange(message: WebSocketMessage) {
+    if (!message.doctor_id || !message.doctor_info) return;
+    
+    const doctorIndex = this.allDoctors.findIndex(d => d.id === message.doctor_id);
+    if (doctorIndex !== -1) {
+      this.allDoctors[doctorIndex].is_available_for_consultation = message.doctor_info.is_available_for_consultation;
+      this.updateStats();
+    }
+  }
+
+  updateStats() {
+    this.onlineCount = this.allDoctors.filter(d => d.is_available_for_consultation).length;
+    this.offlineCount = this.totalDoctors - this.onlineCount;
   }
 
   loadUsers() {
@@ -72,5 +168,16 @@ export class AdminDashboardComponent implements OnInit {
       this.latestOrders = this.orders.slice(0, 5);
       this.totalRevenue = data.total_revenue;
     });
+  }
+
+  manualRefresh() {
+    this.isRefreshing = true;
+    
+    this.loadInitialData();
+    this.webSocketService.refreshDoctorStatuses();
+    
+    setTimeout(() => {
+      this.isRefreshing = false;
+    }, 1000);
   }
 }

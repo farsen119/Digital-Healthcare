@@ -28,18 +28,43 @@ export class AuthService {
           localStorage.setItem('access', res.access);
           localStorage.setItem('refresh', res.refresh);
         }
-        this.getProfile().subscribe();
+        this.getProfile().subscribe(user => {
+          // If user is a doctor, automatically set them online
+          if (user && user.role === 'doctor') {
+            this.setDoctorOnline().subscribe();
+          }
+        });
       })
     );
   }
 
   logout(): void {
+    // If user is a doctor, set them offline before logout
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser && currentUser.role === 'doctor') {
+      this.setDoctorOffline().subscribe(() => {
+        this.performLogout();
+      });
+    } else {
+      this.performLogout();
+    }
+  }
+
+  private performLogout(): void {
     if (isBrowser()) {
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
       localStorage.removeItem('user');
     }
     this.currentUserSubject.next(null);
+  }
+
+  setDoctorOnline(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/login-status/`, {});
+  }
+
+  setDoctorOffline(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/logout-status/`, {});
   }
 
   register(data: any): Observable<any> {
@@ -64,20 +89,38 @@ export class AuthService {
   }
 
   updateProfile(data: any): Observable<any> {
-    const formData = new FormData();
-    for (const key in data) {
-      if (data[key] !== undefined && data[key] !== null) {
-        formData.append(key, data[key]);
-      }
-    }
-    return this.http.put(`${this.apiUrl}/users/profile/`, formData).pipe(
-      tap((user: any) => {
-        if (isBrowser()) {
-          localStorage.setItem('user', JSON.stringify(user));
-        }
-        this.currentUserSubject.next(user);
-      })
+    // Check if we're updating boolean fields (like is_live)
+    const hasBooleanFields = Object.keys(data).some(key => 
+      typeof data[key] === 'boolean' || key === 'is_live'
     );
+    
+    if (hasBooleanFields) {
+      // Send as JSON for boolean fields
+      return this.http.put(`${this.apiUrl}/users/profile/`, data).pipe(
+        tap((user: any) => {
+          if (isBrowser()) {
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+          this.currentUserSubject.next(user);
+        })
+      );
+    } else {
+      // Send as FormData for file uploads
+      const formData = new FormData();
+      for (const key in data) {
+        if (data[key] !== undefined && data[key] !== null) {
+          formData.append(key, data[key]);
+        }
+      }
+      return this.http.put(`${this.apiUrl}/users/profile/`, formData).pipe(
+        tap((user: any) => {
+          if (isBrowser()) {
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+          this.currentUserSubject.next(user);
+        })
+      );
+    }
   }
 
   isLoggedIn(): boolean {

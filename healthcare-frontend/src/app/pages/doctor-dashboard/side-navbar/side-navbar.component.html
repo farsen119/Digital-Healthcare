@@ -7,14 +7,17 @@
         <i class="bi bi-person-circle"></i>
       </div>
       <!-- Status Dot -->
-      <div class="status-dot" [ngClass]="user?.is_live ? 'online' : 'offline'"></div>
+      <div class="status-indicator">
+        <div class="status-dot" [ngClass]="user?.is_available_for_consultation ? 'online' : 'offline'"></div>
+        <span class="status-text">{{ user?.is_available_for_consultation ? 'Available' : 'Unavailable' }}</span>
+      </div>
     </div>
     <div class="profile-info">
       <h6 class="profile-name">{{ user?.first_name || 'Doctor' }} {{ user?.last_name || '' }}</h6>
       <p class="profile-role">Doctor</p>
-      <small class="status-text" [ngClass]="user?.is_live ? 'text-success' : 'text-danger'">
-        <i class="bi" [ngClass]="user?.is_live ? 'bi-circle-fill' : 'bi-circle-fill'"></i>
-        {{ user?.is_live ? 'Online' : 'Offline' }}
+      <small class="status-text" [ngClass]="user?.is_available_for_consultation ? 'text-success' : 'text-danger'">
+        <i class="bi" [ngClass]="user?.is_available_for_consultation ? 'bi-circle-fill' : 'bi-circle-fill'"></i>
+        {{ user?.is_available_for_consultation ? 'Available' : 'Unavailable' }}
       </small>
     </div>
   </div>

@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
             'specialization', 'photo', 'phone', 'city',
             # Doctor-specific fields
             'license_number', 'experience_years', 'qualification', 'hospital',
-            'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live',
+            'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation',
             # Age and Gender fields
             'age', 'gender'
         ]
@@ -35,7 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             'specialization', 'photo', 'phone', 'city',
             # Doctor-specific fields
             'license_number', 'experience_years', 'qualification', 'hospital',
-            'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live',
+            'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation',
             # Age and Gender fields
             'age', 'gender'
         ]
@@ -67,6 +67,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             available_days=validated_data.get('available_days', ''),
             consultation_hours=validated_data.get('consultation_hours', ''),
             is_live=validated_data.get('is_live', False),
+            is_available_for_consultation=validated_data.get('is_available_for_consultation', False),
             # Age and Gender fields
             age=validated_data.get('age', None),
             gender=validated_data.get('gender', ''),

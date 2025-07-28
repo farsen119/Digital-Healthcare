@@ -29,25 +29,26 @@
           <div class="col-md-6">
             <div class="d-flex align-items-center mb-3">
               <div class="form-check form-switch me-3">
-                <input class="form-check-input" type="checkbox" id="liveStatus" 
-                       [(ngModel)]="user.is_live" (change)="toggleLiveStatus()">
-                <label class="form-check-label" for="liveStatus">
-                  <strong>Go Live / Online</strong>
+                <input class="form-check-input" type="checkbox" id="consultationStatus" 
+                       [checked]="user.is_available_for_consultation" (change)="toggleConsultationStatus()"
+                       [disabled]="loading">
+                <label class="form-check-label" for="consultationStatus">
+                  <strong>Available for Consultation</strong>
                 </label>
               </div>
-              <span class="badge" [ngClass]="user.is_live ? 'bg-success' : 'bg-secondary'">
-                {{ user.is_live ? 'Online' : 'Offline' }}
+              <span class="badge" [ngClass]="user.is_available_for_consultation ? 'bg-success' : 'bg-secondary'">
+                {{ user.is_available_for_consultation ? 'Available' : 'Unavailable' }}
               </span>
             </div>
             <p class="text-muted mb-0">
               <i class="bi bi-info-circle me-1"></i>
-              Toggle online/offline to show patients your current availability status.
+              Toggle to show patients your current consultation availability.
             </p>
           </div>
           <div class="col-md-6 text-end">
             <div class="status-indicator">
-              <div class="status-dot" [ngClass]="user.is_live ? 'online' : 'offline'"></div>
-              <span class="status-text">{{ user.is_live ? 'Available for Consultations' : 'Currently Offline' }}</span>
+              <div class="status-dot" [ngClass]="user.is_available_for_consultation ? 'online' : 'offline'"></div>
+              <span class="status-text">{{ user.is_available_for_consultation ? 'Available for Consultations' : 'Currently Unavailable' }}</span>
             </div>
           </div>
         </div>
