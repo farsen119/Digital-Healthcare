@@ -22,11 +22,10 @@ export class AdminRegisterComponent {
     password: '',
     confirm_password: '',
     phone: '',
-    city: '',
-    photo: null,
-    // Personal Information
     age: null,
     gender: '',
+    city: '',
+    photo: null,
     // Doctor-specific fields
     specialization: '',
     license_number: '',
@@ -76,6 +75,20 @@ export class AdminRegisterComponent {
 
     if (!this.form.role) {
       alert('Please select a user role.');
+      return;
+    }
+
+    // Validate required fields for all users
+    if (!this.form.first_name || !this.form.last_name || !this.form.username || 
+        !this.form.email || !this.form.password || !this.form.phone || 
+        !this.form.age || !this.form.gender) {
+      alert('Please fill in all required fields: First Name, Last Name, Username, Email, Password, Phone, Age, and Gender.');
+      return;
+    }
+
+    // Validate age
+    if (this.form.age < 1 || this.form.age > 120) {
+      alert('Please enter a valid age between 1 and 120.');
       return;
     }
 

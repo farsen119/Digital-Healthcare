@@ -49,6 +49,8 @@ export class PatientProfileComponent implements OnInit {
       last_name: this.user.last_name,
       email: this.user.email,
       phone: this.user.phone,
+      age: this.user.age,
+      gender: this.user.gender,
       city: this.user.city
     };
     if (this.photo) data.photo = this.photo;

@@ -12,47 +12,64 @@
             <!-- First Name and Last Name -->
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="first_name" class="form-label">First Name</label>
+                <label for="first_name" class="form-label">First Name *</label>
                 <input type="text" id="first_name" name="first_name" [(ngModel)]="form.first_name" class="form-control" required>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="last_name" class="form-label">Last Name</label>
+                <label for="last_name" class="form-label">Last Name *</label>
                 <input type="text" id="last_name" name="last_name" [(ngModel)]="form.last_name" class="form-control" required>
               </div>
             </div>
 
-            <!-- Email, Username, etc. -->
+            <!-- Username and Email -->
             <div class="mb-3">
-              <label for="username" class="form-label">Username</label>
+              <label for="username" class="form-label">Username *</label>
               <input type="text" id="username" name="username" [(ngModel)]="form.username" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
+              <label for="email" class="form-label">Email *</label>
               <input type="email" id="email" name="email" [(ngModel)]="form.email" class="form-control" required>
             </div>
             
             <!-- Passwords -->
             <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
+              <label for="password" class="form-label">Password *</label>
               <input type="password" id="password" name="password" [(ngModel)]="form.password" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label for="confirm_password" class="form-label">Confirm Password</label>
+              <label for="confirm_password" class="form-label">Confirm Password *</label>
               <input type="password" id="confirm_password" name="confirm_password" [(ngModel)]="form.confirm_password" class="form-control" required>
             </div>
             
-            <!-- Other optional fields -->
+            <!-- Phone, Age, and Gender -->
             <div class="mb-3">
-                <label for="phone" class="form-label">Phone (Optional)</label>
-                <input type="text" id="phone" name="phone" [(ngModel)]="form.phone" class="form-control">
+              <label for="phone" class="form-label">Phone *</label>
+              <input type="text" id="phone" name="phone" [(ngModel)]="form.phone" class="form-control" required>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="age" class="form-label">Age *</label>
+                <input type="number" id="age" name="age" [(ngModel)]="form.age" class="form-control" min="1" max="120" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="gender" class="form-label">Gender *</label>
+                <select id="gender" name="gender" [(ngModel)]="form.gender" class="form-control" required>
+                  <option value="" disabled selected>Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Optional fields -->
+            <div class="mb-3">
+              <label for="city" class="form-label">City (Optional)</label>
+              <input type="text" id="city" name="city" [(ngModel)]="form.city" class="form-control">
             </div>
             <div class="mb-3">
-                <label for="city" class="form-label">City (Optional)</label>
-                <input type="text" id="city" name="city" [(ngModel)]="form.city" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label for="photo" class="form-label">Profile Photo (Optional)</label>
-                <input type="file" id="photo" name="photo" (change)="onFileChange($event)" class="form-control">
+              <label for="photo" class="form-label">Profile Photo (Optional)</label>
+              <input type="file" id="photo" name="photo" (change)="onFileChange($event)" class="form-control">
             </div>
 
             <button type="submit" class="btn btn-primary w-100" [disabled]="registerForm.invalid">Register as Patient</button>

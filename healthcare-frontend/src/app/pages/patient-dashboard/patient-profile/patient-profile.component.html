@@ -25,10 +25,12 @@
               <p class="mb-2"><strong>Last Name:</strong> {{ user.last_name }}</p>
               <p class="mb-2"><strong>Username:</strong> {{ user.username }}</p>
               <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+              <p class="mb-2"><strong>Phone:</strong> {{ user.phone }}</p>
             </div>
             <div class="col-md-6">
-              <p class="mb-2"><strong>Phone:</strong> {{ user.phone }}</p>
-              <p class="mb-2"><strong>City:</strong> {{ user.city }}</p>
+              <p class="mb-2"><strong>Age:</strong> {{ user.age }}</p>
+              <p class="mb-2"><strong>Gender:</strong> {{ user.gender | titlecase }}</p>
+              <p class="mb-2"><strong>City:</strong> {{ user.city || 'Not specified' }}</p>
               <div class="mb-3">
                 <img *ngIf="user.photo" [src]="getPhotoUrl()" class="img-thumbnail" width="100" alt="Profile Photo">
               </div>
@@ -65,6 +67,20 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">Phone</label>
                 <input type="tel" class="form-control" [(ngModel)]="user.phone" name="phone" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control" [(ngModel)]="user.age" name="age" min="1" max="120" required>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Gender</label>
+                <select class="form-control" [(ngModel)]="user.gender" name="gender" required>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">City</label>
