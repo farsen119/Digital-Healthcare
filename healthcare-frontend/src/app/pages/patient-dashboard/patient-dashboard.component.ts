@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { WebSocketService } from '../../services/websocket.service';
+import { AppointmentService } from '../../services/appointment.service';
+import { OrderService } from '../../services/medicine_store_services/order.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -18,19 +20,34 @@ import { Subscription, interval } from 'rxjs';
 })
 export class PatientDashboardComponent implements OnInit, OnDestroy {
   user: any = null;
-  photo: File | null = null;
-  loading = false;
-  showUpdateForm = false;
-  errorMsg: string = '';
+  
+  // Available Doctors
   availableDoctors: any[] = [];
-  allDoctors: any[] = []; // Store all doctors
+  allDoctors: any[] = [];
   loadingDoctors = false;
   isWebSocketConnected = false;
+  
+  // Patient Data
+  appointments: any[] = [];
+  recentAppointments: any[] = [];
+  upcomingAppointments: any[] = [];
+  prescriptions: any[] = [];
+  orders: any[] = [];
+  recentOrders: any[] = [];
+  
+  // Stats
+  totalAppointments = 0;
+  totalPrescriptions = 0;
+  totalOrders = 0;
+  totalSpent = 0;
+  
   private subscriptions: Subscription[] = [];
 
   constructor(
     private auth: AuthService,
     private userService: UserService,
+    private appointmentService: AppointmentService,
+    private orderService: OrderService,
     public webSocketService: WebSocketService
   ) {}
 
@@ -39,8 +56,9 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
     this.auth.getProfile().subscribe({
       next: user => {
         this.user = user;
-        // Load doctors and setup WebSocket
+        // Load all data
         this.loadAllDoctors();
+        this.loadPatientData();
         this.setupWebSocket();
       },
       error: err => {
@@ -51,6 +69,40 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  loadPatientData() {
+    // Load appointments
+    this.appointmentService.getAppointments().subscribe({
+      next: (appointments) => {
+        this.appointments = appointments;
+        this.recentAppointments = appointments.slice(0, 3);
+        this.upcomingAppointments = appointments.filter(apt => 
+          new Date(apt.date) > new Date() && apt.status === 'accepted'
+        ).slice(0, 3);
+        this.totalAppointments = appointments.length;
+        
+        // Count prescriptions
+        this.prescriptions = appointments.filter(apt => apt.prescription);
+        this.totalPrescriptions = this.prescriptions.length;
+      },
+      error: (err) => {
+        console.error('Error loading appointments:', err);
+      }
+    });
+
+    // Load orders
+    this.orderService.getMyOrders().subscribe({
+      next: (orders) => {
+        this.orders = orders;
+        this.recentOrders = orders.slice(0, 3);
+        this.totalOrders = orders.length;
+        this.totalSpent = orders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
+      },
+      error: (err) => {
+        console.error('Error loading orders:', err);
+      }
+    });
   }
 
   setupWebSocket() {
@@ -159,69 +211,5 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
       return 'http://localhost:8000' + doctor.photo;
     }
     return '';
-  }
-
-  onFileChange(event: any) {
-    if (event.target.files.length > 0) {
-      this.photo = event.target.files[0];
-    }
-  }
-
-  getPhotoUrl(): string {
-    if (this.user && this.user.photo) {
-      if (this.user.photo.startsWith('http')) {
-        return this.user.photo;
-      }
-      return 'http://localhost:8000' + this.user.photo;
-    }
-    return '';
-  }
-
-  update() {
-    this.loading = true;
-    this.errorMsg = '';
-    const data: any = {
-      first_name: this.user.first_name,
-      last_name: this.user.last_name,
-      email: this.user.email,
-      phone: this.user.phone,
-      city: this.user.city
-    };
-    if (this.photo) data.photo = this.photo;
-    this.auth.updateProfile(data).subscribe({
-      next: user => {
-        this.user = user;
-        this.loading = false;
-        this.showUpdateForm = false;
-        this.photo = null;
-        alert('Profile updated!');
-      },
-      error: (err) => {
-        this.loading = false;
-        if (err.error) {
-          if (typeof err.error === 'string') {
-            this.errorMsg = err.error;
-          } else if (typeof err.error === 'object') {
-            this.errorMsg = Object.values(err.error).join('\n');
-          } else {
-            this.errorMsg = 'Update failed. Unknown error.';
-          }
-        } else {
-          this.errorMsg = 'Update failed. Network or server error.';
-        }
-        alert(this.errorMsg);
-      }
-    });
-  }
-
-  openUpdateForm() {
-    this.showUpdateForm = true;
-    this.errorMsg = '';
-  }
-
-  cancelUpdate() {
-    this.showUpdateForm = false;
-    this.photo = null;
-    this.errorMsg = '';
   }
 }
