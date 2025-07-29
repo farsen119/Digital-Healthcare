@@ -14,6 +14,8 @@ export class WebSocketService {
   private pollingTimer: any = null;
   private isConnecting = false;
   private fallbackMode = false;
+  private fallbackCooldown = false;
+  private fallbackCooldownTime = 20000; // 20 seconds cooldown
 
   private doctorStatusSubject = new BehaviorSubject<any[]>([]);
   private connectionStatusSubject = new BehaviorSubject<boolean>(false);
@@ -35,13 +37,10 @@ export class WebSocketService {
   }
 
   public connect(): void {
-    if (this.isConnecting || this.isConnected()) return;
-    
+    if (this.isConnecting || this.isConnected() || this.fallbackCooldown) return;
     this.isConnecting = true;
-    
     try {
       this.socket = new WebSocket(this.getWebSocketUrl());
-      
       this.socket.onopen = () => {
         this.connectionStatusSubject.next(true);
         this.isConnecting = false;
@@ -49,47 +48,36 @@ export class WebSocketService {
         this.fallbackMode = false;
         this.stopPolling();
       };
-
       this.socket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
           if (data.type === 'doctor_status_change') {
             this.handleDoctorStatusChange(data);
           } else {
             this.messagesSubject.next(data);
           }
-        } catch (error) {
-          // Silent error handling
-        }
+        } catch (error) {}
       };
-
       this.socket.onclose = (event) => {
         this.connectionStatusSubject.next(false);
         this.isConnecting = false;
         this.stopPolling();
-        
-        // Switch to fallback mode if WebSocket fails
         if (!this.fallbackMode) {
           this.startFallbackMode();
         }
-        
-        // Attempt to reconnect if not manually closed
         if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.attemptReconnect();
+        } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+          this.enterFallbackCooldown();
         }
       };
-
       this.socket.onerror = (error) => {
         this.connectionStatusSubject.next(false);
         this.isConnecting = false;
-        
-        // Switch to fallback mode on error
         if (!this.fallbackMode) {
           this.startFallbackMode();
         }
       };
-
     } catch (error) {
       this.connectionStatusSubject.next(false);
       this.isConnecting = false;
@@ -97,7 +85,18 @@ export class WebSocketService {
     }
   }
 
+  private enterFallbackCooldown() {
+    this.fallbackCooldown = true;
+    this.fallbackMode = true;
+    setTimeout(() => {
+      this.fallbackCooldown = false;
+      this.reconnectAttempts = 0;
+      this.connect();
+    }, this.fallbackCooldownTime);
+  }
+
   private startFallbackMode(): void {
+    if (this.fallbackMode) return;
     this.fallbackMode = true;
     this.startPolling();
   }

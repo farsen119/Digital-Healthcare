@@ -7,12 +7,12 @@ import { User } from '../models/user.model';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://127.0.0.1:8000/api/users/';
+  private apiUrl = 'http://localhost:8000/api/users/';
 
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
@@ -22,7 +22,8 @@ export class UserService {
    * Gets all users.
    */
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+    const authHeaders = this.getAuthHeaders();
+    return this.http.get<User[]>(this.apiUrl, { headers: authHeaders });
   }
 
   /**
@@ -36,7 +37,8 @@ export class UserService {
    * Gets all users with the 'doctor' role.
    */
   getDoctors(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}?role=doctor`);
+    const authHeaders = this.getAuthHeaders();
+    return this.http.get<User[]>(this.apiUrl, { headers: authHeaders });
   }
 
   /**
