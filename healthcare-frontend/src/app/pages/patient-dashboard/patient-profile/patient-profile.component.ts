@@ -51,7 +51,21 @@ export class PatientProfileComponent implements OnInit {
       phone: this.user.phone,
       age: this.user.age,
       gender: this.user.gender,
-      city: this.user.city
+      city: this.user.city,
+      // Patient-specific fields
+      date_of_birth: this.user.date_of_birth,
+      address: this.user.address,
+      blood_group: this.user.blood_group,
+      emergency_contact_name: this.user.emergency_contact_name,
+      emergency_contact_phone: this.user.emergency_contact_phone,
+      emergency_contact_relationship: this.user.emergency_contact_relationship,
+      medical_history: this.user.medical_history,
+      current_medications: this.user.current_medications,
+      allergies: this.user.allergies,
+      height: this.user.height,
+      weight: this.user.weight,
+      occupation: this.user.occupation,
+      marital_status: this.user.marital_status
     };
     if (this.photo) data.photo = this.photo;
     this.auth.updateProfile(data).subscribe({
@@ -60,7 +74,7 @@ export class PatientProfileComponent implements OnInit {
         this.loading = false;
         this.showUpdateForm = false;
         this.photo = null;
-        alert('Profile updated!');
+        alert('Profile updated successfully!');
       },
       error: (err) => {
         this.loading = false;

@@ -81,3 +81,91 @@ body {
   padding: 0;
   margin: 0;
 }
+
+/* Tab Navigation Styling */
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 20px;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 12px 20px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: transparent;
+  color: #495057;
+  background-color: #f8f9fa;
+}
+
+.nav-tabs .nav-link.active {
+  color: #007bff;
+  background-color: transparent;
+  border-bottom: 3px solid #007bff;
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link.active i {
+  color: #007bff;
+}
+
+/* Tab Content Styling */
+.tab-content {
+  background: transparent;
+}
+
+.tab-pane {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Role-specific table headers */
+.table-primary {
+  background-color: #cce7ff !important;
+  color: #004085;
+}
+
+.table-success {
+  background-color: #d4edda !important;
+  color: #155724;
+}
+
+.table-info {
+  background-color: #d1ecf1 !important;
+  color: #0c5460;
+}
+
+/* Responsive tab design */
+@media (max-width: 768px) {
+  .nav-tabs {
+    flex-direction: column;
+  }
+  
+  .nav-tabs .nav-link {
+    border-bottom: 1px solid #dee2e6;
+    border-right: none;
+    text-align: left;
+  }
+  
+  .nav-tabs .nav-link.active {
+    border-bottom: 2px solid #007bff;
+    border-right: 3px solid #007bff;
+  }
+}

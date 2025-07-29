@@ -29,6 +29,19 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
+  // Helper methods to filter users by role
+  getAdmins() {
+    return this.users.filter(user => user.role === 'admin');
+  }
+
+  getDoctors() {
+    return this.users.filter(user => user.role === 'doctor');
+  }
+
+  getPatients() {
+    return this.users.filter(user => user.role === 'patient');
+  }
+
   deleteUser(id: number) {
     if (confirm('Are you sure you want to delete this user?')) {
       this.userService.deleteUser(id).subscribe(() => this.loadUsers());
@@ -42,6 +55,20 @@ export class AdminUsersComponent implements OnInit {
       // Ensure all fields are initialized
       age: user.age || null,
       gender: user.gender || '',
+      blood_group: user.blood_group || '',
+      emergency_contact_name: user.emergency_contact_name || '',
+      emergency_contact_phone: user.emergency_contact_phone || '',
+      emergency_contact_relationship: user.emergency_contact_relationship || '',
+      date_of_birth: user.date_of_birth ? this.formatDateForInput(user.date_of_birth) : '',
+      address: user.address || '',
+      medical_history: user.medical_history || '',
+      current_medications: user.current_medications || '',
+      allergies: user.allergies || '',
+      height: user.height || null,
+      weight: user.weight || null,
+      occupation: user.occupation || '',
+      marital_status: user.marital_status || '',
+      // Doctor-specific fields
       license_number: user.license_number || '',
       experience_years: user.experience_years || null,
       qualification: user.qualification || '',
@@ -53,6 +80,14 @@ export class AdminUsersComponent implements OnInit {
       is_available_for_consultation: user.is_available_for_consultation || false
     };
     this.editForm.photo = null; // Reset photo for new upload
+  }
+
+  // Helper method to format date for input field
+  formatDateForInput(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
   }
 
   cancelEdit() {
@@ -73,6 +108,21 @@ export class AdminUsersComponent implements OnInit {
       // Handle null values for numeric fields
       if (updateData.experience_years === '') updateData.experience_years = null;
       if (updateData.consultation_fee === '') updateData.consultation_fee = null;
+      if (updateData.height === '') updateData.height = null;
+      if (updateData.weight === '') updateData.weight = null;
+      
+      // Handle date_of_birth - ensure it's in correct format or remove if empty
+      if (updateData.date_of_birth === '' || !updateData.date_of_birth) {
+        delete updateData.date_of_birth;
+      } else {
+        // Ensure date is in YYYY-MM-DD format
+        const date = new Date(updateData.date_of_birth);
+        if (!isNaN(date.getTime())) {
+          updateData.date_of_birth = date.toISOString().split('T')[0];
+        } else {
+          delete updateData.date_of_birth;
+        }
+      }
       
       this.userService.updateUser(this.editUserId, updateData).subscribe({
         next: (response) => {

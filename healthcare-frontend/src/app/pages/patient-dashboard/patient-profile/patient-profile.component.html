@@ -10,46 +10,131 @@
     <!-- Dashboard Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2><i class="bi bi-person-circle me-2"></i> Patient Profile</h2>
+      <button *ngIf="!showUpdateForm" class="btn btn-primary" (click)="openUpdateForm()">
+        <i class="bi bi-pencil me-2"></i>Edit Profile
+      </button>
     </div>
 
-    <!-- Profile Information Card -->
-    <div class="card mb-4">
-      <div class="card-header bg-dark text-white">
-        <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i> Profile Information</h5>
-      </div>
-      <div class="card-body">
-        <div *ngIf="user && !showUpdateForm">
+    <!-- Profile Information Cards -->
+    <div *ngIf="user && !showUpdateForm">
+      
+      <!-- Basic Information Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-person me-2"></i> Basic Information</h5>
+        </div>
+        <div class="card-body">
           <div class="row">
-            <div class="col-md-6">
-              <p class="mb-2"><strong>First Name:</strong> {{ user.first_name }}</p>
-              <p class="mb-2"><strong>Last Name:</strong> {{ user.last_name }}</p>
-              <p class="mb-2"><strong>Username:</strong> {{ user.username }}</p>
-              <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
-              <p class="mb-2"><strong>Phone:</strong> {{ user.phone }}</p>
+            <div class="col-md-3 text-center mb-3">
+              <img *ngIf="user.photo" [src]="getPhotoUrl()" class="img-thumbnail rounded-circle" width="150" alt="Profile Photo">
+              <div *ngIf="!user.photo" class="profile-placeholder-large">
+                <i class="bi bi-person-circle" style="font-size: 150px; color: #ccc;"></i>
+              </div>
             </div>
-            <div class="col-md-6">
-              <p class="mb-2"><strong>Age:</strong> {{ user.age }}</p>
-              <p class="mb-2"><strong>Gender:</strong> {{ user.gender | titlecase }}</p>
-              <p class="mb-2"><strong>City:</strong> {{ user.city || 'Not specified' }}</p>
-              <div class="mb-3">
-                <img *ngIf="user.photo" [src]="getPhotoUrl()" class="img-thumbnail" width="100" alt="Profile Photo">
+            <div class="col-md-9">
+              <div class="row">
+                <div class="col-md-6">
+                  <p class="mb-2"><strong>Full Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                  <p class="mb-2"><strong>Username:</strong> {{ user.username }}</p>
+                  <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                  <p class="mb-2"><strong>Phone:</strong> {{ user.phone || 'Not specified' }}</p>
+                  <p class="mb-2"><strong>Age:</strong> {{ user.age || 'Not specified' }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="mb-2"><strong>Gender:</strong> {{ user.gender ? (user.gender | titlecase) : 'Not specified' }}</p>
+                  <p class="mb-2"><strong>Date of Birth:</strong> {{ user.date_of_birth ? (user.date_of_birth | date:'longDate') : 'Not specified' }}</p>
+                  <p class="mb-2"><strong>Blood Group:</strong> {{ user.blood_group || 'Not specified' }}</p>
+                  <p class="mb-2"><strong>Marital Status:</strong> {{ user.marital_status ? (user.marital_status | titlecase) : 'Not specified' }}</p>
+                  <p class="mb-2"><strong>Occupation:</strong> {{ user.occupation || 'Not specified' }}</p>
+                </div>
               </div>
             </div>
           </div>
-          <button class="btn btn-primary" (click)="openUpdateForm()">
-            <i class="bi bi-pencil me-2"></i>Update Details
-          </button>
         </div>
-        <div *ngIf="user && showUpdateForm">
+      </div>
+
+      <!-- Physical Information Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i> Physical Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <p class="mb-2"><strong>Height:</strong> {{ user.height ? user.height + ' cm' : 'Not specified' }}</p>
+            </div>
+            <div class="col-md-4">
+              <p class="mb-2"><strong>Weight:</strong> {{ user.weight ? user.weight + ' kg' : 'Not specified' }}</p>
+            </div>
+            <div class="col-md-4">
+              <p class="mb-2"><strong>BMI:</strong> {{ user.bmi ? user.bmi : 'Not calculated' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i> Contact Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-2"><strong>City:</strong> {{ user.city || 'Not specified' }}</p>
+              <p class="mb-2"><strong>Address:</strong> {{ user.address || 'Not specified' }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Emergency Contact:</strong> {{ user.emergency_contact_name || 'Not specified' }}</p>
+              <p class="mb-2"><strong>Emergency Phone:</strong> {{ user.emergency_contact_phone || 'Not specified' }}</p>
+              <p class="mb-2"><strong>Relationship:</strong> {{ user.emergency_contact_relationship || 'Not specified' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Information Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0"><i class="bi bi-clipboard2-pulse me-2"></i> Medical Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Medical History</h6>
+              <p class="text-muted">{{ user.medical_history || 'No medical history recorded' }}</p>
+              
+              <h6>Current Medications</h6>
+              <p class="text-muted">{{ user.current_medications || 'No current medications' }}</p>
+            </div>
+            <div class="col-md-6">
+              <h6>Allergies</h6>
+              <p class="text-muted">{{ user.allergies || 'No known allergies' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div *ngIf="user && showUpdateForm">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i> Edit Patient Profile</h5>
+        </div>
+        <div class="card-body">
           <form (ngSubmit)="update()" enctype="multipart/form-data">
             <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+            
+            <!-- Basic Information Section -->
+            <h6 class="text-primary mb-3"><i class="bi bi-person me-2"></i> Basic Information</h6>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">First Name</label>
+                <label class="form-label">First Name *</label>
                 <input type="text" class="form-control" [(ngModel)]="user.first_name" name="first_name" required>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Last Name</label>
+                <label class="form-label">Last Name *</label>
                 <input type="text" class="form-control" [(ngModel)]="user.last_name" name="last_name" required>
               </div>
             </div>
@@ -59,23 +144,23 @@
                 <input type="text" class="form-control" [value]="user.username" disabled>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Email</label>
+                <label class="form-label">Email *</label>
                 <input type="email" class="form-control" [(ngModel)]="user.email" name="email" required>
               </div>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Phone</label>
+                <label class="form-label">Phone *</label>
                 <input type="tel" class="form-control" [(ngModel)]="user.phone" name="phone" required>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Age</label>
+                <label class="form-label">Age *</label>
                 <input type="number" class="form-control" [(ngModel)]="user.age" name="age" min="1" max="120" required>
               </div>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Gender</label>
+                <label class="form-label">Gender *</label>
                 <select class="form-control" [(ngModel)]="user.gender" name="gender" required>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -83,20 +168,113 @@
                 </select>
               </div>
               <div class="col-md-6 mb-3">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" class="form-control" [(ngModel)]="user.date_of_birth" name="date_of_birth">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Blood Group</label>
+                <select class="form-control" [(ngModel)]="user.blood_group" name="blood_group">
+                  <option value="">Select Blood Group</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Marital Status</label>
+                <select class="form-control" [(ngModel)]="user.marital_status" name="marital_status">
+                  <option value="">Select Status</option>
+                  <option value="single">Single</option>
+                  <option value="married">Married</option>
+                  <option value="divorced">Divorced</option>
+                  <option value="widowed">Widowed</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Occupation</label>
+                <input type="text" class="form-control" [(ngModel)]="user.occupation" name="occupation">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Profile Photo</label>
+                <input type="file" class="form-control" (change)="onFileChange($event)">
+              </div>
+            </div>
+
+            <!-- Physical Information Section -->
+            <h6 class="text-success mb-3 mt-4"><i class="bi bi-heart-pulse me-2"></i> Physical Information</h6>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Height (cm)</label>
+                <input type="number" class="form-control" [(ngModel)]="user.height" name="height" min="50" max="300" step="0.1">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Weight (kg)</label>
+                <input type="number" class="form-control" [(ngModel)]="user.weight" name="weight" min="10" max="500" step="0.1">
+              </div>
+            </div>
+
+            <!-- Contact Information Section -->
+            <h6 class="text-info mb-3 mt-4"><i class="bi bi-geo-alt me-2"></i> Contact Information</h6>
+            <div class="row">
+              <div class="col-md-6 mb-3">
                 <label class="form-label">City</label>
                 <input type="text" class="form-control" [(ngModel)]="user.city" name="city">
               </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Address</label>
+                <textarea class="form-control" [(ngModel)]="user.address" name="address" rows="3"></textarea>
+              </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Profile Photo</label>
-              <input type="file" class="form-control" (change)="onFileChange($event)">
+
+            <!-- Emergency Contact Section -->
+            <h6 class="text-warning mb-3 mt-4"><i class="bi bi-telephone me-2"></i> Emergency Contact</h6>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Emergency Contact Name</label>
+                <input type="text" class="form-control" [(ngModel)]="user.emergency_contact_name" name="emergency_contact_name">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Emergency Contact Phone</label>
+                <input type="tel" class="form-control" [(ngModel)]="user.emergency_contact_phone" name="emergency_contact_phone">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Relationship</label>
+                <input type="text" class="form-control" [(ngModel)]="user.emergency_contact_relationship" name="emergency_contact_relationship">
+              </div>
             </div>
-            <div class="mb-3" *ngIf="user.photo">
-              <img [src]="getPhotoUrl()" class="img-thumbnail" width="100" alt="Profile Photo">
+
+            <!-- Medical Information Section -->
+            <h6 class="text-danger mb-3 mt-4"><i class="bi bi-clipboard2-pulse me-2"></i> Medical Information</h6>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Medical History</label>
+                <textarea class="form-control" [(ngModel)]="user.medical_history" name="medical_history" rows="4" placeholder="Previous medical conditions, surgeries, etc."></textarea>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Current Medications</label>
+                <textarea class="form-control" [(ngModel)]="user.current_medications" name="current_medications" rows="4" placeholder="Current medications being taken"></textarea>
+              </div>
             </div>
-            <div class="d-flex gap-2">
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Allergies</label>
+                <textarea class="form-control" [(ngModel)]="user.allergies" name="allergies" rows="3" placeholder="Known allergies (drugs, food, environmental)"></textarea>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mt-4">
               <button type="submit" class="btn btn-primary" [disabled]="loading">
-                <i class="bi bi-check-circle me-2"></i>{{ loading ? 'Updating...' : 'Update' }}
+                <i class="bi bi-check-circle me-2"></i>{{ loading ? 'Updating...' : 'Update Profile' }}
               </button>
               <button type="button" class="btn btn-secondary" (click)="cancelUpdate()">
                 <i class="bi bi-x-circle me-2"></i>Cancel

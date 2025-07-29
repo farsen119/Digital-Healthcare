@@ -80,3 +80,154 @@ body {
   padding: 0;
   margin: 0;
 }
+
+/* Patient Profile Styles */
+.profile-placeholder-large {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  background-color: #f8f9fa;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: none;
+  border-radius: 8px;
+}
+
+.card-header {
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Form styling */
+.form-control, .form-select {
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Section headers */
+h6 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+/* Medical information styling */
+.text-muted {
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* Emergency contact highlighting */
+.bg-warning {
+  background-color: #fff3cd !important;
+  color: #856404 !important;
+}
+
+/* Physical information styling */
+.bg-success {
+  background-color: #d1edff !important;
+  color: #0c5460 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .profile-placeholder-large {
+    height: 120px;
+  }
+  
+  .profile-placeholder-large i {
+    font-size: 120px !important;
+  }
+}
+
+/* Button styling */
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Alert styling */
+.alert {
+  border-radius: 6px;
+  border: none;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Textarea styling */
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Profile photo styling */
+.img-thumbnail {
+  border: 3px solid #dee2e6;
+  transition: border-color 0.3s ease;
+}
+
+.img-thumbnail:hover {
+  border-color: #007bff;
+}
+
+/* Information display styling */
+p strong {
+  color: #495057;
+  font-weight: 600;
+}
+
+/* Card hover effects */
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Form section spacing */
+.mt-4 {
+  margin-top: 2rem !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 576px) {
+  .col-md-6, .col-md-4, .col-md-3, .col-md-9 {
+    margin-bottom: 1rem;
+  }
+}

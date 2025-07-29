@@ -3,6 +3,7 @@ from .models import CustomUser
 
 class UserSerializer(serializers.ModelSerializer):
     photo = serializers.ImageField(required=False, allow_null=True)
+    bmi = serializers.ReadOnlyField()
     
     class Meta:
         model = CustomUser
@@ -13,7 +14,11 @@ class UserSerializer(serializers.ModelSerializer):
             'license_number', 'experience_years', 'qualification', 'hospital',
             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation',
             # Age and Gender fields
-            'age', 'gender'
+            'age', 'gender',
+            # Patient-specific fields
+            'date_of_birth', 'address', 'blood_group', 'emergency_contact_name', 'emergency_contact_phone',
+            'emergency_contact_relationship', 'medical_history', 'current_medications', 'allergies',
+            'height', 'weight', 'occupation', 'marital_status', 'bmi'
         ]
         read_only_fields = ['id']  # ID should not be editable
 
@@ -40,7 +45,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             'license_number', 'experience_years', 'qualification', 'hospital',
             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation',
             # Age and Gender fields
-            'age', 'gender'
+            'age', 'gender',
+            # Patient-specific fields
+            'date_of_birth', 'address', 'blood_group', 'emergency_contact_name', 'emergency_contact_phone',
+            'emergency_contact_relationship', 'medical_history', 'current_medications', 'allergies',
+            'height', 'weight', 'occupation', 'marital_status'
         ]
 
     def validate_username(self, value):
@@ -80,6 +89,20 @@ class RegisterSerializer(serializers.ModelSerializer):
                 # Age and Gender fields
                 age=validated_data.get('age', None),
                 gender=validated_data.get('gender', ''),
+                # Patient-specific fields
+                date_of_birth=validated_data.get('date_of_birth', None),
+                address=validated_data.get('address', ''),
+                blood_group=validated_data.get('blood_group', ''),
+                emergency_contact_name=validated_data.get('emergency_contact_name', ''),
+                emergency_contact_phone=validated_data.get('emergency_contact_phone', ''),
+                emergency_contact_relationship=validated_data.get('emergency_contact_relationship', ''),
+                medical_history=validated_data.get('medical_history', ''),
+                current_medications=validated_data.get('current_medications', ''),
+                allergies=validated_data.get('allergies', ''),
+                height=validated_data.get('height', None),
+                weight=validated_data.get('weight', None),
+                occupation=validated_data.get('occupation', ''),
+                marital_status=validated_data.get('marital_status', ''),
             )
             return user
         except Exception as e:

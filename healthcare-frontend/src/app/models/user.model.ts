@@ -26,4 +26,19 @@ export interface User {
   consultation_hours?: string;
   is_live?: boolean;
   is_available_for_consultation?: boolean;
+  // Patient-specific fields
+  date_of_birth?: string;
+  address?: string;
+  blood_group?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  emergency_contact_relationship?: string;
+  medical_history?: string;
+  current_medications?: string;
+  allergies?: string;
+  height?: number;
+  weight?: number;
+  occupation?: string;
+  marital_status?: string;
+  bmi?: number;
 }
