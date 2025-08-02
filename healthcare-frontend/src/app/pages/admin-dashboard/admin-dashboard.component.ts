@@ -114,8 +114,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.loadActivities();
     this.loadOrders();
     
-    this.userService.getUsers().subscribe(users => {
-      this.allDoctors = users.filter(user => user.role === 'doctor');
+    this.userService.getDoctors().subscribe(doctors => {
+      this.allDoctors = doctors;
       this.totalDoctors = this.allDoctors.length;
       this.updateStats();
     });

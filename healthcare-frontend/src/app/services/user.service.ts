@@ -38,7 +38,7 @@ export class UserService {
    */
   getDoctors(): Observable<User[]> {
     const authHeaders = this.getAuthHeaders();
-    return this.http.get<User[]>(this.apiUrl, { headers: authHeaders });
+    return this.http.get<User[]>(`${this.apiUrl}?role=doctor`, { headers: authHeaders });
   }
 
   /**

@@ -184,11 +184,11 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
       this.loadingDoctors = false;
     }, 8000);
 
-    this.userService.getUsers().subscribe({
-      next: (users) => {
+    this.userService.getDoctors().subscribe({
+      next: (doctors) => {
         clearTimeout(timeout);
         // Store all doctors and filter available ones
-        this.allDoctors = users.filter(user => user.role === 'doctor');
+        this.allDoctors = doctors;
         this.updateAvailableDoctorsList();
         this.loadingDoctors = false;
       },
