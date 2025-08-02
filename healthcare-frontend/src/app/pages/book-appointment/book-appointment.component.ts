@@ -21,6 +21,7 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
     reason: ''
   };
   doctors: any[] = [];
+  loading = false;
   userSub: Subscription | undefined;
 
   constructor(
@@ -49,12 +50,18 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
   }
 
   book() {
+    this.loading = true;
     this.appointmentService.createAppointment(this.form).subscribe({
       next: () => {
-        alert('Appointment booked!');
+        this.loading = false;
+        alert('Appointment booked successfully!');
         this.router.navigate(['/']);
       },
-      error: () => alert('Booking failed.')
+      error: (error) => {
+        this.loading = false;
+        alert('Booking failed. Please try again.');
+        console.error('Booking error:', error);
+      }
     });
   }
 }

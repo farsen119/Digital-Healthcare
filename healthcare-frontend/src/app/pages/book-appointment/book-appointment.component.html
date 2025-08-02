@@ -1,17 +1,105 @@
-<h2>Book Appointment</h2>
-<form (ngSubmit)="book()">
-  <label>
-    Doctor:
-    <select [(ngModel)]="form.doctor" name="doctor" required>
-      <option value="" disabled selected>Select a doctor</option>
-      <option *ngFor="let doc of doctors" [value]="doc.id">
-        Dr. {{ doc.first_name }} {{ doc.last_name }} ({{ doc.specialization }})
-      </option>
-    </select>
-  </label>
-  <br>
-  <label>Date: <input type="date" [(ngModel)]="form.date" name="date" required></label><br>
-  <label>Time: <input type="time" [(ngModel)]="form.time" name="time" required></label><br>
-  <label>Reason: <textarea [(ngModel)]="form.reason" name="reason"></textarea></label><br>
-  <button type="submit">Book</button>
-</form>
+<div class="book-appointment-container">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <div class="appointment-card">
+          <!-- Header -->
+          <div class="appointment-header">
+            <h2 class="appointment-title">
+              <i class="fas fa-calendar-plus"></i>
+              Book Your Appointment
+            </h2>
+            <p class="appointment-subtitle">Schedule a consultation with our experienced healthcare professionals</p>
+          </div>
+
+          <!-- Form -->
+          <form (ngSubmit)="book()" class="appointment-form">
+            <!-- Doctor Selection -->
+            <div class="form-group">
+              <label for="doctor" class="form-label">
+                <i class="fas fa-user-md"></i>
+                Select Doctor
+              </label>
+              <select 
+                id="doctor"
+                [(ngModel)]="form.doctor" 
+                name="doctor" 
+                class="form-control form-select"
+                required>
+                <option value="" disabled selected>Choose your preferred doctor</option>
+                <option *ngFor="let doc of doctors" [value]="doc.id" class="doctor-option">
+                  Dr. {{ doc.first_name }} {{ doc.last_name }} - {{ doc.specialization }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Date and Time Row -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="date" class="form-label">
+                    <i class="fas fa-calendar"></i>
+                    Appointment Date
+                  </label>
+                  <input 
+                    type="date" 
+                    id="date"
+                    [(ngModel)]="form.date" 
+                    name="date" 
+                    class="form-control"
+                    required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="time" class="form-label">
+                    <i class="fas fa-clock"></i>
+                    Preferred Time
+                  </label>
+                  <input 
+                    type="time" 
+                    id="time"
+                    [(ngModel)]="form.time" 
+                    name="time" 
+                    class="form-control"
+                    required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reason for Visit -->
+            <div class="form-group">
+              <label for="reason" class="form-label">
+                <i class="fas fa-sticky-note"></i>
+                Reason for Visit
+              </label>
+              <textarea 
+                id="reason"
+                [(ngModel)]="form.reason" 
+                name="reason" 
+                class="form-control"
+                rows="4"
+                placeholder="Please describe your symptoms or reason for the appointment..."></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-book">
+                <i class="fas fa-check"></i>
+                Book Appointment
+              </button>
+            </div>
+          </form>
+
+          <!-- Loading State -->
+          <div *ngIf="loading" class="loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Booking your appointment...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
