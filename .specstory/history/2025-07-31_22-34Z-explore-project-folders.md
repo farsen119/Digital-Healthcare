@@ -6470,3 +6470,31 @@ The functionality is now working correctly and consistently across all parts of 
 
 ---
 
+_**User**_
+
+give  acommit message
+
+---
+
+_**Assistant**_
+
+Based on the changes made to fix the doctor pre-selection functionality, here's a concise commit message:
+
+```
+fix: Standardize doctor pre-selection in book appointment form
+
+- Update book appointment component to handle doctor_id parameter
+- Standardize query parameter naming across components
+- Ensure doctor pre-selection works from both patient dashboard and available doctors section
+```
+
+Or if you prefer a shorter version:
+
+```
+fix: Enable doctor pre-selection when booking appointments from dashboard
+```
+
+The changes ensure that when users click "Book Appointment" from either the patient dashboard or available doctors section, the selected doctor is properly pre-filled in the appointment form.
+
+---
+
