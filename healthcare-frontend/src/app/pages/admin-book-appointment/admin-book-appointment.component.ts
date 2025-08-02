@@ -23,7 +23,6 @@ export class AdminBookAppointmentComponent implements OnInit {
   
   doctors: User[] = [];
   patients: User[] = [];
-  isGuest = false;
 
   constructor(
     private appointmentService: AppointmentService,
@@ -36,19 +35,11 @@ export class AdminBookAppointmentComponent implements OnInit {
     this.userService.getPatients().subscribe(data => this.patients = data);
   }
 
-  onIsGuestChange(): void {
-    if (this.isGuest) {
-      delete this.appointment.patient; // Use 'patient'
-    } else {
-      delete this.appointment.patient_name;
-      delete this.appointment.patient_email;
-    }
-  }
+
 
   onSubmit(): void {
-    // Use 'doctor' for the validation check
-    if (!this.appointment.date || !this.appointment.time || !this.appointment.doctor) {
-      alert('Please fill in all required fields: Date, Time, and Doctor.');
+    if (!this.appointment.date || !this.appointment.time || !this.appointment.doctor || !this.appointment.patient) {
+      alert('Please fill in all required fields: Date, Time, Doctor, and Patient.');
       return;
     }
     

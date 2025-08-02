@@ -2,9 +2,9 @@
 export interface Prescription {
   id: number;
   appointment: number;
-  patient_name: string;
   doctor_name?: string;
   appointment_date?: string;
+  patient_name?: string;
   details: string;
   admin_notes?: string;
   created_at: string;

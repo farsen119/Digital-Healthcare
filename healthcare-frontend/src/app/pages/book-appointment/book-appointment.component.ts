@@ -18,9 +18,7 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
     doctor: '',
     date: '',
     time: '',
-    reason: '',
-    patient_name: '',
-    patient_email: ''
+    reason: ''
   };
   doctors: any[] = [];
   userSub: Subscription | undefined;
@@ -34,19 +32,6 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.userService.getDoctors().subscribe(doctors => this.doctors = doctors);
-    // Subscribe to user changes for real-time updates
-    this.userSub = this.auth.currentUser$.subscribe(user => {
-      if (user && this.auth.getRole() === 'patient') {
-        this.form.patient_name = user.name;
-        this.form.patient_email = user.email;
-      }
-    });
-    // If already logged in as patient, pre-fill
-    const user = this.auth.currentUserSubject.value;
-    if (user && this.auth.getRole() === 'patient') {
-      this.form.patient_name = user.first_name;
-      this.form.patient_email = user.email;
-    }
   }
 
   ngOnDestroy() {
@@ -54,12 +39,6 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
   }
 
   book() {
-    // If logged in as patient, ensure name/email are set from auth
-    const user = this.auth.currentUserSubject.value;
-    if (user && this.auth.getRole() === 'patient') {
-      this.form.patient_name = user.name;
-      this.form.patient_email = user.email;
-    }
     this.appointmentService.createAppointment(this.form).subscribe({
       next: () => {
         alert('Appointment booked!');

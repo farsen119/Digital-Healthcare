@@ -15,33 +15,15 @@
       <div class="card-body">
         <form #appointmentForm="ngForm" (ngSubmit)="onSubmit()">
 
-          <!-- Guest Patient Toggle -->
-          <div class="form-check form-switch mb-4">
-            <input class="form-check-input" type="checkbox" id="isGuestSwitch" [(ngModel)]="isGuest" name="isGuest" (change)="onIsGuestChange()">
-            <label class="form-check-label" for="isGuestSwitch">
-              <strong>Is this for a Guest Patient?</strong> (A patient not registered in the system)
-            </label>
-          </div>
-
           <!-- Patient Details -->
           <fieldset class="mb-3">
             <legend class="fs-6 fw-semibold">Patient Details</legend>
-            <div *ngIf="!isGuest">
+            <div>
               <label for="patient" class="form-label">Registered Patient</label>
               <select id="patient" class="form-select" [(ngModel)]="appointment.patient" name="patient" required>
                 <option [ngValue]="undefined" disabled>Select a registered patient...</option>
                 <option *ngFor="let p of patients" [value]="p.id">{{ p.first_name }} {{ p.last_name }}</option>
               </select>
-            </div>
-            <div *ngIf="isGuest" class="row">
-              <div class="col-md-6">
-                <label for="patientName" class="form-label">Guest Full Name</label>
-                <input type="text" id="patientName" class="form-control" [(ngModel)]="appointment.patient_name" name="patient_name" required>
-              </div>
-              <div class="col-md-6">
-                <label for="patientEmail" class="form-label">Guest Email</label>
-                <input type="email" id="patientEmail" class="form-control" [(ngModel)]="appointment.patient_email" name="patient_email">
-              </div>
             </div>
           </fieldset>
 

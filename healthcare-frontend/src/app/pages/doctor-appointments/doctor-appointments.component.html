@@ -36,7 +36,7 @@
             <tbody>
               <tr *ngFor="let appt of appointments">
                 <td>{{ appt.date }} {{ appt.time }}</td>
-                <td>{{ appt.patient_name_display || appt.patient_name }}</td>
+                <td>{{ appt.patient_name_display }}</td>
                 <td>
                   {{ appt.reason }}
                   <!-- If a prescription exists, show a green badge for quick visual feedback -->

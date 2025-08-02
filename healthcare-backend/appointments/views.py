@@ -49,7 +49,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         # --- Notification for Doctor ---
         Notification.objects.create(
             user=appointment.doctor,
-            message=f"New appointment booked by {appointment.patient.get_full_name() if appointment.patient else appointment.patient_name} for {appointment.date} at {appointment.time}.",
+            message=f"New appointment booked by {appointment.patient.get_full_name()} for {appointment.date} at {appointment.time}.",
             appointment=appointment
         )
 

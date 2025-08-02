@@ -18,14 +18,14 @@ class RecentActivityView(APIView):
                 'date': user.date_joined,
             })
         for appt in Appointment.objects.order_by('-created_at')[:6]:
-            patient_name = appt.patient.username if appt.patient else appt.patient_name
+            patient_name = appt.patient.username
             activities.append({
                 'type': 'appointment',
                 'message': f"Appointment booked for {patient_name} with Dr. {appt.doctor.username}",
                 'date': appt.created_at,
             })
         for pres in Prescription.objects.order_by('-created_at')[:6]:
-            patient_name = pres.appointment.patient.username if pres.appointment.patient else pres.appointment.patient_name
+            patient_name = pres.appointment.patient.username
             activities.append({
                 'type': 'prescription',
                 'message': f"Prescription added for {patient_name} by Dr. {pres.appointment.doctor.username}",

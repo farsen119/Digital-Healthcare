@@ -8,10 +8,8 @@ class Appointment(models.Model):
         ('rejected', 'Rejected'),
         ('completed', 'Completed'),
     )
-    patient = models.ForeignKey(CustomUser, related_name='appointments', on_delete=models.SET_NULL, null=True, blank=True)
+    patient = models.ForeignKey(CustomUser, related_name='appointments', on_delete=models.CASCADE, null=True, blank=True)
     doctor = models.ForeignKey(CustomUser, related_name='doctor_appointments', on_delete=models.CASCADE)
-    patient_name = models.CharField(max_length=255, blank=True)  # For guest patients
-    patient_email = models.EmailField(blank=True)
     date = models.DateField()
     time = models.TimeField()
     reason = models.TextField(blank=True)

@@ -9,8 +9,6 @@ export interface Appointment {
     doctor_name: string;
     doctor_specialization?: string; 
     patient_name_display: string;
-    patient_name?: string;
-    patient_email?: string;
 
     reason: string;
     status: AppointmentStatus;
@@ -34,9 +32,7 @@ export interface AppointmentCreateDTO {
     doctor: number;
     reason:string;
     status?: AppointmentStatus;
-    patient?: number;
-    patient_name?: string;
-    patient_email?: string;
+    patient: number;
 }
 
 export interface AppointmentResponse extends Appointment {

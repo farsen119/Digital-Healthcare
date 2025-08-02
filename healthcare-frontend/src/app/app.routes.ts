@@ -46,7 +46,7 @@ export const routes: Routes = [
   { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
   { path: 'admin-users', component: AdminUsersComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
 
-  { path: 'book-appointment', component: BookAppointmentComponent },
+  { path: 'book-appointment', component: BookAppointmentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'admin'] } },
   { path: 'doctor-appointments', component: DoctorAppointmentsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },
   { path: 'admin-appointments', component: AdminAppointmentsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
   { path: 'admin-book-appointment', component: AdminBookAppointmentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },

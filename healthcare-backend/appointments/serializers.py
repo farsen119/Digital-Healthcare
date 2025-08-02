@@ -20,7 +20,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         # This list defines all the fields that will be sent by the API.
         # We must include 'prescription' and 'doctor_specialization' here.
         fields = [
-            'id', 'patient', 'doctor', 'patient_name', 'patient_email', 'doctor_name',
+            'id', 'patient', 'doctor', 'doctor_name',
             'date', 'time', 'reason', 'status', 'created_at', 'patient_name_display',
             'prescription',
             'doctor_specialization'
