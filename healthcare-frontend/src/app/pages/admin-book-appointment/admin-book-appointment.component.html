@@ -32,9 +32,9 @@
             <legend class="fs-6 fw-semibold">Appointment Details</legend>
             <div class="mb-3">
               <label for="doctor" class="form-label">Doctor</label>
-              <select id="doctor" class="form-select" [(ngModel)]="appointment.doctor" name="doctor" required>
+              <select id="doctor" class="form-select" [(ngModel)]="appointment.doctor" name="doctor" (ngModelChange)="onDoctorChange()" required>
                 <option [ngValue]="undefined" disabled>Select a doctor...</option>
-                <option *ngFor="let d of doctors" [value]="d.id">Dr. {{ d.first_name }} {{ d.last_name }}</option>
+                <option *ngFor="let d of doctors" [value]="d.id">Dr. {{ d.first_name }} {{ d.last_name }} - {{ d.specialization }}</option>
               </select>
             </div>
             <div class="row mb-3">
@@ -44,7 +44,16 @@
               </div>
               <div class="col-md-6">
                 <label for="time" class="form-label">Time</label>
-                <input type="time" id="time" class="form-control" [(ngModel)]="appointment.time" name="time" required>
+                <select id="time" class="form-control form-select" [(ngModel)]="appointment.time" name="time" required>
+                  <option value="" disabled selected>Select a time slot</option>
+                  <option *ngFor="let slot of timeSlots" [value]="slot">
+                    {{ timeSlotService.formatTimeForDisplay(slot) }}
+                  </option>
+                </select>
+                <small *ngIf="selectedDoctor && selectedDoctor.consultation_hours" class="form-text text-muted">
+                  <i class="fas fa-info-circle"></i>
+                  Available hours: {{ selectedDoctor.consultation_hours }}
+                </small>
               </div>
             </div>
             <div class="mb-3">

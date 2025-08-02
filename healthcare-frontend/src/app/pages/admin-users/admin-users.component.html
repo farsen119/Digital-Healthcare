@@ -228,7 +228,14 @@
                           <option value="Weekends Only">Weekends Only</option>
                         </select>
                       </td>
-                      <td><input class="form-control form-control-sm" [(ngModel)]="editForm.consultation_hours" placeholder="e.g., 9:00 AM - 5:00 PM"></td>
+                      <td>
+                        <div class="d-flex gap-1">
+                          <input class="form-control form-control-sm" type="time" [(ngModel)]="editForm.start_time" placeholder="Start">
+                          <span class="align-self-center">-</span>
+                          <input class="form-control form-control-sm" type="time" [(ngModel)]="editForm.end_time" placeholder="End">
+                        </div>
+                        <small class="text-muted">Format: 9:00 AM - 5:00 PM</small>
+                      </td>
                       <td>
                         <div class="form-check form-switch">
                           <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.is_available_for_consultation">

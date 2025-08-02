@@ -108,6 +108,21 @@
   font-weight: 500;
 }
 
+/* Time Slot Styles */
+.time-option {
+  padding: 0.5rem;
+  font-weight: 500;
+}
+
+.form-text {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.form-text i {
+  margin-right: 0.25rem;
+}
+
 /* Textarea Specific Styles */
 textarea.form-control {
   resize: vertical;

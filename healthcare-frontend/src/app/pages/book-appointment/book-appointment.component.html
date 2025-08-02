@@ -25,6 +25,7 @@
                 [(ngModel)]="form.doctor" 
                 name="doctor" 
                 class="form-control form-select"
+                (ngModelChange)="onDoctorChange()"
                 required>
                 <option value="" disabled selected>Choose your preferred doctor</option>
                 <option *ngFor="let doc of doctors" [value]="doc.id" class="doctor-option">
@@ -56,13 +57,21 @@
                     <i class="fas fa-clock"></i>
                     Preferred Time
                   </label>
-                  <input 
-                    type="time" 
+                  <select 
                     id="time"
                     [(ngModel)]="form.time" 
                     name="time" 
-                    class="form-control"
+                    class="form-control form-select"
                     required>
+                    <option value="" disabled selected>Select a time slot</option>
+                    <option *ngFor="let slot of timeSlots" [value]="slot" class="time-option">
+                      {{ timeSlotService.formatTimeForDisplay(slot) }}
+                    </option>
+                  </select>
+                  <small *ngIf="selectedDoctor && selectedDoctor.consultation_hours" class="form-text text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    Available hours: {{ selectedDoctor.consultation_hours }}
+                  </small>
                 </div>
               </div>
             </div>

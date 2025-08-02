@@ -77,6 +77,8 @@ export class AdminUsersComponent implements OnInit {
       bio: user.bio || '',
       available_days: user.available_days || '',
       consultation_hours: user.consultation_hours || '',
+      start_time: this.extractStartTime(user.consultation_hours),
+      end_time: this.extractEndTime(user.consultation_hours),
       is_available_for_consultation: user.is_available_for_consultation || false
     };
     this.editForm.photo = null; // Reset photo for new upload
@@ -88,6 +90,78 @@ export class AdminUsersComponent implements OnInit {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '';
     return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
+  }
+
+  // Helper method to extract start time from consultation hours
+  extractStartTime(consultationHours: string): string {
+    if (!consultationHours) return '';
+    const parts = consultationHours.split('-').map(h => h.trim());
+    if (parts.length !== 2) return '';
+    
+    const startTime = parts[0];
+    return this.convertTo24HourFormat(startTime);
+  }
+
+  // Helper method to extract end time from consultation hours
+  extractEndTime(consultationHours: string): string {
+    if (!consultationHours) return '';
+    const parts = consultationHours.split('-').map(h => h.trim());
+    if (parts.length !== 2) return '';
+    
+    const endTime = parts[1];
+    return this.convertTo24HourFormat(endTime);
+  }
+
+  // Helper method to convert 12-hour format to 24-hour format for HTML time input
+  convertTo24HourFormat(timeStr: string): string {
+    if (!timeStr) return '';
+    
+    // Try different time formats
+    const timeFormats = [
+      /^(\d{1,2}):(\d{2})\s*(AM|PM|am|pm)$/, // 8:00 AM, 5:30 PM
+      /^(\d{1,2}):(\d{2})$/, // 08:00, 17:00
+      /^(\d{1,2})\.(\d{2})\s*(AM|PM|am|pm)$/, // 8.00 AM, 5.30 PM
+    ];
+
+    for (const format of timeFormats) {
+      const match = timeStr.match(format);
+      if (match) {
+        let hours = parseInt(match[1]);
+        const minutes = parseInt(match[2]);
+        const period = match[3]?.toUpperCase();
+
+        // Handle 12-hour format
+        if (period === 'PM' && hours !== 12) {
+          hours += 12;
+        } else if (period === 'AM' && hours === 12) {
+          hours = 0;
+        }
+
+        // Validate hours and minutes
+        if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+          return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+      }
+    }
+
+    return '';
+  }
+
+  // Helper method to convert 24-hour format to 12-hour format for display
+  convertTo12HourFormat(timeStr: string): string {
+    if (!timeStr) return '';
+    
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    if (isNaN(hours) || isNaN(minutes)) return '';
+    
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
   }
 
   cancelEdit() {
@@ -123,6 +197,17 @@ export class AdminUsersComponent implements OnInit {
           delete updateData.date_of_birth;
         }
       }
+
+      // Handle consultation hours - convert time inputs to proper format
+      if (updateData.start_time && updateData.end_time) {
+        const startTime = this.convertTo12HourFormat(updateData.start_time);
+        const endTime = this.convertTo12HourFormat(updateData.end_time);
+        updateData.consultation_hours = `${startTime} - ${endTime}`;
+      }
+      
+      // Remove the temporary time fields
+      delete updateData.start_time;
+      delete updateData.end_time;
       
       this.userService.updateUser(this.editUserId, updateData).subscribe({
         next: (response) => {

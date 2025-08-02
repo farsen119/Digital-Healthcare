@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AppointmentService } from '../../services/appointment.service';
 import { UserService } from '../../services/user.service';
+import { TimeSlotService } from '../../services/time-slot.service';
 import { AppointmentCreateDTO } from '../../models/appointment.model';
 import { User } from '../../models/user.model';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
@@ -23,16 +24,36 @@ export class AdminBookAppointmentComponent implements OnInit {
   
   doctors: User[] = [];
   patients: User[] = [];
+  timeSlots: string[] = [];
+  selectedDoctor: any = null;
 
   constructor(
     private appointmentService: AppointmentService,
     private userService: UserService,
+    public timeSlotService: TimeSlotService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.userService.getDoctors().subscribe(data => this.doctors = data);
     this.userService.getPatients().subscribe(data => this.patients = data);
+  }
+
+  onDoctorChange() {
+    if (this.appointment.doctor) {
+      this.selectedDoctor = this.doctors.find(doc => doc.id == this.appointment.doctor);
+      if (this.selectedDoctor) {
+        console.log('Selected doctor:', this.selectedDoctor);
+        console.log('Consultation hours:', this.selectedDoctor.consultation_hours);
+        this.timeSlots = this.timeSlotService.generateTimeSlots(this.selectedDoctor.consultation_hours);
+        console.log('Generated time slots:', this.timeSlots);
+      }
+    } else {
+      this.selectedDoctor = null;
+      this.timeSlots = [];
+    }
+    // Reset time when doctor changes
+    this.appointment.time = '';
   }
 
 
