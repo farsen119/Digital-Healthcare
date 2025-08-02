@@ -38,7 +38,9 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
       
       // Check if doctor is pre-selected from URL parameter
       this.route.queryParams.subscribe(params => {
-        if (params['doctor']) {
+        if (params['doctor_id']) {
+          this.form.doctor = params['doctor_id'];
+        } else if (params['doctor']) {
           this.form.doctor = params['doctor'];
         }
       });
