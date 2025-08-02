@@ -2,12 +2,13 @@ import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router'; // <-- Import this!
+import { RouterLink } from '@angular/router';
+import { AvailableDoctorsComponent } from './available-doctors/available-doctors.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink], // <-- Add RouterLink here
+  imports: [CommonModule, RouterLink, AvailableDoctorsComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent {

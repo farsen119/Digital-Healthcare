@@ -12,6 +12,11 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return new HttpHeaders();
+    }
+    
     const token = localStorage.getItem('access');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
@@ -30,7 +35,8 @@ export class UserService {
    * Gets a single user by their ID.
    */
   getUser(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}${id}/`);
+    const authHeaders = this.getAuthHeaders();
+    return this.http.get<User>(`${this.apiUrl}${id}/`, { headers: authHeaders });
   }
 
   /**
@@ -42,10 +48,18 @@ export class UserService {
   }
 
   /**
+   * Gets all doctors without authentication (for public display).
+   */
+  getPublicDoctors(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}public-doctors/`);
+  }
+
+  /**
    * Gets all users with the 'patient' role.
    */
   getPatients(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}?role=patient`);
+    const authHeaders = this.getAuthHeaders();
+    return this.http.get<User[]>(`${this.apiUrl}?role=patient`, { headers: authHeaders });
   }
 
   /**

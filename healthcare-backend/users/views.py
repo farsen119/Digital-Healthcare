@@ -6,7 +6,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import json
 from .models import CustomUser, DoctorStatus
-from .serializers import UserSerializer, RegisterSerializer
+from .serializers import UserSerializer, RegisterSerializer, PublicDoctorSerializer
 
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -29,9 +29,16 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['profile', 'login_status', 'logout_status']:
             return [permissions.IsAuthenticated()]
-        if self.action == 'list':
+        if self.action in ['list', 'public_doctors']:
             return [permissions.AllowAny()]
         return [permissions.IsAdminUser()]
+    
+    @action(detail=False, methods=['get'], url_path='public-doctors')
+    def public_doctors(self, request):
+        """Get all doctors for public display (no sensitive information)"""
+        doctors = CustomUser.objects.filter(role='doctor').order_by('first_name', 'last_name')
+        serializer = PublicDoctorSerializer(doctors, many=True)
+        return Response(serializer.data)
         
     @action(detail=False, methods=['get', 'put'], url_path='profile')
     def profile(self, request):

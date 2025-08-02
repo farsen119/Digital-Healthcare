@@ -1,0 +1,62 @@
+<div class="doctors-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="text-center mb-4">Our Medical Team</h2>
+        <p class="text-center mb-5">Meet our experienced healthcare professionals dedicated to your well-being</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="alert alert-danger text-center">
+      {{ error }}
+    </div>
+
+    <!-- Doctors Grid -->
+    <div *ngIf="!loading && !error" class="row">
+      <div *ngFor="let doctor of doctors" class="col-lg-4 col-md-6 mb-4">
+        <div class="doctor-card">
+          <div class="doctor-photo">
+            <img [src]="getDoctorPhotoUrl(doctor)" 
+                 [alt]="'Dr. ' + doctor.first_name + ' ' + doctor.last_name"
+                 class="img-fluid rounded-circle"
+                 onerror="this.src='assets/default-doctor.png'">
+          </div>
+          <div class="doctor-info">
+            <h4>Dr. {{ doctor.first_name }} {{ doctor.last_name }}</h4>
+            <p class="specialization">{{ doctor.specialization || 'General Medicine' }}</p>
+            <p class="experience" *ngIf="doctor.experience">
+              <i class="bi bi-clock"></i> {{ doctor.experience }} years experience
+            </p>
+            <p class="qualification" *ngIf="doctor.qualification">
+              <i class="bi bi-mortarboard"></i> {{ doctor.qualification }}
+            </p>
+            <div class="doctor-actions">
+              <button class="btn btn-primary btn-sm" 
+                      [routerLink]="['/book-appointment']" 
+                      queryParamsHandling="merge"
+                      [queryParams]="{doctor: doctor.id}">
+                Book Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Doctors State -->
+    <div *ngIf="!loading && !error && doctors.length === 0" class="text-center">
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        No doctors available at the moment.
+      </div>
+    </div>
+  </div>
+</div>

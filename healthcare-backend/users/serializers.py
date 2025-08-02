@@ -1,6 +1,19 @@
 from rest_framework import serializers
 from .models import CustomUser
 
+class PublicDoctorSerializer(serializers.ModelSerializer):
+    """Serializer for public display of doctors (no sensitive information)"""
+    photo = serializers.ImageField(required=False, allow_null=True)
+    
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id', 'first_name', 'last_name', 'specialization', 'photo',
+            'qualification', 'hospital', 'consultation_fee', 'bio',
+            'available_days', 'consultation_hours', 'experience_years'
+        ]
+        read_only_fields = ['id']
+
 class UserSerializer(serializers.ModelSerializer):
     photo = serializers.ImageField(required=False, allow_null=True)
     bmi = serializers.ReadOnlyField()
