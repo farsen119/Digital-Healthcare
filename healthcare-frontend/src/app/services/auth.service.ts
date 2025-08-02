@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { WebSocketService } from './websocket.service';
 
 // Helper function to check if running in the browser
 function isBrowser(): boolean {
@@ -13,7 +14,7 @@ export class AuthService {
   public currentUserSubject = new BehaviorSubject<any>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private webSocketService: WebSocketService) {
     if (isBrowser()) {
       const user = localStorage.getItem('user');
       if (user) this.currentUserSubject.next(JSON.parse(user));
@@ -42,8 +43,14 @@ export class AuthService {
     // If user is a doctor, set them offline before logout
     const currentUser = this.currentUserSubject.value;
     if (currentUser && currentUser.role === 'doctor') {
-      this.setDoctorOffline().subscribe(() => {
-        this.performLogout();
+      this.setDoctorOffline().subscribe({
+        next: () => {
+          this.performLogout();
+        },
+        error: (error) => {
+          // Still perform logout even if setting offline fails
+          this.performLogout();
+        }
       });
     } else {
       this.performLogout();
@@ -51,6 +58,9 @@ export class AuthService {
   }
 
   private performLogout(): void {
+    // Disconnect WebSocket
+    this.webSocketService.disconnect();
+    
     if (isBrowser()) {
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');

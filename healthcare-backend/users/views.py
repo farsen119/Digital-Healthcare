@@ -27,7 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_permissions(self):
-        if self.action == 'profile':
+        if self.action in ['profile', 'login_status', 'logout_status']:
             return [permissions.IsAuthenticated()]
         if self.action == 'list':
             return [permissions.AllowAny()]
@@ -140,6 +140,5 @@ class UserViewSet(viewsets.ModelViewSet):
                     }
                 }
             )
-            print(f"✅ WebSocket notification sent for Dr. {doctor.first_name} - {'Available' if is_available_for_consultation else 'Unavailable'}")
         except Exception as e:
-            print(f"❌ Error sending WebSocket notification: {e}")
+            pass

@@ -31,6 +31,8 @@ export const TokenInterceptor: HttpInterceptorFn = (req, next) => {
       if (
         (error.status === 401 || error.status === 403) && // Handle both 401 and 403
         !req.url.endsWith('/token/refresh/') &&
+        !req.url.endsWith('/logout-status/') && // Don't refresh on logout requests
+        !req.url.endsWith('/login-status/') && // Don't refresh on login status requests
         refresh
       ) {
         // 4. Try to refresh the token

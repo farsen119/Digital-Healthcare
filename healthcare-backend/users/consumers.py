@@ -8,14 +8,12 @@ from .models import CustomUser, DoctorStatus
 
 class DoctorStatusConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        print(f"🔌 WebSocket connection attempt to: {self.scope['path']}")
         # Join the doctor status group
         await self.channel_layer.group_add(
             "doctor_status",
             self.channel_name
         )
         await self.accept()
-        print(f"✅ WebSocket connected: {self.channel_name}")
 
     async def disconnect(self, close_code):
         # Leave the doctor status group
@@ -23,7 +21,6 @@ class DoctorStatusConsumer(AsyncWebsocketConsumer):
             "doctor_status",
             self.channel_name
         )
-        print(f"WebSocket disconnected: {self.channel_name}")
 
     async def receive(self, text_data):
         try:
@@ -52,9 +49,9 @@ class DoctorStatusConsumer(AsyncWebsocketConsumer):
                 )
                 
         except json.JSONDecodeError:
-            print("Invalid JSON received")
+            pass
         except Exception as e:
-            print(f"Error processing message: {e}")
+            pass
 
     async def doctor_status_change(self, event):
         # Send status change to WebSocket
@@ -78,12 +75,11 @@ class DoctorStatusConsumer(AsyncWebsocketConsumer):
                 DoctorStatus.set_offline(doctor, 'doctor')
                 
             doctor.save()
-            print(f"Doctor {doctor.username} consultation status updated to {'available' if is_available_for_consultation else 'unavailable'}")
             
         except CustomUser.DoesNotExist:
-            print(f"Doctor with ID {doctor_id} not found")
+            pass
         except Exception as e:
-            print(f"Error updating doctor status: {e}")
+            pass
 
     @database_sync_to_async
     def get_doctor_info(self, doctor_id):

@@ -74,7 +74,7 @@ export class RegisterComponent {
       delete submitForm.photo;
     }
 
-    console.log('Submitting registration data:', submitForm);
+
 
     this.auth.register(submitForm).subscribe({
       next: () => {
@@ -82,7 +82,6 @@ export class RegisterComponent {
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        console.error('Registration error:', err);
         
         let errorMessage = 'Registration failed. ';
         

@@ -4,6 +4,11 @@ import { environment } from '../../environments/environment';
 import { WebSocketMessage, DoctorStatus } from '../types/websocket.types';
 import { HttpClient } from '@angular/common/http';
 
+// Helper function to check if WebSocket is available
+function isWebSocketAvailable(): boolean {
+  return typeof window !== 'undefined' && typeof WebSocket !== 'undefined';
+}
+
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
   private socket: WebSocket | null = null;
@@ -26,9 +31,12 @@ export class WebSocketService {
   public messages$ = this.messagesSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    setTimeout(() => { 
-      this.connect(); 
-    }, 1000);
+    // Only connect if we're in a browser environment
+    if (isWebSocketAvailable()) {
+      setTimeout(() => { 
+        this.connect(); 
+      }, 1000);
+    }
   }
 
   private getWebSocketUrl(): string {
@@ -37,6 +45,11 @@ export class WebSocketService {
   }
 
   public connect(): void {
+    // Check if we're in a browser environment
+    if (!isWebSocketAvailable()) {
+      return;
+    }
+    
     if (this.isConnecting || this.isConnected() || this.fallbackCooldown) return;
     this.isConnecting = true;
     try {
@@ -86,6 +99,11 @@ export class WebSocketService {
   }
 
   private enterFallbackCooldown() {
+    // Only enter fallback cooldown if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     this.fallbackCooldown = true;
     this.fallbackMode = true;
     setTimeout(() => {
@@ -96,12 +114,22 @@ export class WebSocketService {
   }
 
   private startFallbackMode(): void {
+    // Only start fallback mode if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     if (this.fallbackMode) return;
     this.fallbackMode = true;
     this.startPolling();
   }
 
   public disconnect(): void {
+    // Check if we're in a browser environment
+    if (!isWebSocketAvailable()) {
+      return;
+    }
+    
     if (this.socket) {
       this.socket.close(1000, 'Manual disconnect');
       this.socket = null;
@@ -111,10 +139,20 @@ export class WebSocketService {
   }
 
   public isConnected(): boolean {
+    // Check if we're in a browser environment
+    if (!isWebSocketAvailable()) {
+      return false;
+    }
     return this.socket?.readyState === WebSocket.OPEN;
   }
 
   public sendMessage(message: any): void {
+    // Check if we're in a browser environment
+    if (!isWebSocketAvailable()) {
+      this.sendMessageViaHTTP(message);
+      return;
+    }
+    
     if (this.isConnected()) {
       this.socket!.send(JSON.stringify(message));
     } else {
@@ -172,6 +210,11 @@ export class WebSocketService {
   }
 
   private attemptReconnect(): void {
+    // Only attempt reconnection if WebSocket is available
+    if (!isWebSocketAvailable()) {
+      return;
+    }
+    
     this.reconnectAttempts++;
     
     setTimeout(() => {
@@ -184,6 +227,11 @@ export class WebSocketService {
   }
 
   private startPolling(): void {
+    // Only start polling if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     if (this.pollingTimer) {
       clearInterval(this.pollingTimer);
     }
@@ -198,6 +246,11 @@ export class WebSocketService {
   }
 
   private stopPolling(): void {
+    // Only stop polling if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     if (this.pollingTimer) {
       clearInterval(this.pollingTimer);
       this.pollingTimer = null;
@@ -240,6 +293,11 @@ export class WebSocketService {
   }
 
   public forceReconnect(): void {
+    // Only attempt reconnection if WebSocket is available
+    if (!isWebSocketAvailable()) {
+      return;
+    }
+    
     this.reconnectAttempts = 0;
     this.fallbackMode = false;
     this.disconnect();
