@@ -8108,3 +8108,145 @@ Implement TimeSlotService with 15-minute intervals based on doctor consultation 
 
 ---
 
+_**User**_
+
+in date coloum show the current date 
+
+---
+
+_**Assistant**_
+
+I'll update the book appointment components to show the current date as the default value in the date field. Let me modify both the patient and admin book appointment components.
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/book-appointment/book-appointment.component.ts</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -18,5 +18,5 @@
+    form: any = {
+      doctor: '',
+-     date: '',
++     date: this.getCurrentDate(),
+      time: '',
+      reason: ''
+```
+
+</details>
+
+---
+
+I need to add the `getCurrentDate()` method to the component. Let me add it:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/book-appointment/book-appointment.component.ts</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -18,5 +18,5 @@
+    form: any = {
+      doctor: '',
+-     date: this.getCurrentDate(),
++     date: '',
+      time: '',
+      reason: ''
+```
+
+</details>
+
+---
+
+Now let me add the method and set the date in ngOnInit:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/book-appointment/book-appointment.component.ts</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -38,4 +38,7 @@
+  
+    ngOnInit() {
++     // Set current date as default
++     this.form.date = this.getCurrentDate();
++     
+      this.userService.getDoctors().subscribe(doctors => {
+        this.doctors = doctors;
+```
+
+**Chunk 2**
+Lines added: 5, lines removed: undefined
+
+```diff
+@@ -53,4 +56,9 @@
+      });
+    }
++ 
++   getCurrentDate(): string {
++     const today = new Date();
++     return today.toISOString().split('T')[0];
++   }
+  
+    onDoctorChange() {
+```
+
+</details>
+
+---
+
+Now let me update the admin book appointment component as well:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/admin-book-appointment/admin-book-appointment.component.ts</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 8, lines removed: undefined
+
+```diff
+@@ -36,7 +36,15 @@
+  
+    ngOnInit(): void {
++     // Set current date as default
++     this.appointment.date = this.getCurrentDate();
++     
+      this.userService.getDoctors().subscribe(data => this.doctors = data);
+      this.userService.getPatients().subscribe(data => this.patients = data);
+    }
++ 
++   getCurrentDate(): string {
++     const today = new Date();
++     return today.toISOString().split('T')[0];
++   }
+  
+    onDoctorChange() {
+```
+
+</details>
+
+---
+
+
+
+---
+

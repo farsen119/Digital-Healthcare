@@ -35,8 +35,16 @@ export class AdminBookAppointmentComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Set current date as default
+    this.appointment.date = this.getCurrentDate();
+    
     this.userService.getDoctors().subscribe(data => this.doctors = data);
     this.userService.getPatients().subscribe(data => this.patients = data);
+  }
+
+  getCurrentDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   }
 
   onDoctorChange() {

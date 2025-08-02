@@ -37,6 +37,9 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Set current date as default
+    this.form.date = this.getCurrentDate();
+    
     this.userService.getDoctors().subscribe(doctors => {
       this.doctors = doctors;
       
@@ -51,6 +54,11 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  getCurrentDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   }
 
   onDoctorChange() {
