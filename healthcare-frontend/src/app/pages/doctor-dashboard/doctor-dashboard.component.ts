@@ -21,6 +21,17 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
   loading = false;
   private subscriptions: Subscription[] = [];
 
+  // Days of week for visiting doctors
+  daysOfWeek = [
+    { value: 0, label: 'Monday' },
+    { value: 1, label: 'Tuesday' },
+    { value: 2, label: 'Wednesday' },
+    { value: 3, label: 'Thursday' },
+    { value: 4, label: 'Friday' },
+    { value: 5, label: 'Saturday' },
+    { value: 6, label: 'Sunday' }
+  ];
+
   constructor(
     private auth: AuthService,
     public webSocketService: WebSocketService
@@ -58,6 +69,46 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  // Helper method to check if doctor is permanent
+  isPermanentDoctor(): boolean {
+    return this.user && this.user.doctor_type === 'permanent';
+  }
+
+  // Helper method to check if doctor is visiting
+  isVisitingDoctor(): boolean {
+    return this.user && this.user.doctor_type === 'visiting';
+  }
+
+  // Helper method to get day name
+  getDayName(dayValue: number): string {
+    const day = this.daysOfWeek.find(d => d.value === dayValue);
+    return day ? day.label : 'Unknown';
+  }
+
+  // Helper method to get visiting days display
+  getVisitingDaysDisplay(): string {
+    if (!this.user || !this.user.visiting_days || this.user.visiting_days.length === 0) {
+      return 'Not specified';
+    }
+    return this.user.visiting_days.map((day: number) => this.getDayName(day)).join(', ');
+  }
+
+  // Helper method to get visiting time slots display
+  getVisitingTimeSlotsDisplay(): string {
+    if (!this.user || !this.user.visiting_days || this.user.visiting_days.length === 0) {
+      return 'Not specified';
+    }
+    const timeSlots = this.user.visiting_days.map((day: number) => {
+      const dayName = this.getDayName(day);
+      const timeSlot = this.user.visiting_day_times[day];
+      if (timeSlot && timeSlot.start_time && timeSlot.end_time) {
+        return `${dayName}: ${timeSlot.start_time} - ${timeSlot.end_time}`;
+      }
+      return dayName;
+    });
+    return timeSlots.join(', ');
   }
 
   toggleConsultationStatus() {

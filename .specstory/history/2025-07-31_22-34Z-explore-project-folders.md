@@ -25737,3 +25737,521 @@ The changes will be saved to the database and will be visible in all parts of th
 
 ---
 
+_**User**_
+
+in doctor dashboard meke diffrent if the vistor and permentd doctors dasgbaord make diffrently you can make diffrently
+
+---
+
+_**Assistant**_
+
+I understand you want to create different dashboards for permanent doctors and visiting doctors. Let me update the doctor dashboard to show different content based on the doctor type.
+
+
+---
+
+Read file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-dashboard.component.ts
+
+---
+
+Now let me check the HTML template:
+
+
+---
+
+Read file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-dashboard.component.html
+
+---
+
+Now I'll update the TypeScript component to add helper methods for doctor type detection:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-dashboard.component.ts</summary>
+
+I will add helper methods to detect doctor type and add days of week for visiting doctors
+
+**Chunk 1**
+Lines added: 11, lines removed: undefined
+
+```diff
+@@ -21,4 +21,15 @@
+    loading = false;
+    private subscriptions: Subscription[] = [];
++ 
++   // Days of week for visiting doctors
++   daysOfWeek = [
++     { value: 0, label: 'Monday' },
++     { value: 1, label: 'Tuesday' },
++     { value: 2, label: 'Wednesday' },
++     { value: 3, label: 'Thursday' },
++     { value: 4, label: 'Friday' },
++     { value: 5, label: 'Saturday' },
++     { value: 6, label: 'Sunday' }
++   ];
+  
+    constructor(
+```
+
+**Chunk 2**
+Lines added: 40, lines removed: undefined
+
+```diff
+@@ -60,4 +71,44 @@
+      this.subscriptions.forEach(sub => sub.unsubscribe());
+    }
++ 
++   // Helper method to check if doctor is permanent
++   isPermanentDoctor(): boolean {
++     return this.user && this.user.doctor_type === 'permanent';
++   }
++ 
++   // Helper method to check if doctor is visiting
++   isVisitingDoctor(): boolean {
++     return this.user && this.user.doctor_type === 'visiting';
++   }
++ 
++   // Helper method to get day name
++   getDayName(dayValue: number): string {
++     const day = this.daysOfWeek.find(d => d.value === dayValue);
++     return day ? day.label : 'Unknown';
++   }
++ 
++   // Helper method to get visiting days display
++   getVisitingDaysDisplay(): string {
++     if (!this.user || !this.user.visiting_days || this.user.visiting_days.length === 0) {
++       return 'Not specified';
++     }
++     return this.user.visiting_days.map((day: number) => this.getDayName(day)).join(', ');
++   }
++ 
++   // Helper method to get visiting time slots display
++   getVisitingTimeSlotsDisplay(): string {
++     if (!this.user || !this.user.visiting_days || this.user.visiting_days.length === 0) {
++       return 'Not specified';
++     }
++     const timeSlots = this.user.visiting_days.map((day: number) => {
++       const dayName = this.getDayName(day);
++       const timeSlot = this.user.visiting_day_times[day];
++       if (timeSlot && timeSlot.start_time && timeSlot.end_time) {
++         return `${dayName}: ${timeSlot.start_time} - ${timeSlot.end_time}`;
++       }
++       return dayName;
++     });
++     return timeSlots.join(', ');
++   }
+  
+    toggleConsultationStatus() {
+```
+
+</details>
+
+---
+
+Now let me update the HTML template to show different content based on doctor type:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-dashboard.component.html</summary>
+
+I will update the dashboard header to show doctor type and create different sections for permanent and visiting doctors
+
+**Chunk 1**
+Lines added: 8, lines removed: 1
+
+```diff
+@@ -10,5 +10,12 @@
+      <!-- Dashboard Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+-       <h2><i class="bi bi-person-badge me-2"></i> Doctor Dashboard</h2>
++       <div>
++         <h2><i class="bi bi-person-badge me-2"></i> Doctor Dashboard</h2>
++         <div class="mt-2">
++           <span class="badge fs-6" [ngClass]="isPermanentDoctor() ? 'bg-primary' : 'bg-warning'">
++             {{ isPermanentDoctor() ? 'Permanent Doctor' : (isVisitingDoctor() ? 'Visiting Doctor' : 'Doctor') }}
++           </span>
++         </div>
++       </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" routerLink="/doctor-appointments">
+```
+
+</details>
+
+---
+
+Now let me update the availability status card to show different content for permanent and visiting doctors:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-dashboard.component.html</summary>
+
+I will update the availability status card to show different content for permanent and visiting doctors
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -61,6 +61,6 @@
+          </div>
+  
+-         <!-- Consultation Hours Section -->
+-         <div>
++         <!-- Permanent Doctor Schedule Section -->
++         <div *ngIf="isPermanentDoctor()">
+            <div class="row">
+              <div class="col-md-6">
+```
+
+**Chunk 2**
+Lines added: 55, lines removed: 3
+
+```diff
+@@ -82,10 +82,62 @@
+              </div>
+            </div>
+-           <div class="alert alert-info">
++           <div class="row mt-3">
++             <div class="col-md-6">
++               <h6 class="text-info"><i class="bi bi-people me-2"></i>Queue Information</h6>
++               <div class="mb-3">
++                 <p class="mb-1"><strong>Max Queue Size:</strong> {{ user.max_queue_size || '10' }} patients</p>
++                 <p class="mb-1"><strong>Current Position:</strong> {{ user.current_queue_position || '0' }}</p>
++                 <p class="mb-1"><strong>Consultation Duration:</strong> {{ user.consultation_duration || '15' }} minutes</p>
++               </div>
++             </div>
++             <div class="col-md-6">
++               <h6 class="text-success"><i class="bi bi-graph-up me-2"></i>Queue System</h6>
++               <div class="alert alert-info">
++                 <i class="bi bi-info-circle me-2"></i>
++                 <strong>Permanent Doctor Queue:</strong> Patients can join your queue when you're available. 
++                 First come, first served system.
++               </div>
++             </div>
++           </div>
++         </div>
++ 
++         <!-- Visiting Doctor Schedule Section -->
++         <div *ngIf="isVisitingDoctor()">
++           <div class="row">
++             <div class="col-md-6">
++               <h6 class="text-warning"><i class="bi bi-calendar-event me-2"></i>Visiting Days</h6>
++               <div class="mb-3">
++                 <p class="mb-2">
++                   <strong>{{ getVisitingDaysDisplay() }}</strong>
++                 </p>
++                 <small class="text-muted">
++                   Days when you are available for consultations
++                 </small>
++               </div>
++             </div>
++             <div class="col-md-6">
++               <h6 class="text-warning"><i class="bi bi-clock-history me-2"></i>Time Slots</h6>
++               <div class="mb-3">
++                 <p class="mb-2">
++                   <strong>{{ getVisitingTimeSlotsDisplay() }}</strong>
++                 </p>
++                 <small class="text-muted">
++                   Specific time slots for each visiting day
++                 </small>
++               </div>
++             </div>
++           </div>
++           <div class="alert alert-warning">
+              <i class="bi bi-info-circle me-2"></i>
+-             <strong>Note:</strong> Your scheduled consultation hours are set by admin and shown in your profile. 
+-             The online/offline toggle above controls your current availability for patients.
++             <strong>Visiting Doctor System:</strong> Patients can only book appointments on your scheduled visiting days 
++             and time slots. Pre-booking system with specific date and time selection.
+            </div>
+          </div>
++ 
++         <div class="alert alert-info">
++           <i class="bi bi-info-circle me-2"></i>
++           <strong>Note:</strong> Your scheduled consultation hours are set by admin and shown in your profile. 
++           The online/offline toggle above controls your current availability for patients.
++         </div>
+        </div>
+      </div>
+```
+
+</details>
+
+---
+
+Now let me update the Quick Stats card to show different information for permanent and visiting doctors:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-dashboard.component.html</summary>
+
+I will update the Quick Stats card to show different information for permanent and visiting doctors
+
+**Chunk 1**
+Lines added: 34, lines removed: 1
+
+```diff
+@@ -149,5 +149,38 @@
+        </div>
+        <div class="card-body">
+-         <div class="row">
++         <!-- Permanent Doctor Stats -->
++         <div *ngIf="isPermanentDoctor()" class="row">
++           <div class="col-md-3 text-center">
++             <div class="stat-item">
++               <i class="bi bi-person-badge text-primary" style="font-size: 2rem;"></i>
++               <h4 class="mt-2">{{ user.specialization || 'Not specified' }}</h4>
++               <p class="text-muted">Specialization</p>
++             </div>
++           </div>
++           <div class="col-md-3 text-center">
++             <div class="stat-item">
++               <i class="bi bi-building text-success" style="font-size: 2rem;"></i>
++               <h4 class="mt-2">{{ user.hospital || 'Not specified' }}</h4>
++               <p class="text-muted">Hospital/Clinic</p>
++             </div>
++           </div>
++           <div class="col-md-3 text-center">
++             <div class="stat-item">
++               <i class="bi bi-people text-info" style="font-size: 2rem;"></i>
++               <h4 class="mt-2">{{ user.max_queue_size || '10' }}</h4>
++               <p class="text-muted">Max Queue Size</p>
++             </div>
++           </div>
++           <div class="col-md-3 text-center">
++             <div class="stat-item">
++               <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
++               <h4 class="mt-2">{{ user.consultation_duration || '15' }} min</h4>
++               <p class="text-muted">Consultation Duration</p>
++             </div>
++           </div>
++         </div>
++ 
++         <!-- Visiting Doctor Stats -->
++         <div *ngIf="isVisitingDoctor()" class="row">
+            <div class="col-md-3 text-center">
+              <div class="stat-item">
+```
+
+**Chunk 2**
+Lines added: 29, lines removed: 4
+
+```diff
+@@ -166,16 +199,41 @@
+            <div class="col-md-3 text-center">
+              <div class="stat-item">
+-               <i class="bi bi-currency-rupee text-warning" style="font-size: 2rem;"></i>
++               <i class="bi bi-calendar-event text-warning" style="font-size: 2rem;"></i>
++               <h4 class="mt-2">{{ user.visiting_days?.length || '0' }}</h4>
++               <p class="text-muted">Visiting Days</p>
++             </div>
++           </div>
++           <div class="col-md-3 text-center">
++             <div class="stat-item">
++               <i class="bi bi-currency-rupee text-info" style="font-size: 2rem;"></i>
+                <h4 class="mt-2">₹{{ user.consultation_fee || '0' }}</h4>
+                <p class="text-muted">Consultation Fee</p>
+              </div>
+            </div>
+-           <div class="col-md-3 text-center">
++         </div>
++ 
++         <!-- Common Stats Row -->
++         <div class="row mt-4">
++           <div class="col-md-4 text-center">
++             <div class="stat-item">
++               <i class="bi bi-currency-rupee text-success" style="font-size: 1.5rem;"></i>
++               <h5 class="mt-2">₹{{ user.consultation_fee || '0' }}</h5>
++               <p class="text-muted">Consultation Fee</p>
++             </div>
++           </div>
++           <div class="col-md-4 text-center">
+              <div class="stat-item">
+-               <i class="bi bi-person text-info" style="font-size: 2rem;"></i>
+-               <h4 class="mt-2">{{ user.age || 'N/A' }} | {{ user.gender || 'N/A' }}</h4>
++               <i class="bi bi-person text-primary" style="font-size: 1.5rem;"></i>
++               <h5 class="mt-2">{{ user.age || 'N/A' }} | {{ user.gender || 'N/A' }}</h5>
+                <p class="text-muted">Age | Gender</p>
+              </div>
+            </div>
++           <div class="col-md-4 text-center">
++             <div class="stat-item">
++               <i class="bi bi-award text-warning" style="font-size: 1.5rem;"></i>
++               <h5 class="mt-2">{{ user.experience_years || '0' }} years</h5>
++               <p class="text-muted">Experience</p>
++             </div>
++           </div>
+          </div>
+        </div>
+```
+
+</details>
+
+---
+
+Now let me add a new section specifically for permanent doctors to show queue information:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/doctor-dashboard/doctor-dashboard.component.html</summary>
+
+I will add a new queue management section for permanent doctors after the Quick Stats card
+
+**Chunk 1**
+Lines added: 78, lines removed: undefined
+
+```diff
+@@ -239,4 +239,82 @@
+        </div>
+      </div>
++ 
++     <!-- Queue Management Card (Permanent Doctors Only) -->
++     <div class="card mb-4" *ngIf="isPermanentDoctor()">
++       <div class="card-header bg-success text-white">
++         <h5 class="mb-0"><i class="bi bi-people me-2"></i> Queue Management</h5>
++       </div>
++       <div class="card-body">
++         <div class="row">
++           <div class="col-md-6">
++             <h6 class="text-success"><i class="bi bi-list-ol me-2"></i>Current Queue Status</h6>
++             <div class="alert alert-info">
++               <div class="d-flex justify-content-between align-items-center">
++                 <span><strong>Current Position:</strong></span>
++                 <span class="badge bg-primary fs-6">{{ user.current_queue_position || '0' }}</span>
++               </div>
++               <div class="d-flex justify-content-between align-items-center mt-2">
++                 <span><strong>Max Queue Size:</strong></span>
++                 <span class="badge bg-secondary">{{ user.max_queue_size || '10' }}</span>
++               </div>
++             </div>
++             <p class="text-muted small">
++               <i class="bi bi-info-circle me-1"></i>
++               Patients can join your queue when you're available. First come, first served system.
++             </p>
++           </div>
++           <div class="col-md-6">
++             <h6 class="text-success"><i class="bi bi-clock me-2"></i>Consultation Settings</h6>
++             <div class="mb-3">
++               <p class="mb-1"><strong>Duration per Patient:</strong> {{ user.consultation_duration || '15' }} minutes</p>
++               <p class="mb-1"><strong>Available Hours:</strong> {{ user.consultation_hours || 'Not set' }}</p>
++               <p class="mb-1"><strong>Available Days:</strong> {{ user.available_days || 'Not specified' }}</p>
++             </div>
++             <div class="alert alert-success">
++               <i class="bi bi-check-circle me-2"></i>
++               <strong>Queue System Active:</strong> Your queue system is ready to accept patients when you're available.
++             </div>
++           </div>
++         </div>
++       </div>
++     </div>
++ 
++     <!-- Visiting Schedule Card (Visiting Doctors Only) -->
++     <div class="card mb-4" *ngIf="isVisitingDoctor()">
++       <div class="card-header bg-warning text-dark">
++         <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i> Visiting Schedule</h5>
++       </div>
++       <div class="card-body">
++         <div class="row">
++           <div class="col-md-6">
++             <h6 class="text-warning"><i class="bi bi-calendar-check me-2"></i>Your Visiting Days</h6>
++             <div class="mb-3">
++               <div *ngFor="let day of user.visiting_days" class="badge bg-warning text-dark me-2 mb-2">
++                 {{ getDayName(day) }}
++               </div>
++               <p class="text-muted small mt-2">
++                 <i class="bi bi-info-circle me-1"></i>
++                 These are the days when patients can book appointments with you.
++               </p>
++             </div>
++           </div>
++           <div class="col-md-6">
++             <h6 class="text-warning"><i class="bi bi-clock-history me-2"></i>Time Slots</h6>
++             <div class="mb-3">
++               <div *ngFor="let day of user.visiting_days" class="mb-2">
++                 <strong>{{ getDayName(day) }}:</strong>
++                 <span class="text-muted">
++                   {{ user.visiting_day_times[day]?.start_time || 'N/A' }} - {{ user.visiting_day_times[day]?.end_time || 'N/A' }}
++                 </span>
++               </div>
++             </div>
++             <div class="alert alert-warning">
++               <i class="bi bi-info-circle me-2"></i>
++               <strong>Pre-booking System:</strong> Patients must book appointments in advance for your visiting days.
++             </div>
++           </div>
++         </div>
++       </div>
++     </div>
+    </div>
+  </div>
+```
+
+</details>
+
+---
+
+Perfect! I've successfully created different dashboards for permanent doctors and visiting doctors. Here's what I've implemented:
+
+## **✅ Different Doctor Dashboards:**
+
+### **🔄 Changes Made:**
+
+#### **📋 TypeScript Component (`doctor-dashboard.component.ts`):**
+1. **Added helper methods**:
+   - `isPermanentDoctor()` - Checks if doctor is permanent
+   - `isVisitingDoctor()` - Checks if doctor is visiting
+   - `getDayName()` - Converts day numbers to day names
+   - `getVisitingDaysDisplay()` - Shows visiting days as readable text
+   - `getVisitingTimeSlotsDisplay()` - Shows time slots for each visiting day
+
+2. **Added days of week array** for visiting doctor day mapping
+
+#### **📋 HTML Template (`doctor-dashboard.component.html`):**
+1. **Updated Dashboard Header** - Shows doctor type badge (Permanent/Visiting)
+2. **Conditional Availability Status Card**:
+   - **Permanent Doctors**: Shows consultation hours, available days, queue information, and queue system details
+   - **Visiting Doctors**: Shows visiting days, time slots, and pre-booking system information
+
+3. **Different Quick Stats**:
+   - **Permanent Doctors**: Specialization, Hospital, Max Queue Size, Consultation Duration
+   - **Visiting Doctors**: Specialization, Hospital, Number of Visiting Days, Consultation Fee
+
+4. **New Specialized Cards**:
+   - **Queue Management Card** (Permanent Doctors Only): Shows current queue position, max queue size, and consultation settings
+   - **Visiting Schedule Card** (Visiting Doctors Only): Shows visiting days with badges and detailed time slots
+
+### **�� Dashboard Features:**
+
+#### **👨‍⚕️ Permanent Doctor Dashboard:**
+- **Queue System Focus**: Shows queue position, max queue size, consultation duration
+- **Always Available**: Displays consultation hours and available days
+- **Queue Management**: Dedicated card showing queue status and settings
+- **First Come, First Served**: Information about the queue system
+
+#### **🏥 Visiting Doctor Dashboard:**
+- **Schedule Focus**: Shows visiting days and time slots
+- **Pre-booking System**: Information about appointment booking requirements
+- **Visiting Schedule**: Dedicated card showing visiting days with badges
+- **Time Slot Details**: Detailed breakdown of time slots for each visiting day
+
+#### **🔄 Common Features:**
+- **Availability Toggle**: Both doctor types can toggle consultation availability
+- **Basic Information**: Specialization, hospital, consultation fee, age, gender, experience
+- **Status Indicators**: Online/offline status and consultation availability
+- **Navigation**: View appointments button and notifications
+
+### **�� Visual Differences:**
+- **Color Coding**: Permanent doctors use blue/primary colors, visiting doctors use yellow/warning colors
+- **Icons**: Different icons for queue management vs. visiting schedule
+- **Layout**: Optimized layouts for each doctor type's specific needs
+- **Information Hierarchy**: Most relevant information prominently displayed for each type
+
+Now each doctor type has a personalized dashboard that focuses on their specific workflow and system requirements!
+
+---
+
