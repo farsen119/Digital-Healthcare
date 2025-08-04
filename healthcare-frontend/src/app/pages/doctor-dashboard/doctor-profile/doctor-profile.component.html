@@ -47,6 +47,15 @@
       </div>
       <div class="card-body">
         <div *ngIf="!showUpdateForm">
+          <!-- Doctor Type Badge -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <span class="badge fs-6" [ngClass]="isPermanentDoctor() ? 'bg-primary' : 'bg-warning'">
+                {{ isPermanentDoctor() ? 'Permanent Doctor' : (isVisitingDoctor() ? 'Visiting Doctor' : 'Doctor') }}
+              </span>
+            </div>
+          </div>
+
           <div class="row">
             <div class="col-md-6">
               <p class="mb-2"><strong>Specialization:</strong> {{ user.specialization || 'Not specified' }}</p>
@@ -57,25 +66,59 @@
             <div class="col-md-6">
               <p class="mb-2"><strong>Hospital/Clinic:</strong> {{ user.hospital || 'Not specified' }}</p>
               <p class="mb-2"><strong>Consultation Fee:</strong> ₹{{ user.consultation_fee || '0' }}</p>
-              <p class="mb-2"><strong>Available Days:</strong> {{ user.available_days || 'Not specified' }}</p>
-              <p class="mb-2"><strong>Consultation Hours:</strong> {{ user.consultation_hours || 'Not specified' }}</p>
+              
+              <!-- Permanent Doctor Fields -->
+              <div *ngIf="isPermanentDoctor()">
+                <p class="mb-2"><strong>Available Days:</strong> {{ user.available_days || 'Not specified' }}</p>
+                <p class="mb-2"><strong>Consultation Hours:</strong> {{ user.consultation_hours || 'Not specified' }}</p>
+                <p class="mb-2"><strong>Max Queue Size:</strong> {{ user.max_queue_size || '10' }} patients</p>
+                <p class="mb-2"><strong>Consultation Duration:</strong> {{ user.consultation_duration || '15' }} minutes</p>
+              </div>
+              
+              <!-- Visiting Doctor Fields -->
+              <div *ngIf="isVisitingDoctor()">
+                <p class="mb-2"><strong>Visiting Days:</strong> {{ getVisitingDaysDisplay() }}</p>
+                <p class="mb-2"><strong>Time Slots:</strong> {{ getVisitingTimeSlotsDisplay() }}</p>
+              </div>
             </div>
           </div>
+
+          <!-- Status Information -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="d-flex gap-2 flex-wrap">
+                <span class="badge" [ngClass]="user.is_live ? 'bg-success' : 'bg-secondary'">
+                  {{ user.is_live ? 'Online' : 'Offline' }}
+                </span>
+                <span class="badge" [ngClass]="user.is_available_for_consultation ? 'bg-success' : 'bg-secondary'">
+                  {{ user.is_available_for_consultation ? 'Available for Consultation' : 'Not Available' }}
+                </span>
+                <span *ngIf="isPermanentDoctor()" class="badge bg-info">
+                  Current Queue Position: {{ user.current_queue_position || '0' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div class="row mt-3" *ngIf="user.bio">
             <div class="col-12">
               <p class="mb-2"><strong>Professional Bio:</strong></p>
-              <p class="text-muted">{{ user.bio }}</p>
+              <div class="card bg-light">
+                <div class="card-body">
+                  <p class="text-muted mb-0">{{ user.bio }}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Update Form (Profile Photo Only) -->
+    <!-- Update Form (Profile Photo and Bio) -->
     <div class="card mb-4" *ngIf="user && showUpdateForm">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="bi bi-pencil me-2"></i> Update Profile Photo</h5>
-        <small class="text-light">You can only update your profile photo. All other information is managed by admin.</small>
+        <h5 class="mb-0"><i class="bi bi-pencil me-2"></i> Update Profile</h5>
+        <small class="text-light">You can update your profile photo and professional bio. All other information is managed by admin.</small>
       </div>
       <div class="card-body">
         <form (ngSubmit)="update()" enctype="multipart/form-data">
@@ -147,38 +190,69 @@
               <input type="number" class="form-control" [value]="user.consultation_fee" disabled>
             </div>
           </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Available Days</label>
-              <input type="text" class="form-control" [value]="user.available_days" disabled>
+          
+          <!-- Permanent Doctor Fields -->
+          <div *ngIf="isPermanentDoctor()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Available Days</label>
+                <input type="text" class="form-control" [value]="user.available_days" disabled>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Consultation Hours</label>
+                <input type="text" class="form-control" [value]="user.consultation_hours" disabled>
+              </div>
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Consultation Hours</label>
-              <input type="text" class="form-control" [value]="user.consultation_hours" disabled>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Max Queue Size</label>
+                <input type="number" class="form-control" [value]="user.max_queue_size" disabled>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Consultation Duration (minutes)</label>
+                <input type="number" class="form-control" [value]="user.consultation_duration" disabled>
+              </div>
             </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Professional Bio</label>
-            <textarea class="form-control" [value]="user.bio" disabled rows="3"></textarea>
+          
+          <!-- Visiting Doctor Fields -->
+          <div *ngIf="isVisitingDoctor()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Visiting Days</label>
+                <input type="text" class="form-control" [value]="getVisitingDaysDisplay()" disabled>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Time Slots</label>
+                <input type="text" class="form-control" [value]="getVisitingTimeSlotsDisplay()" disabled>
+              </div>
+            </div>
           </div>
-
-          <!-- Profile Photo Section (Editable) -->
+          
+          <!-- Profile Photo and Bio Section (Editable) -->
           <hr class="my-4">
-          <h6 class="text-info mb-3"><i class="bi bi-image me-2"></i>Profile Photo (Editable)</h6>
+          <h6 class="text-info mb-3"><i class="bi bi-image me-2"></i>Profile Photo & Bio (Editable)</h6>
           <div class="mb-3">
             <label class="form-label">Profile Photo</label>
             <input type="file" class="form-control" (change)="onFileChange($event)" accept="image/*">
-            <small class="text-muted">You can only update your profile photo</small>
+            <small class="text-muted">Select a new profile photo (optional)</small>
           </div>
           <div class="mb-3" *ngIf="user.photo">
-            <img [src]="getPhotoUrl()" class="img-thumbnail" width="100" alt="Profile Photo">
+            <label class="form-label">Current Photo:</label>
+            <img [src]="getPhotoUrl()" class="img-thumbnail d-block" width="100" alt="Profile Photo">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Professional Bio</label>
+            <textarea class="form-control" [(ngModel)]="editForm.bio" rows="4" 
+                      placeholder="Write about your professional experience, specializations, and approach to patient care..."></textarea>
+            <small class="text-muted">Describe your professional background and approach to patient care</small>
           </div>
 
           <!-- Submit Buttons -->
           <hr class="my-4">
           <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary" [disabled]="loading">
-              <i class="bi bi-check-circle me-2"></i>{{ loading ? 'Updating...' : 'Update Profile Photo' }}
+              <i class="bi bi-check-circle me-2"></i>{{ loading ? 'Updating...' : 'Update Profile' }}
             </button>
             <button type="button" class="btn btn-secondary" (click)="cancelUpdate()">
               <i class="bi bi-x-circle me-2"></i>Cancel
@@ -191,7 +265,7 @@
     <!-- Update Button -->
     <div class="text-center" *ngIf="user && !showUpdateForm">
       <button class="btn btn-primary btn-lg" (click)="openUpdateForm()">
-        <i class="bi bi-camera me-2"></i>Update Profile Photo
+        <i class="bi bi-pencil me-2"></i>Update Profile
       </button>
     </div>
   </div>

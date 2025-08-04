@@ -18,6 +18,7 @@ export class DoctorProfileComponent implements OnInit {
   loading = false;
   showUpdateForm = false;
   errorMsg: string = '';
+  editForm: any = {};
 
   // Predefined list of specializations for the dropdown
   specializations = [
@@ -39,10 +40,64 @@ export class DoctorProfileComponent implements OnInit {
     'Other'
   ];
 
+  // Days of week for visiting doctors
+  daysOfWeek = [
+    { value: 0, label: 'Monday' },
+    { value: 1, label: 'Tuesday' },
+    { value: 2, label: 'Wednesday' },
+    { value: 3, label: 'Thursday' },
+    { value: 4, label: 'Friday' },
+    { value: 5, label: 'Saturday' },
+    { value: 6, label: 'Sunday' }
+  ];
+
   constructor(private auth: AuthService) {}
 
   ngOnInit() {
-    this.auth.getProfile().subscribe(user => this.user = user);
+    this.auth.getProfile().subscribe(user => {
+      this.user = user;
+      this.editForm = { ...user }; // Initialize edit form with user data
+    });
+  }
+
+  // Helper method to get day name
+  getDayName(dayValue: number): string {
+    const day = this.daysOfWeek.find(d => d.value === dayValue);
+    return day ? day.label : 'Unknown';
+  }
+
+  // Helper method to check if doctor is permanent
+  isPermanentDoctor(): boolean {
+    return this.user && this.user.doctor_type === 'permanent';
+  }
+
+  // Helper method to check if doctor is visiting
+  isVisitingDoctor(): boolean {
+    return this.user && this.user.doctor_type === 'visiting';
+  }
+
+  // Helper method to get visiting days display
+  getVisitingDaysDisplay(): string {
+    if (!this.user || !this.user.visiting_days || this.user.visiting_days.length === 0) {
+      return 'Not specified';
+    }
+    return this.user.visiting_days.map((day: number) => this.getDayName(day)).join(', ');
+  }
+
+  // Helper method to get visiting time slots display
+  getVisitingTimeSlotsDisplay(): string {
+    if (!this.user || !this.user.visiting_days || this.user.visiting_days.length === 0) {
+      return 'Not specified';
+    }
+    const timeSlots = this.user.visiting_days.map((day: number) => {
+      const dayName = this.getDayName(day);
+      const timeSlot = this.user.visiting_day_times[day];
+      if (timeSlot && timeSlot.start_time && timeSlot.end_time) {
+        return `${dayName}: ${timeSlot.start_time} - ${timeSlot.end_time}`;
+      }
+      return dayName;
+    });
+    return timeSlots.join(', ');
   }
 
   onFileChange(event: any) {
@@ -65,19 +120,27 @@ export class DoctorProfileComponent implements OnInit {
     this.loading = true;
     this.errorMsg = '';
     
-    // Only send profile photo - all other fields are read-only
-    const data: any = {};
+    // Create FormData for file upload
+    const formData = new FormData();
+    
+    // Add bio if changed
+    if (this.editForm.bio !== this.user.bio) {
+      formData.append('bio', this.editForm.bio || '');
+    }
     
     // Add photo if selected
-    if (this.photo) data.photo = this.photo;
+    if (this.photo) {
+      formData.append('photo', this.photo);
+    }
     
-    this.auth.updateProfile(data).subscribe({
+    this.auth.updateProfile(formData).subscribe({
       next: user => {
         this.user = user;
+        this.editForm = { ...user }; // Update edit form with new data
         this.loading = false;
         this.showUpdateForm = false;
         this.photo = null;
-        alert('Profile photo updated successfully!');
+        alert('Profile updated successfully!');
       },
       error: (err) => {
         this.loading = false;
@@ -99,11 +162,13 @@ export class DoctorProfileComponent implements OnInit {
 
   openUpdateForm() {
     this.showUpdateForm = true;
+    this.editForm = { ...this.user }; // Reset edit form with current user data
     this.errorMsg = '';
   }
 
   cancelUpdate() {
     this.showUpdateForm = false;
+    this.editForm = { ...this.user }; // Reset edit form
     this.photo = null;
     this.errorMsg = '';
   }
