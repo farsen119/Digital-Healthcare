@@ -40,6 +40,17 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
   totalPrescriptions = 0;
   totalOrders = 0;
   totalSpent = 0;
+
+  // Days of week for visiting doctors
+  daysOfWeek = [
+    { value: 0, label: 'Monday' },
+    { value: 1, label: 'Tuesday' },
+    { value: 2, label: 'Wednesday' },
+    { value: 3, label: 'Thursday' },
+    { value: 4, label: 'Friday' },
+    { value: 5, label: 'Saturday' },
+    { value: 6, label: 'Sunday' }
+  ];
   
   private subscriptions: Subscription[] = [];
 
@@ -211,5 +222,60 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
       return 'http://localhost:8000' + doctor.photo;
     }
     return '';
+  }
+
+  // Helper method to check if doctor is permanent
+  isPermanentDoctor(doctor: any): boolean {
+    return doctor && doctor.doctor_type === 'permanent';
+  }
+
+  // Helper method to check if doctor is visiting
+  isVisitingDoctor(doctor: any): boolean {
+    return doctor && doctor.doctor_type === 'visiting';
+  }
+
+  // Helper method to get day name
+  getDayName(dayValue: number): string {
+    const day = this.daysOfWeek.find(d => d.value === dayValue);
+    return day ? day.label : 'Unknown';
+  }
+
+  // Helper method to get visiting days display
+  getVisitingDaysDisplay(doctor: any): string {
+    if (!doctor || !doctor.visiting_days || doctor.visiting_days.length === 0) {
+      return 'Not specified';
+    }
+    return doctor.visiting_days.map((day: number) => this.getDayName(day)).join(', ');
+  }
+
+  // Helper method to get visiting time slots display
+  getVisitingTimeSlotsDisplay(doctor: any): string {
+    if (!doctor || !doctor.visiting_days || doctor.visiting_days.length === 0) {
+      return 'Not specified';
+    }
+    const timeSlots = doctor.visiting_days.map((day: number) => {
+      const dayName = this.getDayName(day);
+      const timeSlot = doctor.visiting_day_times[day];
+      if (timeSlot && timeSlot.start_time && timeSlot.end_time) {
+        return `${dayName}: ${timeSlot.start_time} - ${timeSlot.end_time}`;
+      }
+      return dayName;
+    });
+    return timeSlots.join(', ');
+  }
+
+  // Get currently available doctors (permanent doctors who are online and available)
+  getCurrentlyAvailableDoctors(): any[] {
+    return this.allDoctors.filter(doctor => 
+      this.isPermanentDoctor(doctor) && 
+      doctor.is_available_for_consultation
+    );
+  }
+
+  // Get special doctors (visiting doctors)
+  getSpecialDoctors(): any[] {
+    return this.allDoctors.filter(doctor => 
+      this.isVisitingDoctor(doctor)
+    );
   }
 }

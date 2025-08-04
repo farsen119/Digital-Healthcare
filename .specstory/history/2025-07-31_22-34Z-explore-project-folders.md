@@ -26255,3 +26255,579 @@ Now each doctor type has a personalized dashboard that focuses on their specific
 
 ---
 
+_**User**_
+
+ in my patient dashboard i wnat show the availan=ble doctors section there i dont want shwo all doctors details ,in that section two section i want on eis currently avalable doctor and specila doctors iw ant look like this way give me do this way 
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I understand you want to update the patient dashboard to show available doctors in two sections: "Currently Available Doctors" and "Special Doctors". Let me first check the current patient dashboard structure and then implement this change.
+
+
+---
+
+Read file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.ts
+
+---
+
+Now let me check the HTML template to see the current structure:
+
+
+---
+
+Read file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html
+
+---
+
+Let me try to read the HTML file again:
+
+
+---
+
+<details>
+            <summary>Searched codebase "patient-dashboard.component.html" • **3** results</summary>
+        
+| File |
+|------|
+| `c:\Users\FARSEEN KP\OneDrive\Desktop\logooo\healthcare-frontend\src\app\pages\patient-dashboard\patient-dashboard.component.html` |
+| `c:\Users\FARSEEN KP\OneDrive\Desktop\logooo\healthcare-frontend\src\app\pages\patient-dashboard\side-navbar\side-navbar.component.html` |
+| `c:\Users\FARSEEN KP\OneDrive\Desktop\logooo\healthcare-frontend\src\app\pages\patient-dashboard\patient-profile\patient-profile.component.html` |
+
+</details>
+
+---
+
+Read file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html
+
+---
+
+Let me continue reading the HTML file to see the available doctors section:
+
+
+---
+
+Read file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html
+
+---
+
+Let me search for the available doctors section in the HTML:
+
+
+---
+
+<details>
+            <summary>Grep search for "Available Doctors" • **3** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///c%3A/Users/FARSEEN%20KP/OneDrive/Desktop/logooo/healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html` | L56 | `<h5 class="card-title"><i class="bi bi-heart-pulse me-2"></i>Available Doctors</h5>` |
+| `file:///c%3A/Users/FARSEEN%20KP/OneDrive/Desktop/logooo/healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html` | L136 | `<!-- Available Doctors Section -->` |
+| `file:///c%3A/Users/FARSEEN%20KP/OneDrive/Desktop/logooo/healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html` | L143 | `Available Doctors ({{ availableDoctors.length }})` |
+| `file:///c%3A/Users/FARSEEN%20KP/OneDrive/Desktop/logooo/healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html` | L157 | `<p class="mt-2">Loading available doctors...</p>` |
+| `file:///c%3A/Users/FARSEEN%20KP/OneDrive/Desktop/logooo/healthcare-frontend/src/app/pages/home/home.component.html` | L48 | `<!-- Available Doctors Section -->` |
+| `file:///c%3A/Users/FARSEEN%20KP/OneDrive/Desktop/logooo/healthcare-frontend/src/app/pages/admin-dashboard/admin-dashboard.component.html` | L53 | `<h5 class="card-title">Available Doctors</h5>` |
+| `file:///c%3A/Users/FARSEEN%20KP/OneDrive/Desktop/logooo/healthcare-frontend/src/app/pages/admin-dashboard/admin-dashboard.component.html` | L82 | `<h6 class="text-success"><i class="bi bi-circle-fill text-success me-2"></i>Available Doctors ({{ onlineCount }})</h6>` |
+
+</details>
+
+---
+
+Now let me read the specific section around line 135:
+
+
+---
+
+Read file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html
+
+---
+
+Perfect! Now I can see the current structure. I need to update the patient dashboard to show two sections: "Currently Available Doctors" and "Special Doctors". Let me update the TypeScript component first to add helper methods for categorizing doctors:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.ts</summary>
+
+I will add helper methods to categorize doctors into currently available and special doctors, and add days of week for visiting doctors
+
+**Chunk 1**
+Lines added: 12, lines removed: 1
+
+```diff
+@@ -41,5 +41,16 @@
+    totalOrders = 0;
+    totalSpent = 0;
+-   
++ 
++   // Days of week for visiting doctors
++   daysOfWeek = [
++     { value: 0, label: 'Monday' },
++     { value: 1, label: 'Tuesday' },
++     { value: 2, label: 'Wednesday' },
++     { value: 3, label: 'Thursday' },
++     { value: 4, label: 'Friday' },
++     { value: 5, label: 'Saturday' },
++     { value: 6, label: 'Sunday' }
++   ];
++   
+    private subscriptions: Subscription[] = [];
+  
+```
+
+</details>
+
+---
+
+Now let me add helper methods to categorize doctors:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.ts</summary>
+
+I will add helper methods to categorize doctors and get visiting doctor information
+
+**Chunk 1**
+Lines added: 55, lines removed: undefined
+
+```diff
+@@ -224,3 +224,58 @@
+      return '';
+    }
++ 
++   // Helper method to check if doctor is permanent
++   isPermanentDoctor(doctor: any): boolean {
++     return doctor && doctor.doctor_type === 'permanent';
++   }
++ 
++   // Helper method to check if doctor is visiting
++   isVisitingDoctor(doctor: any): boolean {
++     return doctor && doctor.doctor_type === 'visiting';
++   }
++ 
++   // Helper method to get day name
++   getDayName(dayValue: number): string {
++     const day = this.daysOfWeek.find(d => d.value === dayValue);
++     return day ? day.label : 'Unknown';
++   }
++ 
++   // Helper method to get visiting days display
++   getVisitingDaysDisplay(doctor: any): string {
++     if (!doctor || !doctor.visiting_days || doctor.visiting_days.length === 0) {
++       return 'Not specified';
++     }
++     return doctor.visiting_days.map((day: number) => this.getDayName(day)).join(', ');
++   }
++ 
++   // Helper method to get visiting time slots display
++   getVisitingTimeSlotsDisplay(doctor: any): string {
++     if (!doctor || !doctor.visiting_days || doctor.visiting_days.length === 0) {
++       return 'Not specified';
++     }
++     const timeSlots = doctor.visiting_days.map((day: number) => {
++       const dayName = this.getDayName(day);
++       const timeSlot = doctor.visiting_day_times[day];
++       if (timeSlot && timeSlot.start_time && timeSlot.end_time) {
++         return `${dayName}: ${timeSlot.start_time} - ${timeSlot.end_time}`;
++       }
++       return dayName;
++     });
++     return timeSlots.join(', ');
++   }
++ 
++   // Get currently available doctors (permanent doctors who are online and available)
++   getCurrentlyAvailableDoctors(): any[] {
++     return this.allDoctors.filter(doctor => 
++       this.isPermanentDoctor(doctor) && 
++       doctor.is_available_for_consultation
++     );
++   }
++ 
++   // Get special doctors (visiting doctors)
++   getSpecialDoctors(): any[] {
++     return this.allDoctors.filter(doctor => 
++       this.isVisitingDoctor(doctor)
++     );
++   }
+  }
+```
+
+</details>
+
+---
+
+Now let me update the HTML template to show the two sections:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html</summary>
+
+I will replace the single available doctors section with two sections: Currently Available Doctors and Special Doctors
+
+**Chunk 1**
+Lines added: 156, lines removed: undefined
+
+```diff
+@@ -207,4 +207,160 @@
+        </div>
+      </div>
++ 
++     <!-- Currently Available Doctors Section -->
++     <div class="card mb-4">
++       <div class="card-header bg-success text-white">
++         <div class="d-flex justify-content-between align-items-center">
++           <div>
++             <h5 class="mb-0">
++               <i class="bi bi-circle-fill me-2"></i>
++               Currently Available Doctors ({{ getCurrentlyAvailableDoctors().length }})
++             </h5>
++             <small class="text-light">
++               <i class="bi" [ngClass]="isWebSocketConnected ? 'bi-wifi text-success' : 'bi-wifi-off text-warning'"></i>
++               {{ isWebSocketConnected ? 'Real-time updates active' : 'Using fallback updates' }}
++             </small>
++           </div>
++         </div>
++       </div>
++       <div class="card-body">
++         <div *ngIf="loadingDoctors" class="text-center py-4">
++           <div class="spinner-border text-primary" role="status">
++             <span class="visually-hidden">Loading...</span>
++           </div>
++           <p class="mt-2">Loading currently available doctors...</p>
++         </div>
++         <div *ngIf="!loadingDoctors && getCurrentlyAvailableDoctors().length === 0" class="text-center py-4">
++           <i class="bi bi-exclamation-circle text-muted" style="font-size: 3rem;"></i>
++           <h5 class="text-muted mt-3">No Currently Available Doctors</h5>
++           <p class="text-muted">Currently, no permanent doctors are available for immediate consultation. Please check back later.</p>
++         </div>
++         <div *ngIf="!loadingDoctors && getCurrentlyAvailableDoctors().length > 0" class="row">
++           <div *ngFor="let doctor of getCurrentlyAvailableDoctors()" class="col-md-6 col-lg-4 mb-4">
++             <div class="card h-100 doctor-card">
++               <div class="card-body">
++                 <div class="text-center mb-3">
++                   <img *ngIf="doctor.photo" [src]="getDoctorPhotoUrl(doctor)" class="img-thumbnail rounded-circle mb-2" width="80" height="80" alt="Doctor Photo">
++                   <div *ngIf="!doctor.photo" class="doctor-placeholder mb-2">
++                     <i class="bi bi-person-circle" style="font-size: 80px; color: #ccc;"></i>
++                   </div>
++                   <h6 class="card-title mb-1">{{ doctor.first_name }} {{ doctor.last_name }}</h6>
++                   <div class="mb-2">
++                     <span class="badge bg-primary me-1">Permanent Doctor</span>
++                     <span class="badge bg-success">
++                       <i class="bi bi-circle-fill me-1"></i>Available Now
++                     </span>
++                   </div>
++                 </div>
++                 <div class="doctor-details">
++                   <p class="mb-2">
++                     <i class="bi bi-award me-2 text-primary"></i>
++                     <strong>Specialization:</strong> {{ doctor.specialization || 'Not specified' }}
++                   </p>
++                   <p class="mb-2">
++                     <i class="bi bi-currency-rupee me-2 text-primary"></i>
++                     <strong>Consultation Fee:</strong> ₹{{ doctor.consultation_fee || 'N/A' }}
++                   </p>
++                   <p class="mb-2">
++                     <i class="bi bi-calendar-week me-2 text-primary"></i>
++                     <strong>Available Days:</strong> {{ doctor.available_days || 'Not specified' }}
++                   </p>
++                   <p class="mb-2">
++                     <i class="bi bi-clock-history me-2 text-primary"></i>
++                     <strong>Hours:</strong> {{ doctor.consultation_hours || 'Not specified' }}
++                   </p>
++                   <p class="mb-3">
++                     <i class="bi bi-people me-2 text-info"></i>
++                     <strong>Queue System:</strong> First come, first served
++                   </p>
++                 </div>
++                 <div class="text-center">
++                   <button class="btn btn-primary btn-sm" 
++                           routerLink="/book-appointment" 
++                           [queryParams]="{doctor_id: doctor.id}">
++                     <i class="bi bi-calendar-plus me-1"></i>Book Appointment
++                   </button>
++                 </div>
++               </div>
++             </div>
++           </div>
++         </div>
++       </div>
++     </div>
++ 
++     <!-- Special Doctors Section -->
++     <div class="card mb-4">
++       <div class="card-header bg-warning text-dark">
++         <div class="d-flex justify-content-between align-items-center">
++           <div>
++             <h5 class="mb-0">
++               <i class="bi bi-star-fill me-2"></i>
++               Special Doctors ({{ getSpecialDoctors().length }})
++             </h5>
++             <small class="text-dark">
++               <i class="bi bi-calendar-event me-1"></i>
++               Visiting doctors with scheduled appointments
++             </small>
++           </div>
++         </div>
++       </div>
++       <div class="card-body">
++         <div *ngIf="loadingDoctors" class="text-center py-4">
++           <div class="spinner-border text-warning" role="status">
++             <span class="visually-hidden">Loading...</span>
++           </div>
++           <p class="mt-2">Loading special doctors...</p>
++         </div>
++         <div *ngIf="!loadingDoctors && getSpecialDoctors().length === 0" class="text-center py-4">
++           <i class="bi bi-star text-muted" style="font-size: 3rem;"></i>
++           <h5 class="text-muted mt-3">No Special Doctors Available</h5>
++           <p class="text-muted">Currently, no visiting doctors are scheduled. Please check back later.</p>
++         </div>
++         <div *ngIf="!loadingDoctors && getSpecialDoctors().length > 0" class="row">
++           <div *ngFor="let doctor of getSpecialDoctors()" class="col-md-6 col-lg-4 mb-4">
++             <div class="card h-100 doctor-card">
++               <div class="card-body">
++                 <div class="text-center mb-3">
++                   <img *ngIf="doctor.photo" [src]="getDoctorPhotoUrl(doctor)" class="img-thumbnail rounded-circle mb-2" width="80" height="80" alt="Doctor Photo">
++                   <div *ngIf="!doctor.photo" class="doctor-placeholder mb-2">
++                     <i class="bi bi-person-circle" style="font-size: 80px; color: #ccc;"></i>
++                   </div>
++                   <h6 class="card-title mb-1">{{ doctor.first_name }} {{ doctor.last_name }}</h6>
++                   <div class="mb-2">
++                     <span class="badge bg-warning text-dark me-1">Visiting Doctor</span>
++                     <span class="badge bg-info">Pre-booking Required</span>
++                   </div>
++                 </div>
++                 <div class="doctor-details">
++                   <p class="mb-2">
++                     <i class="bi bi-award me-2 text-primary"></i>
++                     <strong>Specialization:</strong> {{ doctor.specialization || 'Not specified' }}
++                   </p>
++                   <p class="mb-2">
++                     <i class="bi bi-currency-rupee me-2 text-primary"></i>
++                     <strong>Consultation Fee:</strong> ₹{{ doctor.consultation_fee || 'N/A' }}
++                   </p>
++                   <p class="mb-2">
++                     <i class="bi bi-calendar-event me-2 text-warning"></i>
++                     <strong>Visiting Days:</strong> {{ getVisitingDaysDisplay(doctor) }}
++                   </p>
++                   <p class="mb-3">
++                     <i class="bi bi-clock-history me-2 text-warning"></i>
++                     <strong>Time Slots:</strong> {{ getVisitingTimeSlotsDisplay(doctor) }}
++                   </p>
++                 </div>
++                 <div class="text-center">
++                   <button class="btn btn-warning btn-sm" 
++                           routerLink="/book-appointment" 
++                           [queryParams]="{doctor_id: doctor.id}">
++                     <i class="bi bi-calendar-plus me-1"></i>Book Appointment
++                   </button>
++                 </div>
++               </div>
++             </div>
++           </div>
++         </div>
++       </div>
++     </div>
+    </div>
+  </div>
+```
+
+</details>
+
+---
+
+Now I need to remove the old single available doctors section. Let me find and remove it:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 73
+
+```diff
+@@ -134,77 +134,5 @@
+      </div>
+      
+-     <!-- Available Doctors Section -->
+-     <div class="card mb-4">
+-       <div class="card-header bg-success text-white">
+-         <div class="d-flex justify-content-between align-items-center">
+-           <div>
+-             <h5 class="mb-0">
+-               <i class="bi bi-heart-pulse me-2"></i>
+-               Available Doctors ({{ availableDoctors.length }})
+-             </h5>
+-             <small class="text-light">
+-               <i class="bi" [ngClass]="isWebSocketConnected ? 'bi-wifi text-success' : 'bi-wifi-off text-warning'"></i>
+-               {{ isWebSocketConnected ? 'Real-time updates active' : 'Using fallback updates' }}
+-             </small>
+-           </div>
+-         </div>
+-       </div>
+-       <div class="card-body">
+-         <div *ngIf="loadingDoctors" class="text-center py-4">
+-           <div class="spinner-border text-primary" role="status">
+-             <span class="visually-hidden">Loading...</span>
+-           </div>
+-           <p class="mt-2">Loading available doctors...</p>
+-         </div>
+-         <div *ngIf="!loadingDoctors && availableDoctors.length === 0" class="text-center py-4">
+-           <i class="bi bi-exclamation-circle text-muted" style="font-size: 3rem;"></i>
+-           <h5 class="text-muted mt-3">No Doctors Available</h5>
+-           <p class="text-muted">Currently, no doctors are available for consultation. Please check back later.</p>
+-         </div>
+-         <div *ngIf="!loadingDoctors && availableDoctors.length > 0" class="row">
+-           <div *ngFor="let doctor of availableDoctors" class="col-md-6 col-lg-4 mb-4">
+-             <div class="card h-100 doctor-card">
+-               <div class="card-body">
+-                 <div class="text-center mb-3">
+-                   <img *ngIf="doctor.photo" [src]="getDoctorPhotoUrl(doctor)" class="img-thumbnail rounded-circle mb-2" width="80" height="80" alt="Doctor Photo">
+-                   <div *ngIf="!doctor.photo" class="doctor-placeholder mb-2">
+-                     <i class="bi bi-person-circle" style="font-size: 80px; color: #ccc;"></i>
+-                   </div>
+-                   <h6 class="card-title mb-1">{{ doctor.first_name }} {{ doctor.last_name }}</h6>
+-                   <span class="badge bg-success mb-2">
+-                     <i class="bi bi-circle-fill me-1"></i>Available Now
+-                   </span>
+-                 </div>
+-                 <div class="doctor-details">
+-                   <p class="mb-2">
+-                     <i class="bi bi-award me-2 text-primary"></i>
+-                     <strong>Specialization:</strong> {{ doctor.specialization || 'Not specified' }}
+-                   </p>
+-                   <p class="mb-2">
+-                     <i class="bi bi-currency-rupee me-2 text-primary"></i>
+-                     <strong>Consultation Fee:</strong> ₹{{ doctor.consultation_fee || 'N/A' }}
+-                   </p>
+-                   <p class="mb-2">
+-                     <i class="bi bi-calendar-week me-2 text-primary"></i>
+-                     <strong>Available Days:</strong> {{ doctor.available_days || 'Not specified' }}
+-                   </p>
+-                   <p class="mb-3">
+-                     <i class="bi bi-clock-history me-2 text-primary"></i>
+-                     <strong>Hours:</strong> {{ doctor.consultation_hours || 'Not specified' }}
+-                   </p>
+-                 </div>
+-                 <div class="text-center">
+-                   <button class="btn btn-primary btn-sm" 
+-                           routerLink="/book-appointment" 
+-                           [queryParams]="{doctor_id: doctor.id}">
+-                     <i class="bi bi-calendar-plus me-1"></i>Book Appointment
+-                   </button>
+-                 </div>
+-               </div>
+-             </div>
+-           </div>
+-         </div>
+-       </div>
+-     </div>
++ 
+  
+      <!-- Currently Available Doctors Section -->
+```
+
+</details>
+
+---
+
+Now let me update the stats card to show the total count of both sections:
+
+
+---
+
+<details><summary>Edit file: healthcare-frontend/src/app/pages/patient-dashboard/patient-dashboard.component.html</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -55,5 +55,5 @@
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-heart-pulse me-2"></i>Available Doctors</h5>
+-             <h3 class="card-text">{{ availableDoctors.length }}</h3>
++             <h3 class="card-text">{{ getCurrentlyAvailableDoctors().length + getSpecialDoctors().length }}</h3>
+              <span>
+                <i class="bi" [ngClass]="isWebSocketConnected ? 'bi-wifi' : 'bi-wifi-off'"></i>
+```
+
+</details>
+
+---
+
+Perfect! I've successfully updated the patient dashboard to show two distinct sections for available doctors. Here's what I've implemented:
+
+## **✅ Updated Patient Dashboard with Two Doctor Sections:**
+
+### **🔄 Changes Made:**
+
+#### **📋 TypeScript Component (`patient-dashboard.component.ts`):**
+1. **Added helper methods**:
+   - `isPermanentDoctor()` - Checks if doctor is permanent
+   - `isVisitingDoctor()` - Checks if doctor is visiting
+   - `getDayName()` - Converts day numbers to day names
+   - `getVisitingDaysDisplay()` - Shows visiting days as readable text
+   - `getVisitingTimeSlotsDisplay()` - Shows time slots for each visiting day
+   - `getCurrentlyAvailableDoctors()` - Returns permanent doctors who are online and available
+   - `getSpecialDoctors()` - Returns visiting doctors
+
+2. **Added days of week array** for visiting doctor day mapping
+
+#### **📋 HTML Template (`patient-dashboard.component.html`):**
+1. **Removed the old single "Available Doctors" section**
+2. **Added two new sections**:
+
+### **👨‍⚕️ Currently Available Doctors Section:**
+- **Green header** with "Currently Available Doctors" title
+- **Shows only permanent doctors** who are currently online and available
+- **Real-time status updates** with WebSocket connection indicator
+- **Doctor cards include**:
+  - Profile photo
+  - "Permanent Doctor" and "Available Now" badges
+  - Specialization, consultation fee, available days, hours
+  - **Queue system information**: "First come, first served"
+  - Blue "Book Appointment" button
+
+### **⭐ Special Doctors Section:**
+- **Yellow header** with "Special Doctors" title and star icon
+- **Shows only visiting doctors** (regardless of current availability)
+- **Doctor cards include**:
+  - Profile photo
+  - "Visiting Doctor" and "Pre-booking Required" badges
+  - Specialization, consultation fee
+  - **Visiting days and time slots** (specific to visiting doctors)
+  - Yellow "Book Appointment" button
+
+### **�� Updated Stats Card:**
+- **Total count** now shows the sum of both sections: `getCurrentlyAvailableDoctors().length + getSpecialDoctors().length`
+
+### **�� Visual Differences:**
+- **Currently Available Doctors**: Green theme, blue buttons, queue system info
+- **Special Doctors**: Yellow theme, yellow buttons, visiting schedule info
+- **Different icons**: Circle-fill for available, star-fill for special
+- **Different badges**: "Available Now" vs "Pre-booking Required"
+
+### **�� Real-time Updates:**
+- **WebSocket integration** maintained for live status updates
+- **Currently Available Doctors** updates in real-time based on doctor availability
+- **Special Doctors** shows all visiting doctors regardless of current status
+
+Now patients can clearly distinguish between:
+1. **Currently Available Doctors** - Permanent doctors who are online and ready for immediate consultation (queue system)
+2. **Special Doctors** - Visiting doctors who require pre-booking on specific days and time slots
+
+This provides a much better user experience by clearly separating the two types of consultation systems!
+
+---
+
