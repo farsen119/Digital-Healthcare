@@ -81,7 +81,15 @@ export class AuthService {
     const formData = new FormData();
     for (const key in data) {
       if (data[key] !== undefined && data[key] !== null) {
-        formData.append(key, data[key]);
+        if (key === 'visiting_day_times' && typeof data[key] === 'object') {
+          // Handle complex objects by converting to JSON string
+          formData.append(key, JSON.stringify(data[key]));
+        } else if (key === 'visiting_days' && Array.isArray(data[key])) {
+          // Handle arrays by converting to JSON string
+          formData.append(key, JSON.stringify(data[key]));
+        } else {
+          formData.append(key, data[key]);
+        }
       }
     }
     return this.http.post(`${this.apiUrl}/register/`, formData);

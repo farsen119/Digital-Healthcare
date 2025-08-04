@@ -84,17 +84,35 @@ export class BookAppointmentComponent implements OnInit, OnDestroy {
 
   book() {
     this.loading = true;
-    this.appointmentService.createAppointment(this.form).subscribe({
-      next: () => {
-        this.loading = false;
-        alert('Appointment booked successfully!');
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        this.loading = false;
-        alert('Booking failed. Please try again.');
-        console.error('Booking error:', error);
-      }
-    });
+    
+    if (this.selectedDoctor?.doctor_type === 'permanent') {
+      // For permanent doctors, join queue
+      this.appointmentService.joinQueue(this.form.doctor).subscribe({
+        next: (response) => {
+          this.loading = false;
+          alert(`Successfully joined queue! Position: ${response.queue_position}, Estimated wait: ${response.estimated_wait_time} minutes`);
+          this.router.navigate(['/patient-dashboard']);
+        },
+        error: (error) => {
+          this.loading = false;
+          alert(error.error?.error || 'Failed to join queue. Please try again.');
+          console.error('Queue join error:', error);
+        }
+      });
+    } else {
+      // For visiting doctors, create scheduled appointment
+      this.appointmentService.createAppointment(this.form).subscribe({
+        next: () => {
+          this.loading = false;
+          alert('Appointment booked successfully!');
+          this.router.navigate(['/patient-dashboard']);
+        },
+        error: (error) => {
+          this.loading = false;
+          alert('Booking failed. Please try again.');
+          console.error('Booking error:', error);
+        }
+      });
+    }
   }
 }

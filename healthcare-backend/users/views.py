@@ -32,6 +32,37 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'public_doctors']:
             return [permissions.AllowAny()]
         return [permissions.IsAdminUser()]
+        
+    def list(self, request, *args, **kwargs):
+        """List all users"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        """Custom update method to handle doctor type changes"""
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        
+        # Handle doctor type changes
+        if instance.role == 'doctor' and 'doctor_type' in request.data:
+            doctor_type = request.data['doctor_type']
+            
+            # Clear fields based on doctor type
+            if doctor_type == 'permanent':
+                # Clear visiting doctor fields for permanent doctors
+                instance.visiting_days = []
+                instance.visiting_day_times = {}
+            elif doctor_type == 'visiting':
+                # Clear permanent doctor fields for visiting doctors
+                instance.available_days = ''
+                instance.consultation_hours = ''
+                instance.max_queue_size = 10
+                instance.consultation_duration = 15
+        
+        serializer.save()
+        return Response(serializer.data)
     
     @action(detail=False, methods=['get'], url_path='public-doctors')
     def public_doctors(self, request):

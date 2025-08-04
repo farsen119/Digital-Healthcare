@@ -103,6 +103,25 @@
           <hr class="my-4">
           <h6 class="text-success mb-3"><i class="bi bi-heart-pulse me-2"></i>Medical Information</h6>
           
+          <!-- Doctor Type Selection -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label for="doctor_type" class="form-label">Doctor Type *</label>
+              <select id="doctor_type" name="doctor_type" [(ngModel)]="form.doctor_type" class="form-select" (ngModelChange)="onDoctorTypeChange()" required>
+                <option *ngFor="let type of doctorTypes" [value]="type.value">{{ type.label }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Doctor Type Information Alert -->
+          <div class="alert" [ngClass]="form.doctor_type === 'permanent' ? 'alert-info' : 'alert-warning'" role="alert">
+            <i class="bi" [ngClass]="form.doctor_type === 'permanent' ? 'bi-people-fill' : 'bi-calendar-event'"></i>
+            <strong *ngIf="form.doctor_type === 'permanent'">Permanent Doctor:</strong>
+            <strong *ngIf="form.doctor_type === 'visiting'">Visiting Doctor:</strong>
+            <span *ngIf="form.doctor_type === 'permanent'">Always available with queue system. Patients join queue and get consulted in order.</span>
+            <span *ngIf="form.doctor_type === 'visiting'">Available on specific days only. Patients book appointments with time slots.</span>
+          </div>
+          
           <!-- Medical Details -->
           <div class="row">
             <div class="col-md-6 mb-3">
@@ -145,22 +164,103 @@
             <textarea id="bio" name="bio" [(ngModel)]="form.bio" class="form-control" rows="3" placeholder="Brief description of expertise and experience..."></textarea>
           </div>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="available_days" class="form-label">Available Days</label>
-              <select id="available_days" name="available_days" [(ngModel)]="form.available_days" class="form-select">
-                <option value="">Select available days...</option>
-                <option value="Monday-Friday">Monday - Friday</option>
-                <option value="Monday-Saturday">Monday - Saturday</option>
-                <option value="All Days">All Days</option>
-                <option value="Weekends Only">Weekends Only</option>
-              </select>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="consultation_hours" class="form-label">Consultation Hours</label>
-              <input type="text" id="consultation_hours" name="consultation_hours" [(ngModel)]="form.consultation_hours" class="form-control" placeholder="e.g., 9:00 AM - 5:00 PM">
-            </div>
-          </div>
+                     <!-- Permanent Doctor Schedule Settings -->
+           <div *ngIf="form.doctor_type === 'permanent'">
+             <hr class="my-3">
+             <h6 class="text-primary mb-3"><i class="bi bi-calendar-check me-2"></i>Permanent Schedule Settings</h6>
+             <div class="row">
+               <div class="col-md-6 mb-3">
+                 <label for="available_days" class="form-label">Available Days</label>
+                 <select id="available_days" name="available_days" [(ngModel)]="form.available_days" class="form-select">
+                   <option value="">Select available days...</option>
+                   <option value="Monday-Friday">Monday - Friday</option>
+                   <option value="Monday-Saturday">Monday - Saturday</option>
+                   <option value="All Days">All Days</option>
+                   <option value="Weekends Only">Weekends Only</option>
+                 </select>
+               </div>
+               <div class="col-md-6 mb-3">
+                 <label for="consultation_hours" class="form-label">Consultation Hours</label>
+                 <input type="text" id="consultation_hours" name="consultation_hours" [(ngModel)]="form.consultation_hours" class="form-control" placeholder="e.g., 9:00 AM - 5:00 PM">
+               </div>
+             </div>
+           </div>
+
+           <!-- Permanent Doctor Queue Settings -->
+           <div *ngIf="form.doctor_type === 'permanent'">
+             <hr class="my-3">
+             <h6 class="text-primary mb-3"><i class="bi bi-people me-2"></i>Queue System Settings</h6>
+             <div class="row">
+               <div class="col-md-6 mb-3">
+                 <label for="max_queue_size" class="form-label">Maximum Queue Size</label>
+                 <input type="number" id="max_queue_size" name="max_queue_size" [(ngModel)]="form.max_queue_size" class="form-control" min="1" max="50" placeholder="10">
+                 <small class="form-text text-muted">Maximum number of patients that can be in queue at once</small>
+               </div>
+               <div class="col-md-6 mb-3">
+                 <label for="consultation_duration" class="form-label">Consultation Duration (minutes)</label>
+                 <input type="number" id="consultation_duration" name="consultation_duration" [(ngModel)]="form.consultation_duration" class="form-control" min="5" max="60" placeholder="15">
+                 <small class="form-text text-muted">Average time per consultation for wait time calculation</small>
+               </div>
+             </div>
+           </div>
+
+                     <!-- Visiting Doctor Schedule Settings -->
+           <div *ngIf="form.doctor_type === 'visiting'">
+             <hr class="my-3">
+             <h6 class="text-warning mb-3"><i class="bi bi-calendar-event me-2"></i>Visiting Schedule Settings</h6>
+             
+             <!-- Visiting Days Selection -->
+             <div class="mb-3">
+               <label class="form-label">Visiting Days *</label>
+               <div class="row">
+                 <div class="col-md-3 mb-2" *ngFor="let day of daysOfWeek">
+                   <div class="form-check">
+                     <input class="form-check-input" type="checkbox" 
+                            [id]="'day_' + day.value" 
+                            [checked]="isVisitingDaySelected(day.value)"
+                            (change)="onVisitingDayChange(day.value, $any($event.target).checked)">
+                     <label class="form-check-label" [for]="'day_' + day.value">
+                       {{ day.label }}
+                     </label>
+                   </div>
+                 </div>
+               </div>
+             </div>
+
+             <!-- Visiting Day Time Slots -->
+             <div class="mb-3" *ngIf="form.visiting_days.length > 0">
+               <label class="form-label">Visiting Day Time Slots *</label>
+               <div class="row">
+                 <div class="col-md-6 mb-3" *ngFor="let day of daysOfWeek">
+                   <div *ngIf="isVisitingDaySelected(day.value)" class="card border-warning">
+                     <div class="card-header bg-warning text-dark">
+                       <strong>{{ day.label }} Schedule</strong>
+                     </div>
+                     <div class="card-body">
+                       <div class="row">
+                         <div class="col-md-6 mb-2">
+                           <label class="form-label">Start Time</label>
+                           <input type="time" 
+                                  class="form-control" 
+                                  [(ngModel)]="form.visiting_day_times[day.value].start_time"
+                                  name="visiting_start_time_{{ day.value }}"
+                                  required>
+                         </div>
+                         <div class="col-md-6 mb-2">
+                           <label class="form-label">End Time</label>
+                           <input type="time" 
+                                  class="form-control" 
+                                  [(ngModel)]="form.visiting_day_times[day.value].end_time"
+                                  name="visiting_end_time_{{ day.value }}"
+                                  required>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
         </div>
 
         <!-- Profile Photo -->

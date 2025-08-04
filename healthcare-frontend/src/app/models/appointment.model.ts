@@ -15,6 +15,15 @@ export interface Appointment {
     doctor_id: number;
     patient_id: number | null;
     prescription?: Prescription;
+    
+    // Appointment Type System
+    appointment_type?: 'queue' | 'scheduled';
+    queue_position?: number;
+    estimated_wait_time?: number;
+    is_queue_appointment?: boolean;
+    queue_joined_at?: string;
+    consultation_started_at?: string;
+    consultation_ended_at?: string;
 }
 
 // No changes needed below, this is the full file for completeness

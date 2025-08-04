@@ -26,6 +26,15 @@ export interface User {
   consultation_hours?: string;
   is_live?: boolean;
   is_available_for_consultation?: boolean;
+  // Doctor Type System
+  doctor_type?: 'permanent' | 'visiting';
+  current_queue_position?: number;
+  max_queue_size?: number;
+  consultation_duration?: number;
+  is_consulting?: boolean;
+  current_patient?: number;
+           visiting_days?: number[];
+         visiting_day_times?: { [key: number]: { start_time: string; end_time: string } };
   // Patient-specific fields
   date_of_birth?: string;
   address?: string;

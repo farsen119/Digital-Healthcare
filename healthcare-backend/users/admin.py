@@ -4,8 +4,8 @@ from .models import CustomUser, DoctorStatus
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ['username', 'email', 'role', 'first_name', 'last_name', 'specialization', 'phone', 'city', 'age', 'gender', 'blood_group', 'is_live', 'is_available_for_consultation']
-    list_filter = ['role', 'specialization', 'city', 'gender', 'blood_group', 'marital_status', 'is_live', 'is_available_for_consultation']
+    list_display = ['username', 'email', 'role', 'first_name', 'last_name', 'specialization', 'doctor_type', 'phone', 'city', 'age', 'gender', 'blood_group', 'is_live', 'is_available_for_consultation']
+    list_filter = ['role', 'specialization', 'doctor_type', 'city', 'gender', 'blood_group', 'marital_status', 'is_live', 'is_available_for_consultation']
     search_fields = ['username', 'email', 'first_name', 'last_name', 'specialization', 'emergency_contact_name']
     
     # Fields to display in the admin form
@@ -24,8 +24,10 @@ class CustomUserAdmin(UserAdmin):
         }),
         ('Doctor Information', {
             'fields': (
-                'license_number', 'experience_years', 'qualification', 
-                'hospital', 'consultation_fee', 'bio', 'available_days', 'consultation_hours'
+                'doctor_type', 'license_number', 'experience_years', 'qualification', 
+                'hospital', 'consultation_fee', 'bio', 'available_days', 'consultation_hours',
+                'current_queue_position', 'max_queue_size', 'consultation_duration',
+                'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times'
             ),
             'classes': ('collapse',),
             'description': 'These fields are specific to doctors'
@@ -48,8 +50,10 @@ class CustomUserAdmin(UserAdmin):
         }),
         ('Doctor Information', {
             'fields': (
-                'license_number', 'experience_years', 'qualification', 
-                'hospital', 'consultation_fee', 'bio', 'available_days', 'consultation_hours'
+                'doctor_type', 'license_number', 'experience_years', 'qualification', 
+                'hospital', 'consultation_fee', 'bio', 'available_days', 'consultation_hours',
+                'current_queue_position', 'max_queue_size', 'consultation_duration',
+                'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times'
             ),
             'classes': ('collapse',),
             'description': 'These fields are specific to doctors'

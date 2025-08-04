@@ -69,6 +69,8 @@ export class AdminUsersComponent implements OnInit {
       occupation: user.occupation || '',
       marital_status: user.marital_status || '',
       // Doctor-specific fields
+      doctor_type: user.doctor_type || 'permanent',
+      specialization: user.specialization || '',
       license_number: user.license_number || '',
       experience_years: user.experience_years || null,
       qualification: user.qualification || '',
@@ -79,7 +81,16 @@ export class AdminUsersComponent implements OnInit {
       consultation_hours: user.consultation_hours || '',
       start_time: this.extractStartTime(user.consultation_hours),
       end_time: this.extractEndTime(user.consultation_hours),
-      is_available_for_consultation: user.is_available_for_consultation || false
+      is_available_for_consultation: user.is_available_for_consultation || false,
+      is_live: user.is_live || false,
+      // Queue system fields for permanent doctors
+      max_queue_size: user.max_queue_size || 10,
+      consultation_duration: user.consultation_duration || 15,
+      current_queue_position: user.current_queue_position || 0,
+      is_consulting: user.is_consulting || false,
+      // Visiting doctor fields
+      visiting_days: user.visiting_days || [],
+      visiting_day_times: user.visiting_day_times || {}
     };
     this.editForm.photo = null; // Reset photo for new upload
   }
@@ -204,6 +215,23 @@ export class AdminUsersComponent implements OnInit {
         const endTime = this.convertTo12HourFormat(updateData.end_time);
         updateData.consultation_hours = `${startTime} - ${endTime}`;
       }
+
+      // Handle doctor type specific fields
+      if (updateData.role === 'doctor') {
+        if (updateData.doctor_type === 'permanent') {
+          // Remove visiting doctor fields for permanent doctors
+          delete updateData.visiting_days;
+          delete updateData.visiting_day_times;
+        } else if (updateData.doctor_type === 'visiting') {
+          // Remove permanent doctor fields for visiting doctors
+          delete updateData.available_days;
+          delete updateData.consultation_hours;
+          delete updateData.max_queue_size;
+          delete updateData.consultation_duration;
+          delete updateData.start_time;
+          delete updateData.end_time;
+        }
+      }
       
       // Remove the temporary time fields
       delete updateData.start_time;
@@ -253,5 +281,75 @@ export class AdminUsersComponent implements OnInit {
       return 'http://localhost:8000' + user.photo;
     }
     return '';
+  }
+
+  // Doctor type management methods
+  onDoctorTypeChange() {
+    if (this.editForm.doctor_type === 'permanent') {
+      // Clear visiting doctor fields
+      this.editForm.visiting_days = [];
+      this.editForm.visiting_day_times = {};
+      // Initialize permanent doctor fields with defaults
+      this.editForm.available_days = this.editForm.available_days || '';
+      this.editForm.consultation_hours = this.editForm.consultation_hours || '';
+      this.editForm.max_queue_size = this.editForm.max_queue_size || 10;
+      this.editForm.consultation_duration = this.editForm.consultation_duration || 15;
+    } else {
+      // Clear permanent doctor fields
+      this.editForm.available_days = '';
+      this.editForm.consultation_hours = '';
+      this.editForm.max_queue_size = 10;
+      this.editForm.consultation_duration = 15;
+      // Initialize visiting day times for all days
+      this.editForm.visiting_day_times = this.editForm.visiting_day_times || {};
+      this.daysOfWeek.forEach(day => {
+        if (!this.editForm.visiting_day_times[day.value]) {
+          this.editForm.visiting_day_times[day.value] = { start_time: '09:00', end_time: '17:00' };
+        }
+      });
+    }
+  }
+
+  // Days of week for visiting doctors
+  daysOfWeek = [
+    { value: 0, label: 'Monday' },
+    { value: 1, label: 'Tuesday' },
+    { value: 2, label: 'Wednesday' },
+    { value: 3, label: 'Thursday' },
+    { value: 4, label: 'Friday' },
+    { value: 5, label: 'Saturday' },
+    { value: 6, label: 'Sunday' }
+  ];
+
+  // Helper methods for visiting doctors
+  getDayName(dayValue: number): string {
+    const day = this.daysOfWeek.find(d => d.value === dayValue);
+    return day ? day.label : '';
+  }
+
+  // Helper method to check if visiting_day_times has keys
+  hasVisitingDayTimes(user: any): boolean {
+    return user.visiting_day_times && Object.keys(user.visiting_day_times).length > 0;
+  }
+
+  // Simple visiting day management
+  onVisitingDayChange(dayValue: number, checked: boolean) {
+    if (checked) {
+      if (!this.editForm.visiting_days.includes(dayValue)) {
+        this.editForm.visiting_days.push(dayValue);
+        // Initialize time slots for the newly selected day
+        if (!this.editForm.visiting_day_times[dayValue]) {
+          this.editForm.visiting_day_times[dayValue] = { start_time: '09:00', end_time: '17:00' };
+        }
+      }
+    } else {
+      this.editForm.visiting_days = this.editForm.visiting_days.filter((day: number) => day !== dayValue);
+      // Remove time slots for the deselected day
+      delete this.editForm.visiting_day_times[dayValue];
+    }
+  }
+
+  isVisitingDaySelected(dayValue: number): boolean {
+    return this.editForm.visiting_days && this.editForm.visiting_days.includes(dayValue);
   }
 }

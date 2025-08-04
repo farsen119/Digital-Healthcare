@@ -141,6 +141,7 @@
                     <th>Age</th>
                     <th>Gender</th>
                     <th>Date of Birth</th>
+                    <th>Doctor Type</th>
                     <th>Specialization</th>
                     <th>License</th>
                     <th>Experience</th>
@@ -150,6 +151,7 @@
                     <th>Available Days</th>
                     <th>Hours</th>
                     <th>Status</th>
+                    <th>Queue</th>
                     <th class="text-center">Actions</th>
                   </tr>
                 </thead>
@@ -167,18 +169,60 @@
                       <td>{{ user.age || 'N/A' }}</td>
                       <td>{{ user.gender ? (user.gender | titlecase) : 'N/A' }}</td>
                       <td>{{ user.date_of_birth ? (user.date_of_birth | date:'shortDate') : 'N/A' }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="user.doctor_type === 'permanent' ? 'bg-primary' : 'bg-warning'">
+                          {{ user.doctor_type === 'permanent' ? 'Permanent' : (user.doctor_type === 'visiting' ? 'Visiting' : 'N/A') }}
+                        </span>
+                      </td>
                       <td>{{ user.specialization || 'N/A' }}</td>
                       <td>{{ user.license_number || 'N/A' }}</td>
                       <td>{{ user.experience_years || 'N/A' }} years</td>
                       <td>{{ user.qualification || 'N/A' }}</td>
                       <td>{{ user.hospital || 'N/A' }}</td>
                       <td>₹{{ user.consultation_fee || 'N/A' }}</td>
-                      <td>{{ user.available_days || 'N/A' }}</td>
-                      <td>{{ user.consultation_hours || 'N/A' }}</td>
                       <td>
-                        <span class="badge" [ngClass]="user.is_available_for_consultation ? 'bg-success' : 'bg-secondary'">
-                          {{ user.is_available_for_consultation ? 'Available' : 'Unavailable' }}
-                        </span>
+                        <div *ngIf="user.doctor_type === 'permanent'">
+                          {{ user.available_days || 'N/A' }}
+                        </div>
+                        <div *ngIf="user.doctor_type === 'visiting'">
+                          <div *ngIf="user.visiting_days && user.visiting_days.length > 0">
+                            <span *ngFor="let day of user.visiting_days" class="badge bg-warning text-dark me-1">
+                              {{ getDayName(day) }}
+                            </span>
+                          </div>
+                          <span *ngIf="!user.visiting_days || user.visiting_days.length === 0" class="text-muted">N/A</span>
+                        </div>
+                      </td>
+                                             <td>
+                         <div *ngIf="user.doctor_type === 'permanent'">
+                           {{ user.consultation_hours || 'N/A' }}
+                         </div>
+                         <div *ngIf="user.doctor_type === 'visiting'">
+                           <div *ngIf="user.visiting_days && user.visiting_days.length > 0">
+                             <div *ngFor="let day of user.visiting_days" class="small">
+                               {{ getDayName(day) }}: {{ user.visiting_day_times[day]?.start_time || 'N/A' }} - {{ user.visiting_day_times[day]?.end_time || 'N/A' }}
+                             </div>
+                           </div>
+                           <span *ngIf="!user.visiting_days || user.visiting_days.length === 0" class="text-muted">N/A</span>
+                         </div>
+                       </td>
+                      <td>
+                        <div class="d-flex flex-column gap-1">
+                          <span class="badge" [ngClass]="user.is_live ? 'bg-success' : 'bg-secondary'">
+                            {{ user.is_live ? 'Online' : 'Offline' }}
+                          </span>
+                          <span class="badge" [ngClass]="user.is_available_for_consultation ? 'bg-success' : 'bg-secondary'">
+                            {{ user.is_available_for_consultation ? 'Available' : 'Unavailable' }}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <div *ngIf="user.doctor_type === 'permanent'" class="small">
+                          <div>Position: {{ user.current_queue_position || 0 }}</div>
+                          <div>Max: {{ user.max_queue_size || 10 }}</div>
+                          <div>Duration: {{ user.consultation_duration || 15 }}min</div>
+                        </div>
+                        <span *ngIf="user.doctor_type === 'visiting'" class="text-muted">N/A</span>
                       </td>
                       <td class="text-center">
                         <div class="btn-group btn-group-sm" role="group">
@@ -213,6 +257,12 @@
                         </select>
                       </td>
                       <td><input class="form-control form-control-sm" type="date" [(ngModel)]="editForm.date_of_birth"></td>
+                      <td>
+                        <select class="form-select form-select-sm" [(ngModel)]="editForm.doctor_type" (ngModelChange)="onDoctorTypeChange()">
+                          <option value="permanent">Permanent Doctor</option>
+                          <option value="visiting">Visiting Doctor</option>
+                        </select>
+                      </td>
                       <td><input class="form-control form-control-sm" [(ngModel)]="editForm.specialization"></td>
                       <td><input class="form-control form-control-sm" [(ngModel)]="editForm.license_number"></td>
                       <td><input class="form-control form-control-sm" type="number" [(ngModel)]="editForm.experience_years"></td>
@@ -220,27 +270,95 @@
                       <td><input class="form-control form-control-sm" [(ngModel)]="editForm.hospital"></td>
                       <td><input class="form-control form-control-sm" type="number" [(ngModel)]="editForm.consultation_fee"></td>
                       <td>
-                        <select class="form-select form-select-sm" [(ngModel)]="editForm.available_days">
-                          <option value="">Select days...</option>
-                          <option value="Monday-Friday">Monday - Friday</option>
-                          <option value="Monday-Saturday">Monday - Saturday</option>
-                          <option value="All Days">All Days</option>
-                          <option value="Weekends Only">Weekends Only</option>
-                        </select>
+                        <!-- Permanent Doctor Fields -->
+                        <div *ngIf="editForm.doctor_type === 'permanent'">
+                          <select class="form-select form-select-sm" [(ngModel)]="editForm.available_days">
+                            <option value="">Select days...</option>
+                            <option value="Monday-Friday">Monday - Friday</option>
+                            <option value="Monday-Saturday">Monday - Saturday</option>
+                            <option value="All Days">All Days</option>
+                            <option value="Weekends Only">Weekends Only</option>
+                          </select>
+                        </div>
+                        <!-- Visiting Doctor Fields -->
+                        <div *ngIf="editForm.doctor_type === 'visiting'">
+                          <div class="mb-2">
+                            <small class="text-muted">Select Days:</small>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                              <div class="form-check form-check-inline" *ngFor="let day of daysOfWeek">
+                                <input class="form-check-input" type="checkbox" 
+                                       [id]="'day_' + day.value" 
+                                       [checked]="isVisitingDaySelected(day.value)"
+                                       (change)="onVisitingDayChange(day.value, $any($event.target).checked)">
+                                <label class="form-check-label small" [for]="'day_' + day.value">
+                                  {{ day.label }}
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- Time slots for selected days -->
+                          <div *ngIf="editForm.visiting_days.length > 0" class="mt-2">
+                            <small class="text-muted">Time Slots:</small>
+                            <div *ngFor="let day of editForm.visiting_days" class="mt-1">
+                              <div class="d-flex gap-1 align-items-center">
+                                <span class="small">{{ getDayName(day) }}:</span>
+                                <input type="time" class="form-control form-control-sm" 
+                                       [(ngModel)]="editForm.visiting_day_times[day].start_time"
+                                       style="width: 80px;">
+                                <span class="small">-</span>
+                                <input type="time" class="form-control form-control-sm" 
+                                       [(ngModel)]="editForm.visiting_day_times[day].end_time"
+                                       style="width: 80px;">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </td>
                       <td>
-                        <div class="d-flex gap-1">
-                          <input class="form-control form-control-sm" type="time" [(ngModel)]="editForm.start_time" placeholder="Start">
-                          <span class="align-self-center">-</span>
-                          <input class="form-control form-control-sm" type="time" [(ngModel)]="editForm.end_time" placeholder="End">
+                        <!-- Permanent Doctor Fields -->
+                        <div *ngIf="editForm.doctor_type === 'permanent'">
+                          <div class="d-flex gap-1">
+                            <input class="form-control form-control-sm" type="time" [(ngModel)]="editForm.start_time" placeholder="Start">
+                            <span class="align-self-center">-</span>
+                            <input class="form-control form-control-sm" type="time" [(ngModel)]="editForm.end_time" placeholder="End">
+                          </div>
+                          <small class="text-muted">Format: 9:00 AM - 5:00 PM</small>
                         </div>
-                        <small class="text-muted">Format: 9:00 AM - 5:00 PM</small>
+                        <!-- Visiting Doctor Fields -->
+                        <div *ngIf="editForm.doctor_type === 'visiting'">
+                          <div class="mb-2">
+                            <small class="text-muted">Time Slots:</small>
+                            <div *ngFor="let day of editForm.visiting_days" class="small">
+                              {{ getDayName(day) }}: {{ editForm.visiting_day_times[day]?.start_time || 'N/A' }} - {{ editForm.visiting_day_times[day]?.end_time || 'N/A' }}
+                            </div>
+                          </div>
+                        </div>
                       </td>
                       <td>
-                        <div class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.is_available_for_consultation">
-                          <label class="form-check-label">Available</label>
+                        <div class="d-flex flex-column gap-1">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.is_live">
+                            <label class="form-check-label small">Online</label>
+                          </div>
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.is_available_for_consultation">
+                            <label class="form-check-label small">Available</label>
+                          </div>
                         </div>
+                      </td>
+                      <td>
+                        <!-- Permanent Doctor Queue Fields -->
+                        <div *ngIf="editForm.doctor_type === 'permanent'" class="small">
+                          <div class="mb-1">
+                            <label class="form-label small">Max Queue:</label>
+                            <input class="form-control form-control-sm" type="number" [(ngModel)]="editForm.max_queue_size" min="1" max="50">
+                          </div>
+                          <div class="mb-1">
+                            <label class="form-label small">Duration (min):</label>
+                            <input class="form-control form-control-sm" type="number" [(ngModel)]="editForm.consultation_duration" min="5" max="120">
+                          </div>
+                        </div>
+                        <span *ngIf="editForm.doctor_type === 'visiting'" class="text-muted small">N/A</span>
                       </td>
                       <td class="text-center">
                         <div class="btn-group btn-group-sm" role="group">

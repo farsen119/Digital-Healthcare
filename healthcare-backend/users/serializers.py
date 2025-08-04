@@ -10,7 +10,10 @@ class PublicDoctorSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'first_name', 'last_name', 'specialization', 'photo',
             'qualification', 'hospital', 'consultation_fee', 'bio',
-            'available_days', 'consultation_hours', 'experience_years'
+            'available_days', 'consultation_hours', 'experience_years',
+            'doctor_type', 'is_live', 'is_available_for_consultation',
+            'current_queue_position', 'max_queue_size', 'consultation_duration',
+            'is_consulting', 'current_patient'
         ]
         read_only_fields = ['id']
 
@@ -26,6 +29,8 @@ class UserSerializer(serializers.ModelSerializer):
             # Doctor-specific fields
             'license_number', 'experience_years', 'qualification', 'hospital',
             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation',
+            'doctor_type', 'current_queue_position', 'max_queue_size', 'consultation_duration',
+            'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times',
             # Age and Gender fields
             'age', 'gender',
             # Patient-specific fields
@@ -35,10 +40,31 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id']  # ID should not be editable
 
+    def to_representation(self, instance):
+        """Custom representation"""
+        return super().to_representation(instance)
+
     def update(self, instance, validated_data):
         # Handle partial updates properly
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        
+        # Handle doctor type specific field clearing
+        if instance.role == 'doctor' and 'doctor_type' in validated_data:
+            doctor_type = validated_data['doctor_type']
+            
+            # Clear fields based on doctor type
+            if doctor_type == 'permanent':
+                # Clear visiting doctor fields for permanent doctors
+                instance.visiting_days = []
+                instance.visiting_day_times = {}
+            elif doctor_type == 'visiting':
+                # Clear permanent doctor fields for visiting doctors
+                instance.available_days = ''
+                instance.consultation_hours = ''
+                instance.max_queue_size = 10
+                instance.consultation_duration = 15
+        
         instance.save()
         return instance
 
@@ -57,6 +83,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             # Doctor-specific fields
             'license_number', 'experience_years', 'qualification', 'hospital',
             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation',
+            'doctor_type', 'current_queue_position', 'max_queue_size', 'consultation_duration',
+            'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times',
             # Age and Gender fields
             'age', 'gender',
             # Patient-specific fields
@@ -76,6 +104,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        # Parse JSON strings for complex fields
+        if 'visiting_day_times' in validated_data and isinstance(validated_data['visiting_day_times'], str):
+            import json
+            try:
+                validated_data['visiting_day_times'] = json.loads(validated_data['visiting_day_times'])
+            except json.JSONDecodeError:
+                validated_data['visiting_day_times'] = {}
+        
+        if 'visiting_days' in validated_data and isinstance(validated_data['visiting_days'], str):
+            import json
+            try:
+                validated_data['visiting_days'] = json.loads(validated_data['visiting_days'])
+            except json.JSONDecodeError:
+                validated_data['visiting_days'] = []
+        
         try:
             user = CustomUser.objects.create_user(
                 username=validated_data['username'],
@@ -99,6 +142,14 @@ class RegisterSerializer(serializers.ModelSerializer):
                 consultation_hours=validated_data.get('consultation_hours', ''),
                 is_live=validated_data.get('is_live', False),
                 is_available_for_consultation=validated_data.get('is_available_for_consultation', False),
+                doctor_type=validated_data.get('doctor_type', 'permanent'),
+                current_queue_position=validated_data.get('current_queue_position', 0),
+                max_queue_size=validated_data.get('max_queue_size', 10),
+                consultation_duration=validated_data.get('consultation_duration', 15),
+                is_consulting=validated_data.get('is_consulting', False),
+                current_patient=validated_data.get('current_patient', None),
+                visiting_days=validated_data.get('visiting_days', []),
+                visiting_day_times=validated_data.get('visiting_day_times', {}),
                 # Age and Gender fields
                 age=validated_data.get('age', None),
                 gender=validated_data.get('gender', ''),
@@ -149,5 +200,26 @@ class RegisterSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"license_number": "Medical license number is required for doctors."})
             if not data.get('qualification'):
                 raise serializers.ValidationError({"qualification": "Qualification is required for doctors."})
+            
+            # Validate doctor type for doctors
+            doctor_type = data.get('doctor_type', 'permanent')
+            if doctor_type not in ['permanent', 'visiting']:
+                raise serializers.ValidationError({"doctor_type": "Doctor type must be either 'permanent' or 'visiting'."})
+            
+            # Set default values for doctor type specific fields
+            if doctor_type == 'permanent':
+                data.setdefault('max_queue_size', 10)
+                data.setdefault('consultation_duration', 15)
+                # Clear visiting doctor fields for permanent doctors
+                data['visiting_days'] = []
+                data['visiting_day_times'] = {}
+            elif doctor_type == 'visiting':
+                data.setdefault('visiting_days', [])
+                data.setdefault('visiting_day_times', {})
+                # Clear permanent doctor fields for visiting doctors
+                data['available_days'] = ''
+                data['consultation_hours'] = ''
+                data['max_queue_size'] = 10
+                data['consultation_duration'] = 15
         
         return data

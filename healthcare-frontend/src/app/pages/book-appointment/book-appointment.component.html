@@ -34,6 +34,20 @@
               </select>
             </div>
 
+            <!-- Doctor Type Information -->
+            <div *ngIf="selectedDoctor" class="doctor-info-alert">
+              <div *ngIf="selectedDoctor.doctor_type === 'permanent'" class="alert alert-info">
+                <i class="fas fa-users"></i>
+                <strong>Permanent Doctor</strong> - This doctor uses a queue system. You'll be added to the queue and consulted when it's your turn.
+                <br>
+                <small>Current queue position: {{ selectedDoctor.current_queue_position || 0 }}, Max queue size: {{ selectedDoctor.max_queue_size || 10 }}</small>
+              </div>
+              <div *ngIf="selectedDoctor.doctor_type === 'visiting'" class="alert alert-warning">
+                <i class="fas fa-calendar-alt"></i>
+                <strong>Visiting Doctor</strong> - This doctor has specific schedules. Please select a date and time slot.
+              </div>
+            </div>
+
             <!-- Date and Time Row -->
             <div class="row">
               <div class="col-md-6">
@@ -48,7 +62,7 @@
                     [(ngModel)]="form.date" 
                     name="date" 
                     class="form-control"
-                    required>
+                    [required]="selectedDoctor?.doctor_type === 'visiting'">
                 </div>
               </div>
               <div class="col-md-6">
@@ -62,7 +76,7 @@
                     [(ngModel)]="form.time" 
                     name="time" 
                     class="form-control form-select"
-                    required>
+                    [required]="selectedDoctor?.doctor_type === 'visiting'">
                     <option value="" disabled selected>Select a time slot</option>
                     <option *ngFor="let slot of timeSlots" [value]="slot" class="time-option">
                       {{ timeSlotService.formatTimeForDisplay(slot) }}
@@ -95,7 +109,9 @@
             <div class="form-actions">
               <button type="submit" class="btn btn-primary btn-book">
                 <i class="fas fa-check"></i>
-                Book Appointment
+                <span *ngIf="selectedDoctor?.doctor_type === 'permanent'">Join Queue</span>
+                <span *ngIf="selectedDoctor?.doctor_type === 'visiting'">Book Appointment</span>
+                <span *ngIf="!selectedDoctor">Book Appointment</span>
               </button>
             </div>
           </form>

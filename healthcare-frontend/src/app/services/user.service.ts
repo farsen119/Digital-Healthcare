@@ -89,24 +89,16 @@ export class UserService {
         })
       });
     } else {
-      // Remove photo field if it's not a file
-      const { photo, ...dataWithoutPhoto } = userData;
-      
-      // For JSON data, set proper Content-Type
-      const jsonHeaders = new HttpHeaders({
-        'Authorization': authHeaders.get('Authorization') || '',
-        'Content-Type': 'application/json'
-      });
-      
-      return this.http.patch<User>(`${this.apiUrl}${id}/`, dataWithoutPhoto, { headers: jsonHeaders });
+      // For regular JSON data
+      return this.http.patch<User>(`${this.apiUrl}${id}/`, userData, { headers: authHeaders });
     }
   }
 
   /**
-   * Deletes a user by their ID.
+   * Deletes a user.
    */
   deleteUser(id: number): Observable<void> {
-    const headers = this.getAuthHeaders();
-    return this.http.delete<void>(`${this.apiUrl}${id}/`, { headers });
+    const authHeaders = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.apiUrl}${id}/`, { headers: authHeaders });
   }
 }

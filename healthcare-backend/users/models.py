@@ -42,6 +42,24 @@ class CustomUser(AbstractUser):
     is_live = models.BooleanField(default=False, help_text="Doctor's online/offline status")
     is_available_for_consultation = models.BooleanField(default=False, help_text="Doctor's availability for consultations")
     
+    # Doctor Type System
+    DOCTOR_TYPE_CHOICES = [
+        ('permanent', 'Permanent Doctor (Always Available)'),
+        ('visiting', 'Visiting Doctor (Special Days Only)'),
+    ]
+    doctor_type = models.CharField(max_length=20, choices=DOCTOR_TYPE_CHOICES, default='permanent', help_text="Type of doctor")
+    
+    # Queue System for Permanent Doctors
+    current_queue_position = models.IntegerField(default=0, help_text="Current position in consultation queue")
+    max_queue_size = models.IntegerField(default=10, help_text="Maximum number of patients in queue")
+    consultation_duration = models.IntegerField(default=15, help_text="Duration of each consultation in minutes")
+    is_consulting = models.BooleanField(default=False, help_text="Currently consulting a patient")
+    current_patient = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='being_consulted_by', help_text="Patient currently being consulted")
+    
+    # Visiting Doctor Schedule
+    visiting_days = models.JSONField(default=list, blank=True, help_text="Days of week when visiting doctor is available (0=Monday, 6=Sunday)")
+    visiting_day_times = models.JSONField(default=dict, blank=True, help_text="Time slots for each visiting day {day_number: {'start_time': 'HH:MM', 'end_time': 'HH:MM'}}")
+    
     # Personal Information (Common for all users)
     age = models.IntegerField(blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
