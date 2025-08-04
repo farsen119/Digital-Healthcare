@@ -56,8 +56,11 @@ export class AppointmentService {
     }
 
     // Queue Management Methods
-    joinQueue(doctorId: number): Observable<QueueJoinResponse> {
-        return this.http.post<QueueJoinResponse>(`${this.apiUrl}join-queue/`, { doctor_id: doctorId });
+    joinQueue(doctorId: number, reason: string = ""): Observable<QueueJoinResponse> {
+        return this.http.post<QueueJoinResponse>(`${this.apiUrl}join-queue/`, { 
+            doctor_id: doctorId,
+            reason: reason 
+        });
     }
 
     leaveQueue(doctorId: number): Observable<any> {
@@ -79,6 +82,10 @@ export class AppointmentService {
     // Visiting Doctor Schedule Methods
     getAvailableSlots(doctorId: number, date: string): Observable<AvailableSlots> {
         return this.http.get<AvailableSlots>(`${this.apiUrl}available-slots/${doctorId}/?date=${date}`);
+    }
+
+    getAvailableDates(doctorId: number): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}available-dates/${doctorId}/`);
     }
 
     // Doctor Queue Management

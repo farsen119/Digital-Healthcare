@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
 from datetime import datetime, date
+import pytz
 from .models import Appointment, DoctorQueue, VisitingDoctorSchedule
 from .serializers import AppointmentSerializer, DoctorQueueSerializer, VisitingDoctorScheduleSerializer
 from .services import QueueService, VisitingDoctorService
@@ -56,7 +57,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         if doctor.doctor_type == 'permanent':
             # For permanent doctors, add to queue
             try:
-                queue_entry, _ = QueueService.add_patient_to_queue(doctor, appointment.patient)
+                queue_entry, _ = QueueService.add_patient_to_queue(
+                    doctor, 
+                    appointment.patient, 
+                    appointment.reason
+                )
                 # Update appointment with queue info
                 appointment.queue_position = queue_entry.position
                 appointment.estimated_wait_time = queue_entry.estimated_wait_time
@@ -68,11 +73,15 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 raise serializers.ValidationError(str(e))
         else:
             # For visiting doctors, check if slot is available
-            available_slots = VisitingDoctorService.get_available_slots(doctor, appointment.date)
-            if appointment.time not in available_slots:
+            from datetime import datetime
+            appointment_date = appointment.date
+            appointment_time = appointment.time
+            
+            # Check if the selected date and time slot is available
+            if not VisitingDoctorService.is_slot_available(doctor, appointment_date, appointment_time):
                 appointment.status = 'rejected'
                 appointment.save()
-                raise serializers.ValidationError("Selected time slot is not available")
+                raise serializers.ValidationError("Selected date and time slot is not available")
         
         # --- Notification for Doctor ---
         Notification.objects.create(
@@ -104,6 +113,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def join_queue(self, request):
         """Join a permanent doctor's queue"""
         doctor_id = request.data.get('doctor_id')
+        reason = request.data.get('reason', '')
+        
         if not doctor_id:
             return Response({'error': 'doctor_id is required'}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -116,15 +127,28 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Doctor is not available for consultation'}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            queue_entry, appointment = QueueService.add_patient_to_queue(doctor, request.user)
+            queue_entry, appointment = QueueService.add_patient_to_queue(doctor, request.user, reason)
+            
+            # Convert to IST for response
+            ist_timezone = pytz.timezone('Asia/Kolkata')
+            joined_at_ist = appointment.queue_joined_at.astimezone(ist_timezone) if appointment.queue_joined_at else None
+            
             return Response({
                 'message': f'Added to queue. Position: {queue_entry.position}, Estimated wait: {queue_entry.estimated_wait_time} minutes',
                 'queue_position': queue_entry.position,
                 'estimated_wait_time': queue_entry.estimated_wait_time,
-                'appointment_id': appointment.id
+                'appointment_id': appointment.id,
+                'joined_at': joined_at_ist.strftime('%H:%M') if joined_at_ist else None,
+                'joined_at_full': joined_at_ist.strftime('%Y-%m-%d %H:%M:%S IST') if joined_at_ist else None
             })
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error joining queue: {str(e)}")
+            return Response({'error': 'An unexpected error occurred. Please try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['post'], url_path='leave-queue')
     def leave_queue(self, request):
@@ -187,29 +211,101 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     # Visiting Doctor Schedule Endpoints
     @action(detail=False, methods=['get'], url_path='available-slots/(?P<doctor_id>[^/.]+)')
     def available_slots(self, request, doctor_id):
-        """Get available time slots for a visiting doctor on a specific date"""
-        target_date = request.query_params.get('date')
-        if not target_date:
-            return Response({'error': 'date parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
+        """Get available time slots for a doctor on a specific date"""
         try:
-            target_date = datetime.strptime(target_date, '%Y-%m-%d').date()
-        except ValueError:
-            return Response({'error': 'Invalid date format. Use YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            doctor = CustomUser.objects.get(id=doctor_id, role='doctor', doctor_type='visiting')
+            doctor = CustomUser.objects.get(id=doctor_id, role='doctor')
+            date_str = request.query_params.get('date')
+            
+            if not date_str:
+                return Response({'error': 'Date parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                appointment_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                return Response({'error': 'Invalid date format. Use YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if doctor.doctor_type == 'permanent':
+                # For permanent doctors, return current time slots
+                from .services import QueueService
+                queue_status = QueueService.get_queue_status(doctor)
+                return Response({
+                    'doctor_type': 'permanent',
+                    'queue_status': queue_status,
+                    'message': 'Permanent doctors use queue system. No specific time slots needed.'
+                })
+            else:
+                # For visiting doctors, return available slots
+                from .services import VisitingDoctorService
+                available_slots = VisitingDoctorService.get_available_slots(doctor, appointment_date)
+                
+                # Format slots for frontend
+                formatted_slots = []
+                for slot in available_slots:
+                    formatted_slots.append({
+                        'time': slot.strftime('%H:%M'),
+                        'display': slot.strftime('%I:%M %p')
+                    })
+                
+                return Response({
+                    'doctor_type': 'visiting',
+                    'available_slots': formatted_slots,
+                    'date': date_str
+                })
+                
         except CustomUser.DoesNotExist:
-            return Response({'error': 'Doctor not found or not a visiting doctor'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'], url_path='available-dates/(?P<doctor_id>[^/.]+)')
+    def available_dates(self, request, doctor_id):
+        """Get available dates for a visiting doctor"""
+        try:
+            doctor = CustomUser.objects.get(id=doctor_id, role='doctor')
+            
+            if doctor.doctor_type == 'permanent':
+                return Response({
+                    'doctor_type': 'permanent',
+                    'message': 'Permanent doctors are available daily. No specific dates needed.'
+                })
+            else:
+                # For visiting doctors, return available dates
+                from .services import VisitingDoctorService
+                available_dates = VisitingDoctorService.get_available_dates(doctor)
+                
+                # Format dates for frontend
+                formatted_dates = []
+                for date_obj in available_dates:
+                    formatted_dates.append({
+                        'date': date_obj.strftime('%Y-%m-%d'),
+                        'display': date_obj.strftime('%A, %B %d, %Y'),
+                        'day_name': date_obj.strftime('%A')
+                    })
+                
+                return Response({
+                    'doctor_type': 'visiting',
+                    'available_dates': formatted_dates
+                })
+                
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'], url_path='cleanup-queue')
+    def cleanup_queue(self, request):
+        """Clean up old queue entries (admin only)"""
+        if not request.user.is_staff:
+            return Response({'error': 'Only administrators can perform this action'}, status=status.HTTP_403_FORBIDDEN)
         
-        available_slots = VisitingDoctorService.get_available_slots(doctor, target_date)
-        slots_formatted = [slot.strftime('%H:%M') for slot in available_slots]
-        
-        return Response({
-            'doctor_id': doctor_id,
-            'date': target_date.strftime('%Y-%m-%d'),
-            'available_slots': slots_formatted
-        })
+        try:
+            cleaned_count = QueueService.cleanup_old_queue_entries()
+            return Response({
+                'message': f'Successfully cleaned up {cleaned_count} old queue entries',
+                'cleaned_count': cleaned_count
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class DoctorQueueViewSet(viewsets.ModelViewSet):
     """ViewSet for managing doctor queues"""

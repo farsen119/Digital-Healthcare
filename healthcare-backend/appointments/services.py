@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime, time
+import pytz
 from .models import DoctorQueue, Appointment
 from users.models import CustomUser
 
@@ -8,9 +9,22 @@ class QueueService:
     """Service for managing doctor queues"""
     
     @staticmethod
-    def add_patient_to_queue(doctor, patient):
-        """Add a patient to doctor's queue"""
+    def add_patient_to_queue(doctor, patient, reason=""):
+        """Add a patient to doctor's queue with reason for visit"""
         with transaction.atomic():
+            # Check if patient is already in queue for this doctor
+            existing_queue = DoctorQueue.objects.filter(
+                doctor=doctor,
+                patient=patient,
+                status__in=['waiting', 'consulting']
+            ).first()
+            
+            if existing_queue:
+                if existing_queue.status == 'waiting':
+                    raise ValueError("You are already in the queue for this doctor.")
+                elif existing_queue.status == 'consulting':
+                    raise ValueError("You are currently in consultation with this doctor.")
+            
             # Get current queue size
             current_queue = DoctorQueue.objects.filter(
                 doctor=doctor, 
@@ -25,6 +39,11 @@ class QueueService:
             position = current_queue + 1
             estimated_wait_time = position * doctor.consultation_duration
             
+            # Get current time in IST timezone
+            ist_timezone = pytz.timezone('Asia/Kolkata')
+            current_time_utc = timezone.now()
+            current_time_ist = current_time_utc.astimezone(ist_timezone)
+            
             # Create queue entry
             queue_entry = DoctorQueue.objects.create(
                 doctor=doctor,
@@ -34,21 +53,39 @@ class QueueService:
                 status='waiting'
             )
             
-            # Create appointment record
+            # Create appointment record with IST date and time
             appointment = Appointment.objects.create(
                 patient=patient,
                 doctor=doctor,
-                date=timezone.now().date(),
-                time=timezone.now().time(),
-                reason="Queue consultation",
+                date=current_time_ist.date(),
+                time=current_time_ist.time(),  # IST time
+                reason=reason or "Queue consultation",
                 appointment_type='queue',
                 is_queue_appointment=True,
                 queue_position=position,
                 estimated_wait_time=estimated_wait_time,
-                queue_joined_at=timezone.now()
+                queue_joined_at=current_time_ist
             )
             
             return queue_entry, appointment
+    
+    @staticmethod
+    def cleanup_old_queue_entries():
+        """Clean up old completed/left queue entries to prevent database bloat"""
+        from datetime import timedelta
+        
+        # Remove queue entries older than 7 days
+        cutoff_date = timezone.now() - timedelta(days=7)
+        
+        old_entries = DoctorQueue.objects.filter(
+            status__in=['completed', 'left'],
+            joined_at__lt=cutoff_date
+        )
+        
+        count = old_entries.count()
+        old_entries.delete()
+        
+        return count
     
     @staticmethod
     def get_queue_status(doctor):
@@ -94,7 +131,10 @@ class QueueService:
             doctor.current_patient = patient
             doctor.save()
             
-            # Update appointment
+            # Update appointment with IST time
+            ist_timezone = pytz.timezone('Asia/Kolkata')
+            current_time_ist = timezone.now().astimezone(ist_timezone)
+            
             appointment = Appointment.objects.filter(
                 doctor=doctor,
                 patient=patient,
@@ -104,7 +144,7 @@ class QueueService:
             
             if appointment:
                 appointment.status = 'accepted'
-                appointment.consultation_started_at = timezone.now()
+                appointment.consultation_started_at = current_time_ist
                 appointment.save()
             
             return next_patient
@@ -127,7 +167,10 @@ class QueueService:
                 current_queue_entry.status = 'completed'
                 current_queue_entry.save()
             
-            # Update appointment
+            # Update appointment with IST time
+            ist_timezone = pytz.timezone('Asia/Kolkata')
+            current_time_ist = timezone.now().astimezone(ist_timezone)
+            
             appointment = Appointment.objects.filter(
                 doctor=doctor,
                 patient=doctor.current_patient,
@@ -137,7 +180,7 @@ class QueueService:
             
             if appointment:
                 appointment.status = 'completed'
-                appointment.consultation_ended_at = timezone.now()
+                appointment.consultation_ended_at = current_time_ist
                 appointment.save()
             
             # Reset doctor status
@@ -213,35 +256,55 @@ class VisitingDoctorService:
     """Service for managing visiting doctor schedules"""
     
     @staticmethod
+    def get_available_dates(doctor):
+        """Get available dates for visiting doctor (next 30 days)"""
+        from datetime import date, timedelta
+        
+        available_dates = []
+        today = date.today()
+        
+        # Check next 30 days
+        for i in range(30):
+            check_date = today + timedelta(days=i)
+            day_of_week = check_date.weekday()
+            
+            # Check if doctor is available on this day
+            if doctor.visiting_days and day_of_week in doctor.visiting_days:
+                available_dates.append(check_date)
+        
+        return available_dates
+    
+    @staticmethod
     def get_available_slots(doctor, date):
         """Get available time slots for visiting doctor on specific date"""
-        from datetime import datetime
         
         # Check if doctor is available on this day
         day_of_week = date.weekday()
-        schedule = VisitingDoctorSchedule.objects.filter(
-            doctor=doctor,
-            day_of_week=day_of_week,
-            is_active=True
-        ).first()
         
-        if not schedule:
+        if not doctor.visiting_days or day_of_week not in doctor.visiting_days:
             return []
         
-        # Check if date is within visiting period
-        if doctor.visiting_start_date and date < doctor.visiting_start_date:
+        # Get time slots for this day
+        day_times = doctor.visiting_day_times.get(str(day_of_week), {})
+        start_time_str = day_times.get('start_time')
+        end_time_str = day_times.get('end_time')
+        
+        if not start_time_str or not end_time_str:
             return []
         
-        if doctor.visiting_end_date and date > doctor.visiting_end_date:
+        # Parse start and end times
+        try:
+            start_time = datetime.strptime(start_time_str, '%H:%M').time()
+            end_time = datetime.strptime(end_time_str, '%H:%M').time()
+        except ValueError:
             return []
         
         # Generate 15-minute slots
         slots = []
-        current_time = schedule.start_time
-        end_time = schedule.end_time
+        current_time = start_time
         
         while current_time < end_time:
-            # Check if slot is available
+            # Check if slot is available (not already booked)
             existing_appointment = Appointment.objects.filter(
                 doctor=doctor,
                 date=date,
@@ -255,9 +318,15 @@ class VisitingDoctorService:
             # Add 15 minutes
             current_minutes = current_time.hour * 60 + current_time.minute
             current_minutes += 15
-            current_time = datetime.strptime(
-                f"{current_minutes // 60:02d}:{current_minutes % 60:02d}", 
-                "%H:%M"
-            ).time()
+            current_time = time(
+                hour=current_minutes // 60,
+                minute=current_minutes % 60
+            )
         
-        return slots 
+        return slots
+    
+    @staticmethod
+    def is_slot_available(doctor, date, time_slot):
+        """Check if a specific time slot is available"""
+        available_slots = VisitingDoctorService.get_available_slots(doctor, date)
+        return time_slot in available_slots 

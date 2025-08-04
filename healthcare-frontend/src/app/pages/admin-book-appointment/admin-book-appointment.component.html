@@ -30,6 +30,8 @@
           <!-- Appointment Details -->
           <fieldset>
             <legend class="fs-6 fw-semibold">Appointment Details</legend>
+            
+            <!-- Doctor Selection -->
             <div class="mb-3">
               <label for="doctor" class="form-label">Doctor</label>
               <select id="doctor" class="form-select" [(ngModel)]="appointment.doctor" name="doctor" (ngModelChange)="onDoctorChange()" required>
@@ -37,28 +39,108 @@
                 <option *ngFor="let d of doctors" [value]="d.id">Dr. {{ d.first_name }} {{ d.last_name }} - {{ d.specialization }}</option>
               </select>
             </div>
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="date" class="form-label">Date</label>
-                <input type="date" id="date" class="form-control" [(ngModel)]="appointment.date" name="date" required>
+
+            <!-- Doctor Type Information -->
+            <div *ngIf="selectedDoctor" class="alert mb-3" [ngClass]="selectedDoctor.doctor_type === 'permanent' ? 'alert-info' : 'alert-warning'">
+              <div *ngIf="selectedDoctor.doctor_type === 'permanent'">
+                <i class="fas fa-users"></i>
+                <strong>Permanent Doctor</strong> - This doctor uses a queue system. The patient will be added to the queue.
+                <br>
+                <small>Current queue position: {{ selectedDoctor.current_queue_position || 0 }}, Max queue size: {{ selectedDoctor.max_queue_size || 10 }}</small>
               </div>
+              <div *ngIf="selectedDoctor.doctor_type === 'visiting'">
+                <i class="fas fa-calendar-alt"></i>
+                <strong>Visiting Doctor</strong> - This doctor has specific schedules. Please select an available date and time slot.
+                <br>
+                <small>Visiting Days: {{ getVisitingDaysDisplay() }}, Time Slots: {{ getVisitingTimeSlotsDisplay() }}</small>
+              </div>
+            </div>
+
+            <!-- Date and Time Selection -->
+            <div class="row mb-3">
+              <!-- Date Selection -->
               <div class="col-md-6">
-                <label for="time" class="form-label">Time</label>
-                <select id="time" class="form-control form-select" [(ngModel)]="appointment.time" name="time" required>
-                  <option value="" disabled selected>Select a time slot</option>
-                  <option *ngFor="let slot of timeSlots" [value]="slot">
-                    {{ timeSlotService.formatTimeForDisplay(slot) }}
-                  </option>
+                <label for="date" class="form-label">
+                  <span *ngIf="selectedDoctor?.doctor_type === 'permanent'">Date (Today)</span>
+                  <span *ngIf="selectedDoctor?.doctor_type === 'visiting'">Available Date</span>
+                </label>
+                
+                <!-- Permanent Doctor - Fixed Current Date -->
+                <input 
+                  *ngIf="selectedDoctor?.doctor_type === 'permanent'"
+                  type="date" 
+                  id="date" 
+                  class="form-control" 
+                  [(ngModel)]="appointment.date" 
+                  name="date" 
+                  [value]="getCurrentDate()"
+                  readonly>
+                
+                <!-- Visiting Doctor - Available Dates Dropdown -->
+                <select 
+                  *ngIf="selectedDoctor?.doctor_type === 'visiting'"
+                  id="date" 
+                  class="form-select" 
+                  [(ngModel)]="appointment.date" 
+                  name="date" 
+                  (ngModelChange)="onDateChange()"
+                  [disabled]="loadingDates"
+                  required>
+                  <option [ngValue]="undefined" disabled selected>Choose available date</option>
+                  <option *ngFor="let date of availableDates" [value]="date.date">{{ date.display }}</option>
                 </select>
-                <small *ngIf="selectedDoctor && selectedDoctor.consultation_hours" class="form-text text-muted">
+                
+                <div *ngIf="loadingDates" class="mt-2">
+                  <small class="text-muted">Loading available dates...</small>
+                </div>
+              </div>
+              
+              <!-- Time Selection - Only for Visiting Doctors -->
+              <div class="col-md-6" *ngIf="selectedDoctor?.doctor_type === 'visiting'">
+                <label for="time" class="form-label">
+                  Available Time Slot
+                </label>
+                
+                <select 
+                  id="time" 
+                  class="form-control form-select" 
+                  [(ngModel)]="appointment.time" 
+                  name="time" 
+                  [disabled]="loadingSlots"
+                  required>
+                  <option [ngValue]="undefined" disabled selected>
+                    <span *ngIf="!appointment.date">Select date first</span>
+                    <span *ngIf="appointment.date">Select a time slot</span>
+                  </option>
+                  <option *ngFor="let slot of timeSlots" [value]="slot.time">{{ slot.display }}</option>
+                </select>
+                
+                <div *ngIf="loadingSlots" class="mt-2">
+                  <small class="text-muted">Loading available time slots...</small>
+                </div>
+                
+                <small *ngIf="selectedDoctor && selectedDoctor.doctor_type === 'visiting' && appointment.date" class="form-text text-muted">
                   <i class="fas fa-info-circle"></i>
-                  Available hours: {{ selectedDoctor.consultation_hours }}
+                  Available time slots for {{ appointment.date | date:'fullDate' }}
                 </small>
               </div>
             </div>
+
+            <!-- Reason for Visit -->
             <div class="mb-3">
-              <label for="reason" class="form-label">Reason for Appointment</label>
-              <textarea id="reason" class="form-control" rows="3" [(ngModel)]="appointment.reason" name="reason" placeholder="e.g., Annual Checkup..."></textarea>
+              <label for="reason" class="form-label">Reason for Visit <span class="text-danger">*</span></label>
+              <textarea 
+                id="reason" 
+                class="form-control" 
+                rows="3" 
+                [(ngModel)]="appointment.reason" 
+                name="reason" 
+                placeholder="Please describe the reason for the appointment..."
+                required></textarea>
+              <small class="form-text text-muted">
+                <i class="fas fa-info-circle"></i>
+                This information helps the doctor understand the patient's needs.
+              </small>
             </div>
           </fieldset>
           
