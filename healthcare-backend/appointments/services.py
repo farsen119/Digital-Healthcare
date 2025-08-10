@@ -100,10 +100,17 @@ class QueueService:
             status='consulting'
         ).first()
         
+        # Get accepted patients (patients with status 'accepted')
+        accepted_patients = DoctorQueue.objects.filter(
+            doctor=doctor,
+            status='accepted'
+        ).order_by('-joined_at')
+        
         return {
             'waiting_count': waiting_patients.count(),
             'waiting_patients': waiting_patients,
             'consulting_patient': consulting_patient,
+            'accepted_patients': accepted_patients,
             'max_queue_size': doctor.max_queue_size,
             'is_consulting': doctor.is_consulting,
             'current_patient': doctor.current_patient
@@ -160,7 +167,7 @@ class QueueService:
             current_queue_entry = DoctorQueue.objects.filter(
                 doctor=doctor,
                 patient=doctor.current_patient,
-                status='consulting'
+                status='accepted'
             ).first()
             
             if current_queue_entry:

@@ -241,38 +241,167 @@
 
     <!-- Queue Management Card (Permanent Doctors Only) -->
     <div class="card mb-4" *ngIf="isPermanentDoctor()">
-      <div class="card-header bg-success text-white">
+      <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-people me-2"></i> Queue Management</h5>
+        <div class="d-flex align-items-center">
+          <span class="badge bg-light text-dark me-2">
+            <i class="bi bi-person-check me-1"></i>{{ queuePatients.length }} Patients
+          </span>
+          <button class="btn btn-light btn-sm" (click)="refreshQueue()" [disabled]="loadingQueue">
+            <i class="bi bi-arrow-clockwise" [class.spin]="loadingQueue"></i>
+          </button>
+        </div>
       </div>
       <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <h6 class="text-success"><i class="bi bi-list-ol me-2"></i>Current Queue Status</h6>
-            <div class="alert alert-info">
-              <div class="d-flex justify-content-between align-items-center">
-                <span><strong>Current Position:</strong></span>
-                <span class="badge bg-primary fs-6">{{ user.current_queue_position || '0' }}</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <span><strong>Max Queue Size:</strong></span>
-                <span class="badge bg-secondary">{{ user.max_queue_size || '10' }}</span>
-              </div>
+        <!-- Queue Statistics -->
+        <div class="row mb-4">
+          <div class="col-md-3 text-center">
+            <div class="queue-stat">
+              <i class="bi bi-people-fill text-primary"></i>
+              <h4 class="mt-2">{{ queuePatients.length }}</h4>
+              <p class="text-muted">Total in Queue</p>
             </div>
-            <p class="text-muted small">
-              <i class="bi bi-info-circle me-1"></i>
-              Patients can join your queue when you're available. First come, first served system.
-            </p>
           </div>
-          <div class="col-md-6">
-            <h6 class="text-success"><i class="bi bi-clock me-2"></i>Consultation Settings</h6>
-            <div class="mb-3">
-              <p class="mb-1"><strong>Duration per Patient:</strong> {{ user.consultation_duration || '15' }} minutes</p>
-              <p class="mb-1"><strong>Available Hours:</strong> {{ user.consultation_hours || 'Not set' }}</p>
-              <p class="mb-1"><strong>Available Days:</strong> {{ user.available_days || 'Not specified' }}</p>
+          <div class="col-md-3 text-center">
+            <div class="queue-stat">
+              <i class="bi bi-person-check-fill text-success"></i>
+              <h4 class="mt-2">{{ acceptedPatients.length }}</h4>
+              <p class="text-muted">Accepted</p>
             </div>
-            <div class="alert alert-success">
-              <i class="bi bi-check-circle me-2"></i>
-              <strong>Queue System Active:</strong> Your queue system is ready to accept patients when you're available.
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="queue-stat">
+              <i class="bi bi-person-x-fill text-danger"></i>
+              <h4 class="mt-2">{{ rejectedPatients.length }}</h4>
+              <p class="text-muted">Rejected</p>
+            </div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="queue-stat">
+              <i class="bi bi-clock-fill text-warning"></i>
+              <h4 class="mt-2">{{ user.consultation_duration || '15' }} min</h4>
+              <p class="text-muted">Per Patient</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Queue Patients List -->
+        <div class="queue-container">
+          <h6 class="text-success mb-3">
+            <i class="bi bi-list-ol me-2"></i>Current Queue Patients
+          </h6>
+          
+          <!-- Loading State -->
+          <div *ngIf="loadingQueue" class="text-center py-4">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading queue data...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!loadingQueue && queuePatients.length === 0" class="text-center py-4">
+            <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+            <h5 class="mt-3 text-muted">No Patients in Queue</h5>
+            <p class="text-muted">Patients will appear here when they join your queue.</p>
+          </div>
+
+          <!-- Queue Patients -->
+          <div *ngIf="!loadingQueue && queuePatients.length > 0" class="queue-patients">
+            <div *ngFor="let patient of queuePatients; let i = index" class="queue-patient-card">
+              <div class="patient-info">
+                <div class="patient-avatar">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="patient-details">
+                  <h6 class="patient-name">{{ patient.patient_name || 'Unknown Patient' }}</h6>
+                  <p class="patient-reason text-muted">
+                    <i class="bi bi-chat-text me-1"></i>{{ patient.reason || 'No reason provided' }}
+                  </p>
+                  <div class="patient-meta">
+                    <span class="badge bg-primary me-2">
+                      <i class="bi bi-hash me-1"></i>Position {{ patient.position }}
+                    </span>
+                    <span class="badge bg-info me-2">
+                      <i class="bi bi-clock me-1"></i>{{ patient.estimated_wait_time }} min wait
+                    </span>
+                    <span class="badge bg-secondary">
+                      <i class="bi bi-calendar me-1"></i>{{ patient.joined_at | date:'short' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="patient-actions">
+                <button class="btn btn-success btn-sm me-2" 
+                        (click)="acceptPatient(patient)" 
+                        [disabled]="patient.processing">
+                  <i class="bi bi-check-circle me-1"></i>Accept
+                </button>
+                <button class="btn btn-danger btn-sm me-2" 
+                        (click)="rejectPatient(patient)" 
+                        [disabled]="patient.processing">
+                  <i class="bi bi-x-circle me-1"></i>Reject
+                </button>
+                <button class="btn btn-primary btn-sm" 
+                        (click)="viewPatientDetails(patient)" 
+                        [disabled]="patient.processing">
+                  <i class="bi bi-eye me-1"></i>Details
+                </button>
+              </div>
+
+              <!-- Processing State -->
+              <div *ngIf="patient.processing" class="processing-overlay">
+                <div class="spinner-border spinner-border-sm text-light" role="status">
+                  <span class="visually-hidden">Processing...</span>
+                </div>
+                <span class="ms-2">Processing...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accepted Patients Section -->
+        <div *ngIf="acceptedPatients.length > 0" class="mt-4">
+          <h6 class="text-success mb-3">
+            <i class="bi bi-person-check me-2"></i>Accepted Patients
+          </h6>
+          <div class="accepted-patients">
+            <div *ngFor="let patient of acceptedPatients" class="accepted-patient-card">
+              <div class="patient-info">
+                <div class="patient-avatar accepted">
+                  <i class="bi bi-person-check-circle"></i>
+                </div>
+                <div class="patient-details">
+                  <h6 class="patient-name">{{ patient.patient_name || 'Unknown Patient' }}</h6>
+                  <p class="patient-reason text-muted">
+                    <i class="bi bi-chat-text me-1"></i>{{ patient.reason || 'No reason provided' }}
+                  </p>
+                  <div class="patient-meta">
+                    <span class="badge bg-success me-2">
+                      <i class="bi bi-check-circle me-1"></i>Accepted
+                    </span>
+                    <span class="badge bg-info">
+                      <i class="bi bi-clock me-1"></i>{{ patient.accepted_at | date:'short' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="patient-actions">
+                <button class="btn btn-primary btn-sm me-2" 
+                        (click)="createPrescription(patient)">
+                  <i class="bi bi-prescription me-1"></i>Prescription
+                </button>
+                <button class="btn btn-success btn-sm me-2" 
+                        (click)="startConsultation(patient)">
+                  <i class="bi bi-play-circle me-1"></i>Start Consultation
+                </button>
+                <button class="btn btn-secondary btn-sm" 
+                        (click)="completeConsultation(patient)">
+                  <i class="bi bi-check-circle me-1"></i>Complete
+                </button>
+              </div>
             </div>
           </div>
         </div>

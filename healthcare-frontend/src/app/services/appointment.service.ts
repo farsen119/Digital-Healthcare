@@ -67,6 +67,14 @@ export class AppointmentService {
         return this.http.post<any>(`${this.apiUrl}leave-queue/`, { doctor_id: doctorId });
     }
 
+    rejectPatient(patientId: number): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}reject-patient/`, { patient_id: patientId });
+    }
+
+    acceptPatient(patientId: number): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}accept-patient/`, { patient_id: patientId });
+    }
+
     getQueueStatus(doctorId: number): Observable<QueueStatus> {
         return this.http.get<QueueStatus>(`${this.apiUrl}queue-status/${doctorId}/`);
     }

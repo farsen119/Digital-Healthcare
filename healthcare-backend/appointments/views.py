@@ -184,8 +184,117 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         except CustomUser.DoesNotExist:
             return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        queue_status = QueueService.get_queue_status(doctor)
-        return Response(queue_status)
+        try:
+            queue_status = QueueService.get_queue_status(doctor)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error getting queue status: {str(e)}")
+            return Response({'error': 'Failed to get queue status'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Serialize the data for frontend consumption
+        from .serializers import DoctorQueueSerializer
+        
+        try:
+            waiting_patients_data = []
+            if queue_status.get('waiting_patients'):
+                for patient in queue_status['waiting_patients']:
+                    patient_data = DoctorQueueSerializer(patient).data
+                    patient_data['patient_name'] = patient.patient.get_full_name() if patient.patient else 'Unknown'
+                    patient_data['reason'] = patient.reason if hasattr(patient, 'reason') else 'No reason provided'
+                    
+                    # Get the appointment ID for this patient
+                    appointment = Appointment.objects.filter(
+                        doctor=doctor,
+                        patient=patient.patient,
+                        appointment_type='queue',
+                        status='pending'
+                    ).first()
+                    patient_data['appointment_id'] = appointment.id if appointment else None
+                    
+                    waiting_patients_data.append(patient_data)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error serializing waiting patients: {str(e)}")
+            waiting_patients_data = []
+        
+        try:
+            consulting_patient_data = None
+            if queue_status.get('consulting_patient'):
+                patient = queue_status['consulting_patient']
+                consulting_patient_data = DoctorQueueSerializer(patient).data
+                consulting_patient_data['patient_name'] = patient.patient.get_full_name() if patient.patient else 'Unknown'
+                consulting_patient_data['reason'] = patient.reason if hasattr(patient, 'reason') else 'No reason provided'
+                consulting_patient_data['accepted_at'] = patient.joined_at
+                
+                # Get the appointment ID for this patient
+                appointment = Appointment.objects.filter(
+                    doctor=doctor,
+                    patient=patient.patient,
+                    appointment_type='queue',
+                    status='accepted'
+                ).first()
+                consulting_patient_data['appointment_id'] = appointment.id if appointment else None
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error serializing consulting patient: {str(e)}")
+            consulting_patient_data = None
+        
+        # Serialize accepted patients
+        try:
+            accepted_patients_data = []
+            if queue_status.get('accepted_patients'):
+                for patient in queue_status['accepted_patients']:
+                    patient_data = DoctorQueueSerializer(patient).data
+                    patient_data['patient_name'] = patient.patient.get_full_name() if patient.patient else 'Unknown'
+                    patient_data['reason'] = patient.reason if hasattr(patient, 'reason') else 'No reason provided'
+                    patient_data['accepted_at'] = patient.joined_at
+                    
+                    # Get the appointment ID for this patient
+                    appointment = Appointment.objects.filter(
+                        doctor=doctor,
+                        patient=patient.patient,
+                        appointment_type='queue',
+                        status='accepted'
+                    ).first()
+                    patient_data['appointment_id'] = appointment.id if appointment else None
+                    
+                    accepted_patients_data.append(patient_data)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error serializing accepted patients: {str(e)}")
+            accepted_patients_data = []
+        
+        # Serialize current_patient if it exists
+        try:
+            current_patient_data = None
+            if queue_status.get('current_patient'):
+                current_patient = queue_status['current_patient']
+                current_patient_data = {
+                    'id': current_patient.id,
+                    'name': current_patient.get_full_name(),
+                    'email': current_patient.email
+                }
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error serializing current patient: {str(e)}")
+            current_patient_data = None
+        
+        response_data = {
+            'waiting_count': queue_status.get('waiting_count', 0),
+            'waiting_patients': waiting_patients_data,
+            'consulting_patient': consulting_patient_data,
+            'accepted_patients': accepted_patients_data,
+            'max_queue_size': queue_status.get('max_queue_size', 10),
+            'is_consulting': queue_status.get('is_consulting', False),
+            'current_patient': current_patient_data
+        }
+        
+        return Response(response_data)
 
     @action(detail=False, methods=['post'], url_path='start-consultation')
     def start_consultation(self, request):
@@ -215,6 +324,86 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             QueueService.complete_consultation(request.user)
             return Response({'message': 'Consultation completed. Next patient in queue.'})
         except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], url_path='reject-patient')
+    def reject_patient(self, request):
+        """Reject a patient from queue (for doctors)"""
+        patient_id = request.data.get('patient_id')
+        if not patient_id:
+            return Response({'error': 'patient_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            patient = CustomUser.objects.get(id=patient_id, role='patient')
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            success = QueueService.remove_patient_from_queue(request.user, patient)
+            if success:
+                return Response({
+                    'message': f'Patient {patient.get_full_name()} rejected from queue',
+                    'patient_name': patient.get_full_name()
+                })
+            else:
+                return Response({'error': 'Patient not found in queue'}, status=status.HTTP_404_NOT_FOUND)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], url_path='accept-patient')
+    def accept_patient(self, request):
+        """Accept a specific patient from queue (for doctors)"""
+        patient_id = request.data.get('patient_id')
+        if not patient_id:
+            return Response({'error': 'patient_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            patient = CustomUser.objects.get(id=patient_id, role='patient')
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            # Find the queue entry for this patient
+            queue_entry = DoctorQueue.objects.filter(
+                doctor=request.user,
+                patient=patient,
+                status='waiting'
+            ).first()
+            
+            if not queue_entry:
+                return Response({'error': 'Patient not found in queue'}, status=status.HTTP_404_NOT_FOUND)
+            
+            # Update queue status to accepted
+            queue_entry.status = 'accepted'
+            queue_entry.save()
+            
+            # Update doctor status
+            request.user.is_consulting = True
+            request.user.current_patient = patient
+            request.user.save()
+            
+            # Update appointment status with IST time
+            ist_timezone = pytz.timezone('Asia/Kolkata')
+            current_time_ist = timezone.now().astimezone(ist_timezone)
+            
+            appointment = Appointment.objects.filter(
+                doctor=request.user,
+                patient=patient,
+                appointment_type='queue',
+                status='pending'
+            ).first()
+            
+            if appointment:
+                appointment.status = 'accepted'
+                appointment.consultation_started_at = current_time_ist
+                appointment.save()
+            
+            return Response({
+                'message': f'Patient {patient.get_full_name()} accepted successfully',
+                'patient_name': patient.get_full_name(),
+                'appointment_id': appointment.id if appointment else None
+            })
+        except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     # Visiting Doctor Schedule Endpoints

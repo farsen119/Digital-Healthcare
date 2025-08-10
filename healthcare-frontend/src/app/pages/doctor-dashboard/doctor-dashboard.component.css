@@ -206,3 +206,202 @@ body {
     width: 100%;
   }
 }
+
+/* Queue Management Styles */
+.queue-stat {
+  padding: 20px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #dee2e6;
+}
+
+.queue-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.queue-stat i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.queue-stat h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 10px 0 5px 0;
+  color: #495057;
+}
+
+.queue-stat p {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #6c757d;
+}
+
+.queue-container {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.queue-patients {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.queue-patient-card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.queue-patient-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-color: #007bff;
+}
+
+.queue-patient-card .patient-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.patient-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.patient-avatar.accepted {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+}
+
+.patient-details {
+  flex: 1;
+}
+
+.patient-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 5px;
+}
+
+.patient-reason {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.patient-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.patient-meta .badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+
+.patient-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.patient-actions .btn {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.patient-actions .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.processing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.accepted-patients {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.accepted-patient-card {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.accepted-patient-card:hover {
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Spinner Animation */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Queue Management */
+@media (max-width: 768px) {
+  .queue-patient-card .patient-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .patient-actions {
+    justify-content: center;
+  }
+  
+  .patient-meta {
+    justify-content: center;
+  }
+  
+  .queue-stat {
+    margin-bottom: 15px;
+  }
+}
