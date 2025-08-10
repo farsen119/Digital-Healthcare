@@ -328,5 +328,17 @@ class VisitingDoctorService:
     @staticmethod
     def is_slot_available(doctor, date, time_slot):
         """Check if a specific time slot is available"""
+        # Convert time_slot string to time object for comparison
+        try:
+            if isinstance(time_slot, str):
+                time_obj = datetime.strptime(time_slot, '%H:%M').time()
+            else:
+                time_obj = time_slot
+        except ValueError:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Invalid time format: {time_slot}")
+            return False
+        
         available_slots = VisitingDoctorService.get_available_slots(doctor, date)
-        return time_slot in available_slots 
+        return time_obj in available_slots 

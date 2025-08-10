@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
@@ -46,49 +46,58 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         return Appointment.objects.none()
 
     def perform_create(self, serializer):
-        user = self.request.user
-        if user.is_authenticated and hasattr(user, 'role') and user.role == 'patient':
-            appointment = serializer.save(patient=user)
-        else:
-            appointment = serializer.save()
-        
-        # Handle different booking types based on doctor type
-        doctor = appointment.doctor
-        if doctor.doctor_type == 'permanent':
-            # For permanent doctors, add to queue
-            try:
-                queue_entry, _ = QueueService.add_patient_to_queue(
-                    doctor, 
-                    appointment.patient, 
-                    appointment.reason
-                )
-                # Update appointment with queue info
-                appointment.queue_position = queue_entry.position
-                appointment.estimated_wait_time = queue_entry.estimated_wait_time
-                appointment.save()
-            except ValueError as e:
-                # Queue is full
-                appointment.status = 'rejected'
-                appointment.save()
-                raise serializers.ValidationError(str(e))
-        else:
-            # For visiting doctors, check if slot is available
-            from datetime import datetime
-            appointment_date = appointment.date
-            appointment_time = appointment.time
+        try:
+            # Get the data before saving
+            data = serializer.validated_data
+            doctor = data.get('doctor')
+            appointment_date = data.get('date')
+            appointment_time = data.get('time')
             
-            # Check if the selected date and time slot is available
-            if not VisitingDoctorService.is_slot_available(doctor, appointment_date, appointment_time):
-                appointment.status = 'rejected'
-                appointment.save()
-                raise serializers.ValidationError("Selected date and time slot is not available")
-        
-        # --- Notification for Doctor ---
-        Notification.objects.create(
-            user=appointment.doctor,
-            message=f"New appointment booked by {appointment.patient.get_full_name()} for {appointment.date} at {appointment.time}.",
-            appointment=appointment
-        )
+            # Check slot availability BEFORE creating the appointment
+            if doctor and doctor.doctor_type == 'visiting':
+                # Check if the selected date and time slot is available
+                is_available = VisitingDoctorService.is_slot_available(doctor, appointment_date, appointment_time)
+                
+                if not is_available:
+                    raise serializers.ValidationError("Selected date and time slot is not available")
+            
+            # Now create the appointment
+            user = self.request.user
+            if user.is_authenticated and hasattr(user, 'role') and user.role == 'patient':
+                appointment = serializer.save(patient=user)
+            else:
+                appointment = serializer.save()
+            
+            # Handle different booking types based on doctor type
+            if doctor.doctor_type == 'permanent':
+                # For permanent doctors, add to queue
+                try:
+                    queue_entry, _ = QueueService.add_patient_to_queue(
+                        doctor, 
+                        appointment.patient, 
+                        appointment.reason
+                    )
+                    # Update appointment with queue info
+                    appointment.queue_position = queue_entry.position
+                    appointment.estimated_wait_time = queue_entry.estimated_wait_time
+                    appointment.save()
+                except ValueError as e:
+                    # Queue is full
+                    appointment.status = 'rejected'
+                    appointment.save()
+                    raise serializers.ValidationError(str(e))
+            
+            # --- Notification for Doctor ---
+            Notification.objects.create(
+                user=appointment.doctor,
+                message=f"New appointment booked by {appointment.patient.get_full_name()} for {appointment.date} at {appointment.time}.",
+                appointment=appointment
+            )
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error in perform_create: {str(e)}")
+            raise
 
     @action(detail=True, methods=['patch'], url_path='status', url_name='update_status', permission_classes=[IsDoctorOrAdmin])
     def update_status(self, request, pk=None):
