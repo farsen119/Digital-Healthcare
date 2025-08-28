@@ -21,6 +21,14 @@ export class PatientAppointmentsComponent implements OnInit {
 
   ngOnInit() {
     this.load();
+    
+    // Check if we need to refresh appointments (e.g., after consultation completion)
+    const refreshFlag = sessionStorage.getItem('refreshAppointments');
+    if (refreshFlag === 'true') {
+      sessionStorage.removeItem('refreshAppointments');
+      // Small delay to ensure data is updated
+      setTimeout(() => this.load(), 500);
+    }
   }
 
   load() {

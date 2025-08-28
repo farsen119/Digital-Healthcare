@@ -77,8 +77,8 @@ export class PrescriptionWriteComponent implements OnInit {
         details: this.prescriptionForm.value.details
       };
       this.prescriptionService.updatePrescription(this.existingPrescriptionId, updateData).subscribe({
-        // On success, navigate to the view page for this appointment
-        next: () => this.router.navigate(['/prescriptions/view', this.appointmentId]),
+        // On success, just return to dashboard (don't complete consultation)
+        next: () => this.updatePrescriptionAndReturn(),
         error: (err) => {
           this.error = 'Failed to update prescription.';
           this.isLoading = false;
@@ -92,8 +92,8 @@ export class PrescriptionWriteComponent implements OnInit {
         details: this.prescriptionForm.value.details
       };
       this.prescriptionService.createPrescription(createData).subscribe({
-        // On success, navigate to the view page for this appointment
-        next: () => this.router.navigate(['/prescriptions/view', this.appointmentId]),
+        // On success, go to view prescription page
+        next: () => this.savePrescriptionAndView(),
         error: (err) => {
           this.error = err.error?.details || 'Failed to save prescription.';
           this.isLoading = false;
@@ -101,5 +101,44 @@ export class PrescriptionWriteComponent implements OnInit {
         }
       });
     }
+  }
+
+  private updatePrescriptionAndReturn(): void {
+    // Just update prescription and return to dashboard (don't complete consultation)
+    this.isLoading = false;
+    // Set flag to indicate returning from prescription
+    sessionStorage.setItem('returningFromPrescription', 'true');
+    // Show success message and return to dashboard
+    alert('Prescription updated successfully! The prescription view will now show the updated details.');
+    this.router.navigate(['/doctor-dashboard']);
+  }
+
+  private savePrescriptionAndView(): void {
+    // Just save prescription and go to view prescription page
+    this.isLoading = false;
+    // Show success message and go to view prescription page
+    alert('Prescription saved successfully! Going to view prescription page...');
+    this.router.navigate(['/prescriptions/view', this.appointmentId]);
+  }
+
+  private completeConsultationAndReturn(): void {
+    // Complete the consultation and return to dashboard
+    this.appointmentService.completeConsultation().subscribe({
+      next: () => {
+        this.isLoading = false;
+        // Set flag to indicate returning from prescription
+        sessionStorage.setItem('returningFromPrescription', 'true');
+        // Set flag to refresh appointment lists
+        sessionStorage.setItem('refreshAppointments', 'true');
+        // Show success message and return to dashboard
+        alert('Consultation completed successfully! Returning to dashboard...');
+        this.router.navigate(['/doctor-dashboard']);
+      },
+      error: (err) => {
+        this.error = 'Failed to complete consultation.';
+        this.isLoading = false;
+        console.error(err);
+      }
+    });
   }
 }

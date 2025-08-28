@@ -83,8 +83,9 @@ export class AppointmentService {
         return this.http.post<any>(`${this.apiUrl}start-consultation/`, { patient_id: patientId });
     }
 
-    completeConsultation(): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}complete-consultation/`, {});
+    completeConsultation(appointmentId?: number): Observable<any> {
+        const payload = appointmentId ? { appointment_id: appointmentId } : {};
+        return this.http.post<any>(`${this.apiUrl}complete-consultation/`, payload);
     }
 
     // Visiting Doctor Schedule Methods

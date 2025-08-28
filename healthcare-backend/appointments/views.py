@@ -236,6 +236,22 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                     status='accepted'
                 ).first()
                 consulting_patient_data['appointment_id'] = appointment.id if appointment else None
+                
+                # Check if prescription exists for this appointment
+                if appointment:
+                    from prescriptions.models import Prescription
+                    prescription = Prescription.objects.filter(appointment=appointment).first()
+                    if prescription:
+                        consulting_patient_data['prescription'] = {
+                            'id': prescription.id,
+                            'details': prescription.details,
+                            'created_at': prescription.created_at,
+                            'updated_at': prescription.updated_at
+                        }
+                    else:
+                        consulting_patient_data['prescription'] = None
+                else:
+                    consulting_patient_data['prescription'] = None
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
@@ -260,6 +276,22 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                         status='accepted'
                     ).first()
                     patient_data['appointment_id'] = appointment.id if appointment else None
+                    
+                    # Check if prescription exists for this appointment
+                    if appointment:
+                        from prescriptions.models import Prescription
+                        prescription = Prescription.objects.filter(appointment=appointment).first()
+                        if prescription:
+                            patient_data['prescription'] = {
+                                'id': prescription.id,
+                                'details': prescription.details,
+                                'created_at': prescription.created_at,
+                                'updated_at': prescription.updated_at
+                            }
+                        else:
+                            patient_data['prescription'] = None
+                    else:
+                        patient_data['prescription'] = None
                     
                     accepted_patients_data.append(patient_data)
         except Exception as e:
@@ -320,8 +352,15 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='complete-consultation')
     def complete_consultation(self, request):
         """Complete current consultation and move to next patient (for doctors)"""
+        appointment_id = request.data.get('appointment_id')
+        
         try:
-            QueueService.complete_consultation(request.user)
+            if appointment_id:
+                # Complete specific appointment
+                QueueService.complete_consultation_by_appointment(request.user, appointment_id)
+            else:
+                # Complete current consultation (backward compatibility)
+                QueueService.complete_consultation(request.user)
             return Response({'message': 'Consultation completed. Next patient in queue.'})
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -354,8 +393,15 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def accept_patient(self, request):
         """Accept a specific patient from queue (for doctors)"""
         patient_id = request.data.get('patient_id')
+        
         if not patient_id:
             return Response({'error': 'patient_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Convert to int if it's a string
+        try:
+            patient_id = int(patient_id)
+        except (ValueError, TypeError):
+            return Response({'error': 'patient_id must be a valid integer'}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
             patient = CustomUser.objects.get(id=patient_id, role='patient')
@@ -373,9 +419,15 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             if not queue_entry:
                 return Response({'error': 'Patient not found in queue'}, status=status.HTTP_404_NOT_FOUND)
             
-            # Update queue status to accepted
-            queue_entry.status = 'accepted'
-            queue_entry.save()
+            # Delete any existing 'accepted' entry to avoid unique constraint violation
+            DoctorQueue.objects.filter(
+                doctor=request.user,
+                patient=patient,
+                status='accepted'
+            ).delete()
+            
+            # Update queue status to accepted using update() to avoid unique constraint issues
+            DoctorQueue.objects.filter(id=queue_entry.id).update(status='accepted')
             
             # Update doctor status
             request.user.is_consulting = True

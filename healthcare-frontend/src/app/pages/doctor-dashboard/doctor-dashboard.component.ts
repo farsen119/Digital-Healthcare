@@ -57,6 +57,8 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
           // Load queue data for permanent doctors
           if (this.isPermanentDoctor()) {
             this.loadQueueData();
+            // Check for next patient after loading queue data
+            setTimeout(() => this.checkForNextPatient(), 1000);
           }
         },
         error: error => {
@@ -64,6 +66,9 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
         }
       })
     );
+
+    // Check if returning from prescription page
+    this.checkIfReturningFromPrescription();
 
     this.subscriptions.push(
       this.webSocketService.messages$.subscribe(message => {
@@ -173,22 +178,22 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
     this.loadingQueue = true;
     this.appointmentService.getQueueStatus(this.user.id).subscribe({
       next: (response: any) => {
-        console.log('Queue status response:', response);
         this.queuePatients = response.waiting_patients || [];
         
-        // Combine consulting patient and accepted patients
-        const allAcceptedPatients = [];
-        if (response.consulting_patient) {
-          allAcceptedPatients.push(response.consulting_patient);
-        }
+        // Show only the currently consulting patient (accepted but not completed)
+        // This should be the patient that the doctor accepted but hasn't completed consultation yet
         if (response.accepted_patients && response.accepted_patients.length > 0) {
-          allAcceptedPatients.push(...response.accepted_patients);
+          // Get the most recent accepted patient (the one currently being consulted)
+          this.acceptedPatients = [response.accepted_patients[0]];
+        } else {
+          this.acceptedPatients = [];
         }
-        this.acceptedPatients = allAcceptedPatients;
         
-        console.log('Queue patients:', this.queuePatients);
-        console.log('Accepted patients:', this.acceptedPatients);
+
         this.loadingQueue = false;
+        
+        // Check for next patient after loading queue data
+        this.checkForNextPatient();
       },
       error: (error) => {
         console.error('Error loading queue data:', error);
@@ -204,18 +209,22 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
   acceptPatient(patient: any) {
     if (!patient || !this.user?.id) return;
     
-    console.log('Accepting patient:', patient);
+
     patient.processing = true;
     this.appointmentService.acceptPatient(patient.patient).subscribe({
       next: (response) => {
-        console.log('Accept patient response:', response);
-        // Remove patient from queue and reload data from backend
-        this.queuePatients = this.queuePatients.filter(p => p.id !== patient.id);
+
         patient.processing = false;
-        this.showSuccessMessage('Patient accepted successfully!');
+        this.showSuccessMessage('Patient accepted successfully! Redirecting to prescription...');
         
-        // Reload queue data to get updated accepted patients
-        this.loadQueueData();
+        // Automatically navigate to prescription write page
+        if (response.appointment_id) {
+          setTimeout(() => {
+            this.router.navigate(['/prescriptions/write', response.appointment_id]);
+          }, 1000); // Small delay to show success message
+        } else {
+          this.showErrorMessage('Appointment ID not found. Cannot create prescription.');
+        }
       },
       error: (error) => {
         console.error('Error accepting patient:', error);
@@ -255,36 +264,48 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/patient-details', patient.patient_id]);
   }
 
-  createPrescription(patient: any) {
-    // Navigate to prescription creation page
+  viewPrescription(patient: any) {
+    // Navigate to prescription view page
     if (patient.appointment_id) {
-      this.router.navigate(['/prescriptions/write', patient.appointment_id]);
+      this.router.navigate(['/prescriptions/view', patient.appointment_id]);
     } else {
-      this.showErrorMessage('Appointment ID not found. Cannot create prescription.');
+      this.showErrorMessage('Appointment ID not found. Cannot view prescription.');
     }
   }
 
-  startConsultation(patient: any) {
-    // Start consultation logic
-    this.showSuccessMessage('Consultation started!');
+  writePrescription(patient: any) {
+    // Navigate to prescription write page
+    if (patient.appointment_id) {
+      this.router.navigate(['/prescriptions/write', patient.appointment_id]);
+    } else {
+      this.showErrorMessage('Appointment ID not found. Cannot write prescription.');
+    }
   }
 
   completeConsultation(patient: any) {
-    if (!patient || !this.user?.id) return;
-    
-    this.appointmentService.completeConsultation().subscribe({
-      next: (response) => {
-        this.showSuccessMessage('Consultation completed successfully!');
-        
-        // Reload queue data to get updated state
-        this.loadQueueData();
-      },
-      error: (error) => {
-        console.error('Error completing consultation:', error);
-        this.showErrorMessage('Failed to complete consultation. Please try again.');
-      }
-    });
+    if (confirm(`Are you sure you want to complete consultation with ${patient.patient_name || 'this patient'}?`)) {
+      this.appointmentService.completeConsultation().subscribe({
+        next: (response) => {
+          this.showSuccessMessage('Consultation completed successfully!');
+          // Reload queue data to update the dashboard
+          this.loadQueueData();
+        },
+        error: (error) => {
+          console.error('Error completing consultation:', error);
+          this.showErrorMessage('Failed to complete consultation. Please try again.');
+        }
+      });
+    }
   }
+
+  // Check if prescription exists for the currently consulting patient
+  hasPrescription(patient: any): boolean {
+    return patient && patient.appointment_id && patient.prescription;
+  }
+
+
+
+
 
   private handleQueueUpdate(message: WebSocketMessage) {
     // Handle real-time queue updates
@@ -301,5 +322,42 @@ export class DoctorDashboardComponent implements OnInit, OnDestroy {
   private showErrorMessage(message: string) {
     // You can implement a toast notification here
     alert(message);
+  }
+
+  private checkForNextPatient(): void {
+    // Check if there are patients in queue and doctor is not consulting
+    if (this.queuePatients.length > 0 && !this.user?.is_consulting) {
+      const firstPatient = this.queuePatients.find(p => p.position === 1);
+      if (firstPatient) {
+        this.showSuccessMessage(`Next patient available: ${firstPatient.patient_name}. You can now accept them.`);
+      }
+    }
+  }
+
+  // Method to check if doctor can accept next patient
+  canAcceptNextPatient(): boolean {
+    return this.queuePatients.length > 0 && !this.user?.is_consulting;
+  }
+
+  private checkIfReturningFromPrescription(): void {
+    // Check if there's a flag in sessionStorage indicating return from prescription
+    const returningFromPrescription = sessionStorage.getItem('returningFromPrescription');
+    if (returningFromPrescription === 'true') {
+      sessionStorage.removeItem('returningFromPrescription');
+      // Reload queue data and check for next patient
+      setTimeout(() => {
+        this.loadQueueData();
+        this.checkForNextPatient();
+      }, 500);
+    }
+  }
+
+  // Method to handle when doctor returns to dashboard
+  onReturnToDashboard(): void {
+    // Reload queue data and check for next patient
+    this.loadQueueData();
+    setTimeout(() => {
+      this.checkForNextPatient();
+    }, 1000);
   }
 }

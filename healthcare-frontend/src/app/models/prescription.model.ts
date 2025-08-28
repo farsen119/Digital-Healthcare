@@ -8,6 +8,7 @@ export interface Prescription {
   details: string;
   admin_notes?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 // This interface is used when creating a new prescription

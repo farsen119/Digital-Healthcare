@@ -9,6 +9,7 @@ class Prescription(models.Model):
     )
     details = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)  # Automatically updates when prescription is modified
 
     # --- ADD THIS NEW FIELD ---
     # This will store notes added by an admin. It is optional.

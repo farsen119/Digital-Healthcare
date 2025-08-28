@@ -24,12 +24,14 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         appointment = serializer.validated_data['appointment']
+        
         if appointment.doctor != self.request.user:
             raise PermissionDenied("You are not the doctor for this appointment.")
         if appointment.status != 'accepted':
             raise serializers.ValidationError("Prescriptions can only be added to 'accepted' appointments.")
         if Prescription.objects.filter(appointment=appointment).exists():
             raise serializers.ValidationError("A prescription already exists for this appointment.")
+        
         prescription = serializer.save()
 
         # --- Notification for Patient ---

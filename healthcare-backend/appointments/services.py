@@ -159,46 +159,115 @@ class QueueService:
     @staticmethod
     def complete_consultation(doctor):
         """Complete current consultation and move to next patient"""
-        with transaction.atomic():
-            if not doctor.is_consulting or not doctor.current_patient:
-                raise ValueError("No active consultation")
-            
-            # Complete current consultation
-            current_queue_entry = DoctorQueue.objects.filter(
-                doctor=doctor,
-                patient=doctor.current_patient,
-                status='accepted'
-            ).first()
-            
-            if current_queue_entry:
-                current_queue_entry.status = 'completed'
-                current_queue_entry.save()
-            
-            # Update appointment with IST time
-            ist_timezone = pytz.timezone('Asia/Kolkata')
-            current_time_ist = timezone.now().astimezone(ist_timezone)
-            
-            appointment = Appointment.objects.filter(
-                doctor=doctor,
-                patient=doctor.current_patient,
-                appointment_type='queue',
-                status='accepted'
-            ).first()
-            
-            if appointment:
-                appointment.status = 'completed'
-                appointment.consultation_ended_at = current_time_ist
-                appointment.save()
-            
-            # Reset doctor status
-            doctor.is_consulting = False
-            doctor.current_patient = None
-            doctor.save()
-            
-            # Reorder remaining queue
-            QueueService._reorder_queue(doctor)
-            
-            return True
+        try:
+            with transaction.atomic():
+                # Find any accepted patients for this doctor
+                accepted_patients = DoctorQueue.objects.filter(
+                    doctor=doctor,
+                    status='accepted'
+                )
+                
+                if accepted_patients.count() == 0:
+                    raise ValueError("No active consultation")
+                
+                # Get the first accepted patient (most recent)
+                current_queue_entry = accepted_patients.first()
+                current_patient = current_queue_entry.patient
+                
+                # Complete current consultation
+                # Delete any existing 'completed' entry to avoid unique constraint violation
+                DoctorQueue.objects.filter(
+                    doctor=doctor,
+                    patient=current_patient,
+                    status='completed'
+                ).delete()
+                
+                # Update the accepted entry to completed using update() to avoid unique constraint issues
+                DoctorQueue.objects.filter(id=current_queue_entry.id).update(status='completed')
+                
+                # Update appointment with IST time
+                ist_timezone = pytz.timezone('Asia/Kolkata')
+                current_time_ist = timezone.now().astimezone(ist_timezone)
+                
+                # Look for appointment with any status (pending, accepted, etc.) to ensure we find it
+                appointment = Appointment.objects.filter(
+                    doctor=doctor,
+                    patient=current_patient,
+                    appointment_type='queue'
+                ).first()
+                
+                if appointment:
+                    appointment.status = 'completed'
+                    appointment.consultation_ended_at = current_time_ist
+                    appointment.save()
+                
+                # Reset doctor status
+                doctor.is_consulting = False
+                doctor.current_patient = None
+                doctor.save()
+                
+                # Reorder remaining queue
+                QueueService._reorder_queue(doctor)
+                
+                return True
+        except Exception as e:
+            raise
+    
+    @staticmethod
+    def complete_consultation_by_appointment(doctor, appointment_id):
+         """Complete consultation for a specific appointment"""
+         try:
+             with transaction.atomic():
+                 # Find the appointment
+                 appointment = Appointment.objects.filter(
+                     id=appointment_id,
+                     doctor=doctor
+                 ).first()
+                 
+                 if not appointment:
+                     raise ValueError("Appointment not found")
+                 
+                 # Find the corresponding queue entry
+                 queue_entry = DoctorQueue.objects.filter(
+                     doctor=doctor,
+                     patient=appointment.patient,
+                     status='accepted'
+                 ).first()
+                 
+                 if not queue_entry:
+                     raise ValueError("No active consultation for this appointment")
+                 
+                 # Complete current consultation
+                 # Delete any existing 'completed' entry to avoid unique constraint violation
+                 DoctorQueue.objects.filter(
+                     doctor=doctor,
+                     patient=appointment.patient,
+                     status='completed'
+                 ).delete()
+                 
+                 # Update the accepted entry to completed
+                 DoctorQueue.objects.filter(id=queue_entry.id).update(status='completed')
+                 
+                 # Update appointment with IST time
+                 ist_timezone = pytz.timezone('Asia/Kolkata')
+                 current_time_ist = timezone.now().astimezone(ist_timezone)
+                 
+                 appointment.status = 'completed'
+                 appointment.consultation_ended_at = current_time_ist
+                 appointment.save()
+                 
+                 # Reset doctor status if this was the current patient
+                 if doctor.current_patient == appointment.patient:
+                     doctor.is_consulting = False
+                     doctor.current_patient = None
+                     doctor.save()
+                 
+                 # Reorder remaining queue
+                 QueueService._reorder_queue(doctor)
+                 
+                 return True
+         except Exception as e:
+             raise
     
     @staticmethod
     def _reorder_queue(doctor):

@@ -18,7 +18,11 @@
           <strong>Patient:</strong> {{ appointment.patient_name_display }}
         </div>
         <div class="col text-end">
-          <strong>Date:</strong> {{ appointment.prescription.created_at | date: 'longDate' }}
+          <strong>Created:</strong> {{ appointment.prescription.created_at | date: 'longDate' }}
+          <br>
+          <small class="text-muted" *ngIf="appointment.prescription.updated_at">
+            <strong>Last Updated:</strong> {{ appointment.prescription.updated_at | date: 'longDate' }}
+          </small>
         </div>
       </div>
     </section>
@@ -42,6 +46,15 @@
     <a *ngIf="appointment" [routerLink]="['/prescriptions/write', appointment.id]" class="btn btn-warning ms-2">
       Edit Prescription
     </a>
+    <button class="btn btn-info ms-2" (click)="refreshPrescription()" [disabled]="isLoading">
+      <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i> Refresh
+    </button>
+    <!-- Complete Consultation button - only show for doctors and if appointment is accepted -->
+    <button *ngIf="appointment && appointment.status === 'accepted'" 
+            class="btn btn-success ms-2" 
+            (click)="completeConsultation()">
+      <i class="bi bi-check-circle me-1"></i>Complete Consultation
+    </button>
     <a routerLink="/doctor-appointments" class="btn btn-secondary ms-2">Back to Appointments</a>
   </div>
 </div>

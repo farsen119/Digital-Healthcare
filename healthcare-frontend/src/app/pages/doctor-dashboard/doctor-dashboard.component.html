@@ -247,6 +247,9 @@
           <span class="badge bg-light text-dark me-2">
             <i class="bi bi-person-check me-1"></i>{{ queuePatients.length }} Patients
           </span>
+          <span *ngIf="queuePatients.length > 0 && !user.is_consulting" class="badge bg-success text-white me-2">
+            <i class="bi bi-bell me-1"></i>Next Patient Available
+          </span>
           <button class="btn btn-light btn-sm" (click)="refreshQueue()" [disabled]="loadingQueue">
             <i class="bi bi-arrow-clockwise" [class.spin]="loadingQueue"></i>
           </button>
@@ -361,11 +364,11 @@
           </div>
         </div>
 
-        <!-- Accepted Patients Section -->
-        <div *ngIf="acceptedPatients.length > 0" class="mt-4">
-          <h6 class="text-success mb-3">
-            <i class="bi bi-person-check me-2"></i>Accepted Patients
-          </h6>
+                 <!-- Currently Consulting Patient Section -->
+         <div *ngIf="acceptedPatients.length > 0" class="mt-4">
+           <h6 class="text-success mb-3">
+             <i class="bi bi-person-check me-2"></i>Currently Consulting
+           </h6>
           <div class="accepted-patients">
             <div *ngFor="let patient of acceptedPatients" class="accepted-patient-card">
               <div class="patient-info">
@@ -377,31 +380,48 @@
                   <p class="patient-reason text-muted">
                     <i class="bi bi-chat-text me-1"></i>{{ patient.reason || 'No reason provided' }}
                   </p>
-                  <div class="patient-meta">
-                    <span class="badge bg-success me-2">
-                      <i class="bi bi-check-circle me-1"></i>Accepted
-                    </span>
+                                     <div class="patient-meta">
+                     <span class="badge bg-success me-2">
+                       <i class="bi bi-check-circle me-1"></i>Currently Consulting
+                     </span>
                     <span class="badge bg-info">
-                      <i class="bi bi-clock me-1"></i>{{ patient.accepted_at | date:'short' }}
+                      <i class="bi bi-clock me-1"></i>Accepted: {{ patient.accepted_at | date:'short' }}
                     </span>
                   </div>
                 </div>
               </div>
               
-              <div class="patient-actions">
-                <button class="btn btn-primary btn-sm me-2" 
-                        (click)="createPrescription(patient)">
-                  <i class="bi bi-prescription me-1"></i>Prescription
-                </button>
-                <button class="btn btn-success btn-sm me-2" 
-                        (click)="startConsultation(patient)">
-                  <i class="bi bi-play-circle me-1"></i>Start Consultation
-                </button>
-                <button class="btn btn-secondary btn-sm" 
-                        (click)="completeConsultation(patient)">
-                  <i class="bi bi-check-circle me-1"></i>Complete
-                </button>
-              </div>
+                                                <div class="patient-actions">
+                     <!-- Show Write Prescription button if no prescription exists -->
+                     <button *ngIf="!hasPrescription(patient)" class="btn btn-primary btn-sm me-2" 
+                             (click)="writePrescription(patient)">
+                       <i class="bi bi-prescription me-1"></i>Write Prescription
+                     </button>
+                     
+                     <!-- Show Complete Consultation button if no prescription exists -->
+                     <button *ngIf="!hasPrescription(patient)" class="btn btn-success btn-sm me-2" 
+                             (click)="completeConsultation(patient)">
+                       <i class="bi bi-check-circle me-1"></i>Complete Consultation
+                     </button>
+                     
+                     <!-- Show View Prescription button if prescription exists -->
+                     <button *ngIf="hasPrescription(patient)" class="btn btn-info btn-sm me-2" 
+                             (click)="viewPrescription(patient)">
+                       <i class="bi bi-eye me-1"></i>View Prescription
+                     </button>
+                     
+                     <!-- Show Edit Prescription button if prescription exists -->
+                     <button *ngIf="hasPrescription(patient)" class="btn btn-warning btn-sm me-2" 
+                             (click)="writePrescription(patient)">
+                       <i class="bi bi-pencil me-1"></i>Edit Prescription
+                     </button>
+                     
+                     <!-- Show Complete Consultation button if prescription exists -->
+                     <button *ngIf="hasPrescription(patient)" class="btn btn-success btn-sm" 
+                             (click)="completeConsultation(patient)">
+                       <i class="bi bi-check-circle me-1"></i>Complete Consultation
+                     </button>
+                   </div>
             </div>
           </div>
         </div>
