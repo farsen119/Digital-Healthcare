@@ -227,43 +227,45 @@ class QueueService:
                  if not appointment:
                      raise ValueError("Appointment not found")
                  
-                 # Find the corresponding queue entry
-                 queue_entry = DoctorQueue.objects.filter(
-                     doctor=doctor,
-                     patient=appointment.patient,
-                     status='accepted'
-                 ).first()
+                 # Handle different appointment types
+                 if appointment.appointment_type == 'queue':
+                     # For queue-based appointments, handle queue entries
+                     queue_entry = DoctorQueue.objects.filter(
+                         doctor=doctor,
+                         patient=appointment.patient,
+                         status='accepted'
+                     ).first()
+                     
+                     if not queue_entry:
+                         raise ValueError("No active consultation for this appointment")
+                     
+                     # Complete current consultation
+                     # Delete any existing 'completed' entry to avoid unique constraint violation
+                     DoctorQueue.objects.filter(
+                         doctor=doctor,
+                         patient=appointment.patient,
+                         status='completed'
+                     ).delete()
+                     
+                     # Update the accepted entry to completed
+                     DoctorQueue.objects.filter(id=queue_entry.id).update(status='completed')
+                     
+                     # Reset doctor status if this was the current patient
+                     if doctor.current_patient == appointment.patient:
+                         doctor.is_consulting = False
+                         doctor.current_patient = None
+                         doctor.save()
+                     
+                     # Reorder remaining queue
+                     QueueService._reorder_queue(doctor)
                  
-                 if not queue_entry:
-                     raise ValueError("No active consultation for this appointment")
-                 
-                 # Complete current consultation
-                 # Delete any existing 'completed' entry to avoid unique constraint violation
-                 DoctorQueue.objects.filter(
-                     doctor=doctor,
-                     patient=appointment.patient,
-                     status='completed'
-                 ).delete()
-                 
-                 # Update the accepted entry to completed
-                 DoctorQueue.objects.filter(id=queue_entry.id).update(status='completed')
-                 
-                 # Update appointment with IST time
+                 # For both queue and scheduled appointments, update the appointment
                  ist_timezone = pytz.timezone('Asia/Kolkata')
                  current_time_ist = timezone.now().astimezone(ist_timezone)
                  
                  appointment.status = 'completed'
                  appointment.consultation_ended_at = current_time_ist
                  appointment.save()
-                 
-                 # Reset doctor status if this was the current patient
-                 if doctor.current_patient == appointment.patient:
-                     doctor.is_consulting = False
-                     doctor.current_patient = None
-                     doctor.save()
-                 
-                 # Reorder remaining queue
-                 QueueService._reorder_queue(doctor)
                  
                  return True
          except Exception as e:
