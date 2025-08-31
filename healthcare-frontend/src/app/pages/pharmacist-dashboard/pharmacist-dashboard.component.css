@@ -1,0 +1,161 @@
+.admin-dashboard-layout {
+  display: flex;
+  height: calc(100vh - 72px); /* Subtract navbar height (72px) */
+  position: relative;
+  width: 100%;
+}
+
+.sidebar {
+  width: 280px;
+  background: linear-gradient(135deg, #013237 0%, #4ca771 100%);
+  color: white;
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  overflow-y: auto; /* Allow sidebar to scroll if content is too long */
+  position: relative;
+  z-index: 1000;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.main-content-scrollable {
+  flex: 1;
+  overflow-y: auto; /* This makes only the main content scrollable */
+  height: 100%;
+  padding: 30px;
+  background: #f8f9fa;
+  position: relative;
+  z-index: 1;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: none;
+  padding: 20px 25px;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 25px;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.5em 0.75em;
+}
+
+.btn {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #4ca771;
+  border-color: #4ca771;
+}
+
+.btn-primary:hover {
+  background-color: #3d8b5a;
+  border-color: #3d8b5a;
+}
+
+.btn-outline-primary {
+  color: #4ca771;
+  border-color: #4ca771;
+}
+
+.btn-outline-primary:hover {
+  background-color: #4ca771;
+  border-color: #4ca771;
+}
+
+.btn-outline-success {
+  color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-outline-success:hover {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-outline-warning {
+  color: #ffc107;
+  border-color: #ffc107;
+}
+
+.btn-outline-warning:hover {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+}
+
+.btn-outline-info {
+  color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+.btn-outline-info:hover {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .admin-dashboard-layout {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+  
+  .main-content-scrollable {
+    height: auto;
+    overflow-y: visible;
+    padding: 20px;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+}
+
+/* Custom scrollbar */
+.main-content-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content-scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.main-content-scrollable::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.main-content-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Ensure body doesn't scroll */
+body {
+  overflow: hidden;
+}
+
+/* Ensure proper container behavior */
+.container-fluid {
+  padding: 0;
+  margin: 0;
+}

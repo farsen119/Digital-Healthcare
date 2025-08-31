@@ -1,0 +1,233 @@
+<!-- Pharmacist Profile with Scrollable Main Content -->
+<div class="admin-dashboard-layout">
+  <!-- Fixed Sidebar -->
+  <div class="sidebar">
+    <app-pharmacist-side-navbar></app-pharmacist-side-navbar>
+  </div>
+
+  <!-- Scrollable Main Content -->
+  <div class="main-content-scrollable">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><i class="bi bi-person-circle me-2"></i> Pharmacist Profile</h2>
+      <button *ngIf="!showUpdateForm" class="btn btn-primary" (click)="openUpdateForm()">
+        <i class="bi bi-pencil me-2"></i>Edit Profile
+      </button>
+    </div>
+
+    <!-- Profile Information Cards -->
+    <div *ngIf="user && !showUpdateForm">
+      
+      <!-- Basic Information Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-person me-2"></i> Basic Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 text-center mb-3">
+              <img *ngIf="user.photo" [src]="getPhotoUrl()" class="img-thumbnail rounded-circle" width="150" alt="Profile Photo">
+              <div *ngIf="!user.photo" class="profile-placeholder-large">
+                <i class="bi bi-person-circle" style="font-size: 150px; color: #ccc;"></i>
+              </div>
+            </div>
+            <div class="col-md-9">
+              <div class="row">
+                <div class="col-md-6">
+                  <p class="mb-2"><strong>Full Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                  <p class="mb-2"><strong>Username:</strong> {{ user.username }}</p>
+                  <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                  <p class="mb-2"><strong>Phone:</strong> {{ user.phone || 'Not specified' }}</p>
+                  <p class="mb-2"><strong>Age:</strong> {{ user.age || 'Not specified' }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="mb-2"><strong>Gender:</strong> {{ user.gender ? (user.gender | titlecase) : 'Not specified' }}</p>
+                  <p class="mb-2"><strong>City:</strong> {{ user.city || 'Not specified' }}</p>
+                  <p class="mb-2"><strong>Status:</strong> 
+                    <span [class]="user.is_available ? 'badge bg-success' : 'badge bg-danger'">
+                      {{ user.is_available ? 'Available' : 'Not Available' }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pharmacy Information Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0"><i class="bi bi-shop me-2"></i> Pharmacy Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Pharmacy Name:</strong> {{ user.pharmacy_name || 'Not specified' }}</p>
+              <p class="mb-2"><strong>License Number:</strong> {{ user.pharmacy_license || 'Not specified' }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Working Hours:</strong> {{ user.working_hours || 'Not specified' }}</p>
+              <p class="mb-2"><strong>Availability:</strong> 
+                <span [class]="user.is_available ? 'badge bg-success' : 'badge bg-danger'">
+                  {{ user.is_available ? 'Available' : 'Not Available' }}
+                </span>
+              </p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <p class="mb-2"><strong>Pharmacy Address:</strong></p>
+              <p class="text-muted">{{ user.pharmacy_address || 'Not specified' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional Information Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0"><i class="bi bi-award me-2"></i> Professional Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Role:</strong> Pharmacist</p>
+              <p class="mb-2"><strong>Date Joined:</strong> {{ user.date_joined ? (user.date_joined | date:'longDate') : 'Not specified' }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Last Login:</strong> {{ user.last_login ? (user.last_login | date:'longDate') : 'Not specified' }}</p>
+              <p class="mb-2"><strong>Account Status:</strong> 
+                <span [class]="user.is_active ? 'badge bg-success' : 'badge bg-danger'">
+                  {{ user.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Form -->
+    <div *ngIf="showUpdateForm" class="card">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i> Update Profile</h5>
+      </div>
+      <div class="card-body">
+        <form (ngSubmit)="update()" #updateForm="ngForm">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">First Name *</label>
+                <input type="text" class="form-control" [(ngModel)]="user.first_name" name="first_name" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Last Name *</label>
+                <input type="text" class="form-control" [(ngModel)]="user.last_name" name="last_name" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-control" [(ngModel)]="user.email" name="email" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Phone *</label>
+                <input type="text" class="form-control" [(ngModel)]="user.phone" name="phone" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">Age *</label>
+                <input type="number" class="form-control" [(ngModel)]="user.age" name="age" required min="1" max="120">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">Gender *</label>
+                <select class="form-select" [(ngModel)]="user.gender" name="gender" required>
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">City</label>
+                <input type="text" class="form-control" [(ngModel)]="user.city" name="city">
+              </div>
+            </div>
+          </div>
+
+          <!-- Pharmacist-specific fields -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Pharmacy Name *</label>
+                <input type="text" class="form-control" [(ngModel)]="user.pharmacy_name" name="pharmacy_name" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Pharmacy License *</label>
+                <input type="text" class="form-control" [(ngModel)]="user.pharmacy_license" name="pharmacy_license" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Working Hours *</label>
+                <input type="text" class="form-control" [(ngModel)]="user.working_hours" name="working_hours" 
+                       placeholder="e.g., 9:00 AM - 6:00 PM" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Availability Status</label>
+                <select class="form-select" [(ngModel)]="user.is_available" name="is_available">
+                  <option [value]="true">Available</option>
+                  <option [value]="false">Not Available</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Pharmacy Address *</label>
+            <textarea class="form-control" [(ngModel)]="user.pharmacy_address" name="pharmacy_address" 
+                      rows="3" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Profile Photo</label>
+            <input type="file" class="form-control" (change)="onFileChange($event)" accept="image/*">
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="loading || updateForm.invalid">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+              {{ loading ? 'Updating...' : 'Update Profile' }}
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="cancelUpdate()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

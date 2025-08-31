@@ -26,6 +26,7 @@
               <option value="" disabled>Select user role...</option>
               <option value="patient">Patient</option>
               <option value="doctor">Doctor</option>
+              <option value="pharmacist">Pharmacist</option>
             </select>
           </div>
         </div>
@@ -261,6 +262,47 @@
                </div>
              </div>
            </div>
+        </div>
+
+        <!-- Pharmacist Specific Information (Conditional) -->
+        <div *ngIf="form.role === 'pharmacist'">
+          <hr class="my-4">
+          <h6 class="text-info mb-3"><i class="bi bi-capsule me-2"></i>Pharmacy Information</h6>
+          
+          <!-- Pharmacy Name and License -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="pharmacy_name" class="form-label">Pharmacy Name *</label>
+              <input type="text" id="pharmacy_name" name="pharmacy_name" [(ngModel)]="form.pharmacy_name" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="pharmacy_license" class="form-label">Pharmacy License Number *</label>
+              <input type="text" id="pharmacy_license" name="pharmacy_license" [(ngModel)]="form.pharmacy_license" class="form-control" required>
+            </div>
+          </div>
+
+          <!-- Pharmacy Address -->
+          <div class="row">
+            <div class="col-12 mb-3">
+              <label for="pharmacy_address" class="form-label">Pharmacy Address *</label>
+              <textarea id="pharmacy_address" name="pharmacy_address" [(ngModel)]="form.pharmacy_address" class="form-control" rows="3" required></textarea>
+            </div>
+          </div>
+
+          <!-- Working Hours and Availability -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="working_hours" class="form-label">Working Hours *</label>
+              <input type="text" id="working_hours" name="working_hours" [(ngModel)]="form.working_hours" class="form-control" placeholder="e.g., 9:00 AM - 6:00 PM" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="is_available" class="form-label">Availability Status</label>
+              <select id="is_available" name="is_available" [(ngModel)]="form.is_available" class="form-select">
+                <option [value]="true">Available</option>
+                <option [value]="false">Not Available</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <!-- Profile Photo -->

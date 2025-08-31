@@ -30,6 +30,8 @@ export class LoginComponent {
             this.router.navigate(['/doctor-dashboard']);
           } else if (user.role === 'patient') {
             this.router.navigate(['/patient-dashboard']);
+          } else if (user.role === 'pharmacist') {
+            this.router.navigate(['/pharmacist-dashboard']);
           } else {
             this.router.navigate(['/profile']);
           }

@@ -7,6 +7,7 @@ class CustomUser(AbstractUser):
         ('admin', 'Admin'),
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
+        ('pharmacist', 'Pharmacist'),
     ]
     
     GENDER_CHOICES = [
@@ -41,6 +42,13 @@ class CustomUser(AbstractUser):
     consultation_hours = models.CharField(max_length=100, blank=True, null=True)
     is_live = models.BooleanField(default=False, help_text="Doctor's online/offline status")
     is_available_for_consultation = models.BooleanField(default=False, help_text="Doctor's availability for consultations")
+    
+    # Pharmacist-specific fields
+    pharmacy_name = models.CharField(max_length=100, blank=True, null=True, help_text="Name of the pharmacy")
+    pharmacy_license = models.CharField(max_length=50, blank=True, null=True, help_text="Pharmacy license number")
+    pharmacy_address = models.TextField(blank=True, null=True, help_text="Pharmacy address")
+    working_hours = models.CharField(max_length=100, blank=True, null=True, help_text="Working hours (e.g., 9:00 AM - 6:00 PM)")
+    is_available = models.BooleanField(default=True, help_text="Pharmacist's availability status")
     
     # Doctor Type System
     DOCTOR_TYPE_CHOICES = [

@@ -1,0 +1,202 @@
+<!-- Pharmacist Dashboard -->
+<div class="admin-dashboard-layout">
+  <!-- Fixed Sidebar -->
+  <div class="sidebar">
+    <app-pharmacist-side-navbar></app-pharmacist-side-navbar>
+  </div>
+
+  <!-- Scrollable Main Content -->
+  <div class="main-content-scrollable">
+    <!-- Header -->
+    <div class="row bg-white shadow-sm mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center p-3">
+        <div class="d-flex align-items-center">
+          <img src="assets/Logo1.png" alt="Logo" style="height: 40px; margin-right: 15px;">
+          <h2 class="mb-0" style="color: #013237;">
+            <i class="bi bi-capsule me-2"></i>Pharmacist Dashboard
+          </h2>
+        </div>
+        <div class="d-flex align-items-center">
+          <div class="me-3 text-end">
+            <div class="fw-bold">{{ user?.first_name }} {{ user?.last_name }}</div>
+            <small class="text-muted">{{ user?.pharmacy_name }}</small>
+          </div>
+          <img *ngIf="getPhotoUrl()" [src]="getPhotoUrl()" alt="Profile" 
+               class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+          <div *ngIf="!getPhotoUrl()" class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+               style="width: 40px; height: 40px;">
+            <i class="bi bi-person text-white"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      <!-- Main Content -->
+    <div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-12 mb-4">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="text-primary mb-2">
+                <i class="bi bi-file-earmark-medical fs-1"></i>
+              </div>
+              <h4 class="card-title">{{ totalPrescriptions }}</h4>
+              <p class="card-text text-muted">Total Prescriptions</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="text-warning mb-2">
+                <i class="bi bi-clock-history fs-1"></i>
+              </div>
+              <h4 class="card-title">{{ pendingPrescriptions.length }}</h4>
+              <p class="card-text text-muted">Pending Prescriptions</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="text-success mb-2">
+                <i class="bi bi-check-circle fs-1"></i>
+              </div>
+              <h4 class="card-title">{{ dispensedPrescriptions.length }}</h4>
+              <p class="card-text text-muted">Dispensed Today</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              <div class="text-danger mb-2">
+                <i class="bi bi-exclamation-triangle fs-1"></i>
+              </div>
+              <h4 class="card-title">{{ lowStockMedicines }}</h4>
+              <p class="card-text text-muted">Low Stock Alerts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="col-lg-8">
+      <!-- Pending Prescriptions -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-clock me-2"></i>Pending Prescriptions
+          </h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="pendingPrescriptions.length === 0" class="text-center py-4">
+            <i class="bi bi-inbox text-muted fs-1"></i>
+            <p class="text-muted mt-2">No pending prescriptions</p>
+          </div>
+          <div *ngFor="let prescription of pendingPrescriptions" class="border-bottom py-3">
+            <!-- Prescription item will go here -->
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">Patient: {{ prescription.patient_name }}</h6>
+                <small class="text-muted">Prescribed by: {{ prescription.doctor_name }}</small>
+              </div>
+              <button class="btn btn-sm btn-primary">
+                <i class="bi bi-eye me-1"></i>View Details
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-activity me-2"></i>Recent Activity
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center py-4">
+            <i class="bi bi-activity text-muted fs-1"></i>
+            <p class="text-muted mt-2">No recent activity</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Quick Actions -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-lightning me-2"></i>Quick Actions
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary">
+              <i class="bi bi-search me-2"></i>Search Prescriptions
+            </button>
+            <button class="btn btn-outline-success">
+              <i class="bi bi-plus-circle me-2"></i>Add Medicine
+            </button>
+            <button class="btn btn-outline-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>Check Stock
+            </button>
+            <button class="btn btn-outline-info">
+              <i class="bi bi-graph-up me-2"></i>View Reports
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pharmacy Information -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-shop me-2"></i>Pharmacy Info
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <strong>Pharmacy:</strong> {{ user?.pharmacy_name }}
+          </div>
+          <div class="mb-3">
+            <strong>License:</strong> {{ user?.pharmacy_license }}
+          </div>
+          <div class="mb-3">
+            <strong>Working Hours:</strong> {{ user?.working_hours }}
+          </div>
+          <div class="mb-3">
+            <strong>Status:</strong> 
+            <span [class]="user?.is_available ? 'badge bg-success' : 'badge bg-danger'">
+              {{ user?.is_available ? 'Available' : 'Not Available' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock Alerts -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-exclamation-triangle me-2"></i>Stock Alerts
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center py-4">
+            <i class="bi bi-check-circle text-success fs-1"></i>
+            <p class="text-muted mt-2">All medicines in stock</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

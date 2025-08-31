@@ -1,0 +1,157 @@
+.sidebar {
+  width: 280px;
+  height: 100%;
+  background: linear-gradient(135deg, #013237 0%, #4ca771 100%);
+  color: white;
+  padding: 20px 0;
+  overflow-y: auto;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.profile-section {
+  text-align: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 20px;
+}
+
+.profile-photo {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+.profile-photo img {
+  width: 80px;
+  height: 80px;
+  border: 3px solid rgba(255,255,255,0.3);
+  object-fit: cover;
+}
+
+.profile-placeholder {
+  width: 80px;
+  height: 80px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  margin: 0 auto;
+}
+
+.profile-placeholder i {
+  font-size: 40px;
+  color: rgba(255,255,255,0.7);
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.status-dot.online {
+  background-color: #28a745;
+}
+
+.status-dot.offline {
+  background-color: #dc3545;
+}
+
+.status-text {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.profile-info h6 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.profile-info p {
+  margin: 5px 0;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.nav-link {
+  color: rgba(255,255,255,0.8) !important;
+  padding: 12px 25px;
+  border-radius: 0;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  color: white !important;
+  background-color: rgba(255,255,255,0.1);
+  border-left-color: #4ca771;
+  transform: translateX(5px);
+}
+
+.nav-link.active {
+  color: white !important;
+  background-color: rgba(255,255,255,0.15);
+  border-left-color: #4ca771;
+  font-weight: 600;
+}
+
+.nav-link i {
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-heading {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  margin: 20px 0 10px 0;
+}
+
+/* Scrollbar styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+  
+  .profile-section {
+    padding: 15px;
+  }
+  
+  .nav-link {
+    padding: 10px 20px;
+  }
+}

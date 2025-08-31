@@ -1,0 +1,99 @@
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { PharmacistSideNavbarComponent } from '../side-navbar/side-navbar.component';
+
+@Component({
+  selector: 'app-pharmacist-profile',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, PharmacistSideNavbarComponent],
+  templateUrl: './pharmacist-profile.component.html',
+  styleUrl: './pharmacist-profile.component.css'
+})
+export class PharmacistProfileComponent implements OnInit {
+  user: any = null;
+  photo: File | null = null;
+  loading = false;
+  showUpdateForm = false;
+  errorMsg: string = '';
+
+  constructor(private auth: AuthService) {}
+
+  ngOnInit() {
+    this.auth.getProfile().subscribe(user => this.user = user);
+  }
+
+  onFileChange(event: any) {
+    if (event.target.files.length > 0) {
+      this.photo = event.target.files[0];
+    }
+  }
+
+  getPhotoUrl(): string {
+    if (this.user && this.user.photo) {
+      if (this.user.photo.startsWith('http')) {
+        return this.user.photo;
+      }
+      return 'http://localhost:8000' + this.user.photo;
+    }
+    return '';
+  }
+
+  update() {
+    this.loading = true;
+    this.errorMsg = '';
+    const data: any = {
+      first_name: this.user.first_name,
+      last_name: this.user.last_name,
+      email: this.user.email,
+      phone: this.user.phone,
+      age: this.user.age,
+      gender: this.user.gender,
+      city: this.user.city,
+      // Pharmacist-specific fields
+      pharmacy_name: this.user.pharmacy_name,
+      pharmacy_license: this.user.pharmacy_license,
+      pharmacy_address: this.user.pharmacy_address,
+      working_hours: this.user.working_hours,
+      is_available: this.user.is_available
+    };
+    if (this.photo) data.photo = this.photo;
+    this.auth.updateProfile(data).subscribe({
+      next: user => {
+        this.user = user;
+        this.loading = false;
+        this.showUpdateForm = false;
+        this.photo = null;
+        alert('Profile updated successfully!');
+      },
+      error: (err) => {
+        this.loading = false;
+        if (err.error) {
+          if (typeof err.error === 'string') {
+            this.errorMsg = err.error;
+          } else if (typeof err.error === 'object') {
+            this.errorMsg = Object.values(err.error).join('\n');
+          } else {
+            this.errorMsg = 'Update failed. Unknown error.';
+          }
+        } else {
+          this.errorMsg = 'Update failed. Network or server error.';
+        }
+        alert(this.errorMsg);
+      }
+    });
+  }
+
+  openUpdateForm() {
+    this.showUpdateForm = true;
+    this.errorMsg = '';
+  }
+
+  cancelUpdate() {
+    this.showUpdateForm = false;
+    this.photo = null;
+    this.errorMsg = '';
+  }
+}

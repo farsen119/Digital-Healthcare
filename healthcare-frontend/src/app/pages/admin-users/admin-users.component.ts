@@ -42,6 +42,10 @@ export class AdminUsersComponent implements OnInit {
     return this.users.filter(user => user.role === 'patient');
   }
 
+  getPharmacists() {
+    return this.users.filter(user => user.role === 'pharmacist');
+  }
+
   deleteUser(id: number) {
     if (confirm('Are you sure you want to delete this user?')) {
       this.userService.deleteUser(id).subscribe(() => this.loadUsers());
@@ -90,7 +94,13 @@ export class AdminUsersComponent implements OnInit {
       is_consulting: user.is_consulting || false,
       // Visiting doctor fields
       visiting_days: user.visiting_days || [],
-      visiting_day_times: user.visiting_day_times || {}
+      visiting_day_times: user.visiting_day_times || {},
+      // Pharmacist-specific fields
+      pharmacy_name: user.pharmacy_name || '',
+      pharmacy_license: user.pharmacy_license || '',
+      pharmacy_address: user.pharmacy_address || '',
+      working_hours: user.working_hours || '',
+      is_available: user.is_available || true
     };
     this.editForm.photo = null; // Reset photo for new upload
   }

@@ -63,6 +63,45 @@ export class UserService {
   }
 
   /**
+   * Gets all users with the 'pharmacist' role.
+   */
+  getPharmacists(): Observable<User[]> {
+    const authHeaders = this.getAuthHeaders();
+    return this.http.get<User[]>(`${this.apiUrl}?role=pharmacist`, { headers: authHeaders });
+  }
+
+  /**
+   * Creates a new user (admin only).
+   */
+  createUser(userData: any): Observable<User> {
+    const authHeaders = this.getAuthHeaders();
+    
+    // Check if there's a file to upload
+    if (userData.photo && userData.photo instanceof File) {
+      // Use FormData for file uploads
+      const formData = new FormData();
+      
+      // Add all user data to FormData
+      Object.keys(userData).forEach(key => {
+        if (key === 'photo') {
+          formData.append('photo', userData.photo);
+        } else if (userData[key] !== null && userData[key] !== undefined) {
+          formData.append(key, userData[key]);
+        }
+      });
+      
+      return this.http.post<User>(this.apiUrl, formData, { 
+        headers: new HttpHeaders({
+          'Authorization': authHeaders.get('Authorization') || ''
+        })
+      });
+    } else {
+      // For regular JSON data
+      return this.http.post<User>(this.apiUrl, userData, { headers: authHeaders });
+    }
+  }
+
+  /**
    * Updates a user's profile data.
    */
   updateUser(id: number, userData: any): Observable<User> {

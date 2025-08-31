@@ -40,9 +40,15 @@ export class AdminRegisterComponent {
     // Queue system fields for permanent doctors
     max_queue_size: 10,
     consultation_duration: 15,
-             // Visiting doctor fields
-         visiting_days: [],
-         visiting_day_times: {} as { [key: number]: { start_time: string; end_time: string } }
+    // Visiting doctor fields
+    visiting_days: [],
+    visiting_day_times: {} as { [key: number]: { start_time: string; end_time: string } },
+    // Pharmacist-specific fields
+    pharmacy_name: '',
+    pharmacy_license: '',
+    pharmacy_address: '',
+    working_hours: '',
+    is_available: true
   };
 
   // Predefined list of specializations for the dropdown
@@ -203,13 +209,33 @@ export class AdminRegisterComponent {
       }
     }
 
+     // If the role is pharmacist, validate required pharmacist fields
+    if (this.form.role === 'pharmacist') {
+      if (!this.form.pharmacy_name) {
+        alert('Please enter the pharmacy name.');
+        return;
+      }
+      if (!this.form.pharmacy_license) {
+        alert('Please enter the pharmacy license number.');
+        return;
+      }
+      if (!this.form.pharmacy_address) {
+        alert('Please enter the pharmacy address.');
+        return;
+      }
+      if (!this.form.working_hours) {
+        alert('Please enter the working hours.');
+        return;
+      }
+    }
+
     // Create a new object for submission to avoid modifying the original form state
     const submitForm = { ...this.form };
     
     // Clean up data before sending to backend
     delete submitForm.confirm_password;
     
-    // Remove doctor-specific fields for non-doctors
+    // Remove role-specific fields for non-matching roles
     if (submitForm.role !== 'doctor') {
       delete submitForm.specialization;
       delete submitForm.license_number;
@@ -225,7 +251,17 @@ export class AdminRegisterComponent {
       delete submitForm.consultation_duration;
       delete submitForm.visiting_days;
       delete submitForm.visiting_day_times;
-    } else {
+    }
+    
+    if (submitForm.role !== 'pharmacist') {
+      delete submitForm.pharmacy_name;
+      delete submitForm.pharmacy_license;
+      delete submitForm.pharmacy_address;
+      delete submitForm.working_hours;
+      delete submitForm.is_available;
+    }
+    
+    if (submitForm.role === 'doctor') {
       // For doctors, remove fields based on doctor type
       if (submitForm.doctor_type === 'permanent') {
         // Remove visiting doctor fields for permanent doctors

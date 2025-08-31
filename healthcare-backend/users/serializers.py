@@ -31,6 +31,8 @@ class UserSerializer(serializers.ModelSerializer):
             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation',
             'doctor_type', 'current_queue_position', 'max_queue_size', 'consultation_duration',
             'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times',
+             # Pharmacist-specific fields
+            'pharmacy_name', 'pharmacy_license', 'pharmacy_address', 'working_hours', 'is_available',
             # Age and Gender fields
             'age', 'gender',
             # Patient-specific fields
@@ -85,6 +87,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation',
             'doctor_type', 'current_queue_position', 'max_queue_size', 'consultation_duration',
             'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times',
+            # Pharmacist-specific fields
+            'pharmacy_name', 'pharmacy_license', 'pharmacy_address', 'working_hours', 'is_available',
             # Age and Gender fields
             'age', 'gender',
             # Patient-specific fields
@@ -150,6 +154,12 @@ class RegisterSerializer(serializers.ModelSerializer):
                 current_patient=validated_data.get('current_patient', None),
                 visiting_days=validated_data.get('visiting_days', []),
                 visiting_day_times=validated_data.get('visiting_day_times', {}),
+                # Pharmacist-specific fields
+                pharmacy_name=validated_data.get('pharmacy_name', ''),
+                pharmacy_license=validated_data.get('pharmacy_license', ''),
+                pharmacy_address=validated_data.get('pharmacy_address', ''),
+                working_hours=validated_data.get('working_hours', ''),
+                is_available=validated_data.get('is_available', True),
                 # Age and Gender fields
                 age=validated_data.get('age', None),
                 gender=validated_data.get('gender', ''),
@@ -221,5 +231,16 @@ class RegisterSerializer(serializers.ModelSerializer):
                 data['consultation_hours'] = ''
                 data['max_queue_size'] = 10
                 data['consultation_duration'] = 15
+        
+        # Role-specific validations for pharmacists
+        if role == 'pharmacist':
+            if not data.get('pharmacy_name'):
+                raise serializers.ValidationError({"pharmacy_name": "Pharmacy name is required for pharmacists."})
+            if not data.get('pharmacy_license'):
+                raise serializers.ValidationError({"pharmacy_license": "Pharmacy license number is required for pharmacists."})
+            if not data.get('pharmacy_address'):
+                raise serializers.ValidationError({"pharmacy_address": "Pharmacy address is required for pharmacists."})
+            if not data.get('working_hours'):
+                raise serializers.ValidationError({"working_hours": "Working hours are required for pharmacists."})
         
         return data

@@ -4,8 +4,8 @@ from .models import CustomUser, DoctorStatus
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ['username', 'email', 'role', 'first_name', 'last_name', 'specialization', 'doctor_type', 'phone', 'city', 'age', 'gender', 'blood_group', 'is_live', 'is_available_for_consultation']
-    list_filter = ['role', 'specialization', 'doctor_type', 'city', 'gender', 'blood_group', 'marital_status', 'is_live', 'is_available_for_consultation']
+    list_display = ['username', 'email', 'role', 'first_name', 'last_name', 'specialization', 'doctor_type', 'pharmacy_name', 'phone', 'city', 'age', 'gender', 'blood_group', 'is_live', 'is_available_for_consultation', 'is_available']
+    list_filter = ['role', 'specialization', 'doctor_type', 'city', 'gender', 'blood_group', 'marital_status', 'is_live', 'is_available_for_consultation', 'is_available']
     search_fields = ['username', 'email', 'first_name', 'last_name', 'specialization', 'emergency_contact_name']
     
     # Fields to display in the admin form
@@ -32,6 +32,13 @@ class CustomUserAdmin(UserAdmin):
             'classes': ('collapse',),
             'description': 'These fields are specific to doctors'
         }),
+        ('Pharmacist Information', {
+            'fields': (
+                'pharmacy_name', 'pharmacy_license', 'pharmacy_address', 'working_hours', 'is_available'
+            ),
+            'classes': ('collapse',),
+            'description': 'These fields are specific to pharmacists'
+        }),
     )
     
     # Fields to display when adding a new user
@@ -57,6 +64,13 @@ class CustomUserAdmin(UserAdmin):
             ),
             'classes': ('collapse',),
             'description': 'These fields are specific to doctors'
+        }),
+        ('Pharmacist Information', {
+            'fields': (
+                'pharmacy_name', 'pharmacy_license', 'pharmacy_address', 'working_hours', 'is_available'
+            ),
+            'classes': ('collapse',),
+            'description': 'These fields are specific to pharmacists'
         }),
     )
 

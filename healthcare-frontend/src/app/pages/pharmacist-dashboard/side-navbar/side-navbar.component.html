@@ -1,0 +1,68 @@
+<div class="sidebar">
+  <!-- Profile Section at Top -->
+  <div class="profile-section">
+    <div class="profile-photo">
+      <img *ngIf="user?.photo" [src]="getPhotoUrl()" class="rounded-circle" alt="Profile Photo">
+      <div *ngIf="!user?.photo" class="profile-placeholder">
+        <i class="bi bi-person-circle"></i>
+      </div>
+      <!-- Status Dot -->
+      <div class="status-indicator">
+        <div class="status-dot" [ngClass]="user?.is_available ? 'online' : 'offline'"></div>
+        <span class="status-text">{{ user?.is_available ? 'Available' : 'Unavailable' }}</span>
+      </div>
+    </div>
+    <div class="profile-info">
+      <h6 class="profile-name">{{ user?.first_name || 'Pharmacist' }} {{ user?.last_name || '' }}</h6>
+      <p class="profile-role">Pharmacist</p>
+      <small class="status-text" [ngClass]="user?.is_available ? 'text-success' : 'text-danger'">
+        <i class="bi" [ngClass]="user?.is_available ? 'bi-circle-fill' : 'bi-circle-fill'"></i>
+        {{ user?.is_available ? 'Available' : 'Unavailable' }}
+      </small>
+    </div>
+  </div>
+  
+  <hr class="text-white">
+  
+  <ul class="nav flex-column">
+    <li class="nav-item mb-2">
+      <a class="nav-link" routerLink="/pharmacist-dashboard" routerLinkActive="active">
+        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+      </a>
+    </li>
+    <li class="nav-item mb-2">
+      <a class="nav-link" routerLink="/pharmacist-prescriptions" routerLinkActive="active">
+        <i class="bi bi-file-earmark-medical me-2"></i> Prescriptions
+      </a>
+    </li>
+    <li class="nav-item mb-2">
+      <a class="nav-link" routerLink="/pharmacist-inventory" routerLinkActive="active">
+        <i class="bi bi-box-seam me-2"></i> Inventory
+      </a>
+    </li>
+    <li class="nav-item mb-2">
+      <a class="nav-link" routerLink="/pharmacist-profile" routerLinkActive="active">
+        <i class="bi bi-person me-2"></i> Profile
+      </a>
+    </li>
+    <li class="nav-item mb-2">
+      <a class="nav-link" routerLink="/pharmacist-settings" routerLinkActive="active">
+        <i class="bi bi-gear me-2"></i> Settings
+      </a>
+    </li>
+  </ul>
+  <hr class="text-white">
+  <h6 class="sidebar-heading px-3 text-white text-uppercase">Quick Links</h6>
+  <ul class="nav flex-column mb-2">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/pharmacist-reports">
+        <i class="bi bi-graph-up me-2"></i> Reports
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/pharmacist-notifications">
+        <i class="bi bi-bell me-2"></i> Notifications
+      </a>
+    </li>
+  </ul>
+</div>
