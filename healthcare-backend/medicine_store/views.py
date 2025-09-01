@@ -5,6 +5,14 @@ from .models import Medicine, Cart, CartItem, StockHistory
 from .serializers import MedicineSerializer, CartSerializer, StockHistorySerializer
 from django.shortcuts import get_object_or_404
 
+# Custom permission class for admin and pharmacist
+class IsAdminOrPharmacist(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and (
+            request.user.is_staff or 
+            hasattr(request.user, 'role') and request.user.role in ['admin', 'pharmacist']
+        )
+
 # Medicine APIs
 class MedicineListCreateView(generics.ListCreateAPIView):
     queryset = Medicine.objects.all()
@@ -12,7 +20,7 @@ class MedicineListCreateView(generics.ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == 'POST':
-            return [permissions.IsAdminUser()]
+            return [IsAdminOrPharmacist()]
         return [permissions.AllowAny()]
 
 class MedicineDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -21,7 +29,7 @@ class MedicineDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'DELETE']:
-            return [permissions.IsAdminUser()]
+            return [IsAdminOrPharmacist()]
         return [permissions.AllowAny()]
 
 # Cart APIs
@@ -60,4 +68,4 @@ class CartView(APIView):
 class StockHistoryListView(generics.ListAPIView):
     queryset = StockHistory.objects.select_related('medicine', 'user').order_by('-date')
     serializer_class = StockHistorySerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminOrPharmacist]

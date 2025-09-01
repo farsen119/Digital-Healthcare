@@ -25,14 +25,16 @@ import { AdminPrescriptionListComponent } from './pages/admin/admin-prescription
 import { AdminPrescriptionViewComponent } from './pages/admin/admin-prescription-view/admin-prescription-view.component';
 import { PharmacistDashboardComponent } from './pages/pharmacist-dashboard/pharmacist-dashboard.component';
 import { PharmacistProfileComponent } from './pages/pharmacist-dashboard/pharmacist-profile/pharmacist-profile.component';
+import { PharmacistAddMedicineComponent } from './pages/pharmacist-dashboard/pharmacist-add-medicine/pharmacist-add-medicine.component';
 
 
 import { MedicineStoreComponent } from './pages/medicine_store/medicine-store/medicine-store.component';
 import { CartComponent } from './pages/medicine_store/cart/cart.component';
 import { OrdersComponent } from './pages/medicine_store/orders/orders.component';
-import { MedicineStoreSettingsComponent } from './pages/medicine_store/admin/medicine-store-settings/medicine-store-settings.component';
+
 import { AdminOrdersComponent } from './pages/medicine_store/admin/admin-orders/admin-orders.component';
 import { DashboardMedicalStoreComponent } from './pages/medicine_store/admin/dashboard-medical-store/dashboard-medical-store.component';
+import { MedicineStoreSettingsComponent } from './pages/medicine_store/admin/medicine-store-settings/medicine-store-settings.component';
 
 
 
@@ -49,6 +51,7 @@ export const routes: Routes = [
   { path: 'admin-users', component: AdminUsersComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
   { path: 'pharmacist-dashboard', component: PharmacistDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['pharmacist'] } },
   { path: 'pharmacist-profile', component: PharmacistProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['pharmacist'] } },
+  { path: 'pharmacist-add-medicine', component: PharmacistAddMedicineComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['pharmacist'] } },
 
   { path: 'book-appointment', component: BookAppointmentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'admin'] } },
   { path: 'doctor-appointments', component: DoctorAppointmentsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },
@@ -68,12 +71,13 @@ export const routes: Routes = [
 
 
 
-  { path: 'medicine-store', component: MedicineStoreComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'doctor', 'admin'] } },
+  { path: 'medicine-store', component: MedicineStoreComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'doctor', 'admin', 'pharmacist'] } },
   { path: 'cart', component: CartComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'doctor', 'admin'] } },
   { path: 'orders', component: OrdersComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'doctor', 'admin'] } },
-  { path: 'medicine-store-settings', component: MedicineStoreSettingsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+
   { path: 'admin-orders', component:AdminOrdersComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
   { path: 'dashboard-medical-store', component:DashboardMedicalStoreComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+  { path: 'medicine-store-settings', component: MedicineStoreSettingsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
 
 
 
