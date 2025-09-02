@@ -197,6 +197,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, data):
         role = data.get('role')
         
+        # Prevent admin role creation through API (only superusers can create admins)
+        if role == 'admin':
+            raise serializers.ValidationError({"role": "Admin role cannot be created through this interface. Only superusers can create admin accounts."})
+        
         # Validate required fields for all users
         if not data.get('first_name'):
             raise serializers.ValidationError({"first_name": "First name is required."})
