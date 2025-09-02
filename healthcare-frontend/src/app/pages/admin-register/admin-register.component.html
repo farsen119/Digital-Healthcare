@@ -21,12 +21,14 @@
         <h6 class="text-warning mb-3"><i class="bi bi-shield-check me-2"></i>Account Type</h6>
         <div class="row mb-4">
           <div class="col-md-6">
-            <label for="role" class="form-label">User Role *</label>
-            <select id="role" name="role" [(ngModel)]="form.role" class="form-select" required>
-              <option value="" disabled>Select user role...</option>
-              <option value="patient">Patient</option>
+            <label for="role" class="form-label">Role *</label>
+            <select class="form-select" id="role" name="role" [(ngModel)]="form.role" required>
+              <option value="">Select Role</option>
+              <option value="admin">Admin</option>
               <option value="doctor">Doctor</option>
+              <option value="patient">Patient</option>
               <option value="pharmacist">Pharmacist</option>
+              <option value="nurse">Nurse</option>
             </select>
           </div>
         </div>
@@ -300,6 +302,47 @@
               <select id="is_available" name="is_available" [(ngModel)]="form.is_available" class="form-select">
                 <option [value]="true">Available</option>
                 <option [value]="false">Not Available</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nurse Specific Information (Conditional) -->
+        <div *ngIf="form.role === 'nurse'" class="nurse-fields">
+          <hr class="my-4">
+          <h6 class="text-primary mb-3"><i class="bi bi-person-plus me-2"></i>Nurse Information</h6>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="nurse_license" class="form-label">Nurse License Number *</label>
+              <input type="text" id="nurse_license" name="nurse_license" [(ngModel)]="form.nurse_license" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="nursing_qualification" class="form-label">Nursing Qualification *</label>
+              <input type="text" id="nursing_qualification" name="nursing_qualification" [(ngModel)]="form.nursing_qualification" class="form-control" placeholder="e.g., BSc Nursing, GNM" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="nurse_specialization" class="form-label">Specialization *</label>
+              <input type="text" id="nurse_specialization" name="nurse_specialization" [(ngModel)]="form.nurse_specialization" class="form-control" placeholder="e.g., ICU, Emergency, Pediatric" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="nurse_experience_years" class="form-label">Years of Experience *</label>
+              <input type="number" id="nurse_experience_years" name="nurse_experience_years" [(ngModel)]="form.nurse_experience_years" class="form-control" min="0" max="50" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="hospital_assignment" class="form-label">Hospital Assignment *</label>
+              <input type="text" id="hospital_assignment" name="hospital_assignment" [(ngModel)]="form.hospital_assignment" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="shift_preference" class="form-label">Shift Preference *</label>
+              <select id="shift_preference" name="shift_preference" [(ngModel)]="form.shift_preference" class="form-select" required>
+                <option value="">Select Shift</option>
+                <option value="day">Day Shift</option>
+                <option value="night">Night Shift</option>
+                <option value="rotating">Rotating Shift</option>
               </select>
             </div>
           </div>

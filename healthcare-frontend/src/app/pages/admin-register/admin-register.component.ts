@@ -14,41 +14,60 @@ import { RouterLink } from '@angular/router';
 })
 export class AdminRegisterComponent {
   form: any = {
-    role: '', // Will be selected by admin
-    first_name: '',
-    last_name: '',
     username: '',
     email: '',
     password: '',
-    confirm_password: '',
+    password2: '',
+    first_name: '',
+    last_name: '',
+    role: '',
     phone: '',
-    age: null,
-    gender: '',
     city: '',
-    photo: null,
-    // Doctor-specific fields
-    doctor_type: 'permanent', // Default to permanent
+    age: null as number | null,
+    gender: '',
+    
+    // Doctor fields
     specialization: '',
     license_number: '',
-    experience_years: null,
+    experience_years: null as number | null,
     qualification: '',
     hospital: '',
-    consultation_fee: null,
+    consultation_fee: null as number | null,
     bio: '',
     available_days: '',
     consultation_hours: '',
-    // Queue system fields for permanent doctors
-    max_queue_size: 10,
-    consultation_duration: 15,
-    // Visiting doctor fields
-    visiting_days: [],
-    visiting_day_times: {} as { [key: number]: { start_time: string; end_time: string } },
-    // Pharmacist-specific fields
+    doctor_type: 'permanent' as 'permanent' | 'visiting',
+    visiting_days: [] as number[],
+    visiting_day_times: {} as any,
+    
+    // Pharmacist fields
     pharmacy_name: '',
     pharmacy_license: '',
     pharmacy_address: '',
     working_hours: '',
-    is_available: true
+    
+    // Nurse fields
+    nurse_license: '',
+    nursing_qualification: '',
+    nurse_specialization: '',
+    nurse_experience_years: null as number | null,
+    hospital_assignment: '',
+    shift_preference: '',
+    
+    // Patient fields
+    date_of_birth: '',
+    address: '',
+    blood_group: '',
+    emergency_contact_name: '',
+    emergency_contact_phone: '',
+    emergency_contact_relationship: '',
+    medical_history: '',
+    current_medications: '',
+    allergies: '',
+    height: null as number | null,
+    weight: null as number | null,
+    occupation: '',
+    marital_status: ''
   };
 
   // Predefined list of specializations for the dropdown

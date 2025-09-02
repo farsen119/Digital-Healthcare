@@ -31,6 +31,11 @@
           <i class="bi bi-capsule me-2"></i>Pharmacists ({{ getPharmacists().length }})
         </button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="nurses-tab" data-bs-toggle="tab" data-bs-target="#nurses" type="button" role="tab">
+          <i class="bi bi-heart-pulse me-2"></i>Nurses ({{ getNurses().length }})
+        </button>
+      </li>
     </ul>
 
     <!-- Tab Content -->
@@ -607,6 +612,102 @@
                       <td><input class="form-control form-control-sm" [(ngModel)]="editForm.working_hours" placeholder="e.g., 9:00 AM - 6:00 PM"></td>
                       <td>
                         <select class="form-select form-select-sm" [(ngModel)]="editForm.is_available">
+                          <option [value]="true">Available</option>
+                          <option [value]="false">Not Available</option>
+                        </select>
+                      </td>
+                      <td class="text-center">
+                        <div class="btn-group btn-group-sm" role="group">
+                          <button class="btn btn-success" (click)="saveEdit()">
+                            <i class="bi bi-check"></i>
+                          </button>
+                          <button class="btn btn-secondary" (click)="cancelEdit()">
+                            <i class="bi bi-x"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </ng-template>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nurses Tab -->
+      <div class="tab-pane fade" id="nurses" role="tabpanel" aria-labelledby="nurses-tab">
+        <div class="card">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i> Nurse Users</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead class="table-info">
+                  <tr>
+                    <th>Photo</th>
+                    <th>Username</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>License</th>
+                    <th>Qualification</th>
+                    <th>Specialization</th>
+                    <th>Hospital</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let user of getNurses()">
+                    <ng-container *ngIf="editUserId !== user.id; else editNurseRow">
+                      <td>
+                        <img *ngIf="user.photo" [src]="getPhotoUrl(user)" class="img-thumbnail rounded-circle" width="40" alt="Profile Photo">
+                        <span *ngIf="!user.photo" class="text-muted">No photo</span>
+                      </td>
+                      <td>{{ user.username }}</td>
+                      <td>{{ user.first_name }} {{ user.last_name }}</td>
+                      <td>{{ user.email }}</td>
+                      <td>{{ user.phone || 'N/A' }}</td>
+                      <td>{{ user.nurse_license || 'N/A' }}</td>
+                      <td>{{ user.nursing_qualification || 'N/A' }}</td>
+                      <td>{{ user.nurse_specialization || 'N/A' }}</td>
+                      <td>{{ user.hospital_assignment || 'N/A' }}</td>
+                      <td>
+                        <span [class]="user.is_available_for_duty ? 'badge bg-success' : 'badge bg-danger'">
+                          {{ user.is_available_for_duty ? 'Available' : 'Not Available' }}
+                        </span>
+                      </td>
+                      <td class="text-center">
+                        <div class="btn-group btn-group-sm" role="group">
+                          <button class="btn btn-warning" (click)="startEdit(user)">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button class="btn btn-danger" (click)="deleteUser(user.id)">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <ng-template #editNurseRow>
+                      <td>
+                        <input class="form-control form-control-sm" type="file" (change)="onEditFileChange($event)">
+                        <small class="text-muted">Current: {{ user.photo ? 'Yes' : 'No' }}</small>
+                      </td>
+                      <td><input class="form-control form-control-sm" [(ngModel)]="editForm.username"></td>
+                      <td>
+                        <input class="form-control form-control-sm" [(ngModel)]="editForm.first_name" placeholder="First Name">
+                        <input class="form-control form-control-sm mt-1" [(ngModel)]="editForm.last_name" placeholder="Last Name">
+                      </td>
+                      <td><input class="form-control form-control-sm" type="email" [(ngModel)]="editForm.email"></td>
+                      <td><input class="form-control form-control-sm" type="tel" [(ngModel)]="editForm.phone"></td>
+                      <td><input class="form-control form-control-sm" [(ngModel)]="editForm.nurse_license" placeholder="Nurse License"></td>
+                      <td><input class="form-control form-control-sm" [(ngModel)]="editForm.nursing_qualification" placeholder="Nursing Qualification"></td>
+                      <td><input class="form-control form-control-sm" [(ngModel)]="editForm.nurse_specialization" placeholder="Nurse Specialization"></td>
+                      <td><input class="form-control form-control-sm" [(ngModel)]="editForm.hospital_assignment" placeholder="Hospital Assignment"></td>
+                      <td>
+                        <select class="form-select form-select-sm" [(ngModel)]="editForm.is_available_for_duty">
                           <option [value]="true">Available</option>
                           <option [value]="false">Not Available</option>
                         </select>

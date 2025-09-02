@@ -24,16 +24,25 @@ export class LoginComponent {
         // Wait for profile to be loaded and then redirect based on role
         const subscription = this.auth.currentUser$.subscribe(user => {
           if (!user) return;
-          if (user.role === 'admin') {
-            this.router.navigate(['/admin-dashboard']);
-          } else if (user.role === 'doctor') {
-            this.router.navigate(['/doctor-dashboard']);
-          } else if (user.role === 'patient') {
-            this.router.navigate(['/patient-dashboard']);
-          } else if (user.role === 'pharmacist') {
-            this.router.navigate(['/pharmacist-dashboard']);
-          } else {
-            this.router.navigate(['/profile']);
+          switch (user.role) {
+            case 'admin':
+              this.router.navigate(['/admin-dashboard']);
+              break;
+            case 'doctor':
+              this.router.navigate(['/doctor-dashboard']);
+              break;
+            case 'patient':
+              this.router.navigate(['/patient-dashboard']);
+              break;
+            case 'pharmacist':
+              this.router.navigate(['/pharmacist-dashboard']);
+              break;
+            case 'nurse':
+              this.router.navigate(['/nurse-dashboard']);
+              break;
+            default:
+              this.router.navigate(['/profile']);
+              break;
           }
           subscription.unsubscribe();
           this.loading = false;

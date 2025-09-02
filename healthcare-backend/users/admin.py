@@ -9,36 +9,15 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ['username', 'email', 'first_name', 'last_name', 'specialization', 'emergency_contact_name']
     
     # Fields to display in the admin form
-    fieldsets = UserAdmin.fieldsets + (
-        ('Role Information', {'fields': ('role', 'specialization', 'is_live', 'is_available_for_consultation')}),
-        ('Contact Information', {'fields': ('phone', 'city', 'photo')}),
-        ('Personal Information', {'fields': ('age', 'gender', 'date_of_birth', 'marital_status', 'occupation')}),
-        ('Patient Information', {
-            'fields': (
-                'address', 'blood_group', 'height', 'weight',
-                'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relationship',
-                'medical_history', 'current_medications', 'allergies'
-            ),
-            'classes': ('collapse',),
-            'description': 'These fields are specific to patients'
-        }),
-        ('Doctor Information', {
-            'fields': (
-                'doctor_type', 'license_number', 'experience_years', 'qualification', 
-                'hospital', 'consultation_fee', 'bio', 'available_days', 'consultation_hours',
-                'current_queue_position', 'max_queue_size', 'consultation_duration',
-                'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times'
-            ),
-            'classes': ('collapse',),
-            'description': 'These fields are specific to doctors'
-        }),
-        ('Pharmacist Information', {
-            'fields': (
-                'pharmacy_name', 'pharmacy_license', 'pharmacy_address', 'working_hours', 'is_available'
-            ),
-            'classes': ('collapse',),
-            'description': 'These fields are specific to pharmacists'
-        }),
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'phone', 'age', 'gender', 'city', 'address', 'photo')}),
+        ('Role & Permissions', {'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Doctor Information', {'fields': ('specialization', 'license_number', 'experience_years', 'qualification', 'hospital', 'consultation_fee', 'bio', 'available_days', 'consultation_hours', 'is_live', 'is_available_for_consultation', 'doctor_type', 'current_queue_position', 'max_queue_size', 'consultation_duration', 'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times'), 'classes': ('collapse',)}),
+        ('Pharmacist Information', {'fields': ('pharmacy_name', 'pharmacy_license', 'pharmacy_address', 'working_hours', 'is_available'), 'classes': ('collapse',)}),
+        ('Nurse Information', {'fields': ('nurse_license', 'nursing_qualification', 'nurse_specialization', 'nurse_experience_years', 'hospital_assignment', 'shift_preference', 'is_available_for_duty'), 'classes': ('collapse',)}),
+        ('Patient Information', {'fields': ('date_of_birth', 'blood_group', 'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relationship', 'medical_history', 'current_medications', 'allergies', 'height', 'weight', 'occupation', 'marital_status'), 'classes': ('collapse',)}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     
     # Fields to display when adding a new user

@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'doctor' | 'patient';
+export type UserRole = 'admin' | 'doctor' | 'patient' | 'pharmacist' | 'nurse';
 
 export interface User {
   id: number;
@@ -33,8 +33,22 @@ export interface User {
   consultation_duration?: number;
   is_consulting?: boolean;
   current_patient?: number;
-           visiting_days?: number[];
-         visiting_day_times?: { [key: number]: { start_time: string; end_time: string } };
+  visiting_days?: number[];
+  visiting_day_times?: { [key: number]: { start_time: string; end_time: string } };
+  // Pharmacist-specific fields
+  pharmacy_name?: string;
+  pharmacy_license?: string;
+  pharmacy_address?: string;
+  working_hours?: string;
+  is_available?: boolean;
+  // Nurse-specific fields
+  nurse_license?: string;
+  nursing_qualification?: string;
+  nurse_specialization?: string;
+  nurse_experience_years?: number;
+  hospital_assignment?: string;
+  shift_preference?: string;
+  is_available_for_duty?: boolean;
   // Patient-specific fields
   date_of_birth?: string;
   address?: string;

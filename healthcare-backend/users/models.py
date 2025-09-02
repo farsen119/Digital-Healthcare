@@ -8,6 +8,7 @@ class CustomUser(AbstractUser):
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
         ('pharmacist', 'Pharmacist'),
+        ('nurse', 'Nurse'),
     ]
     
     GENDER_CHOICES = [
@@ -49,6 +50,15 @@ class CustomUser(AbstractUser):
     pharmacy_address = models.TextField(blank=True, null=True, help_text="Pharmacy address")
     working_hours = models.CharField(max_length=100, blank=True, null=True, help_text="Working hours (e.g., 9:00 AM - 6:00 PM)")
     is_available = models.BooleanField(default=True, help_text="Pharmacist's availability status")
+    
+    # Nurse-specific fields
+    nurse_license = models.CharField(max_length=50, blank=True, null=True, help_text="Nurse license number")
+    nursing_qualification = models.CharField(max_length=100, blank=True, null=True, help_text="Nursing qualification (e.g., BSc Nursing, GNM)")
+    nurse_specialization = models.CharField(max_length=100, blank=True, null=True, help_text="Nursing specialization (e.g., ICU, Emergency, Pediatric)")
+    nurse_experience_years = models.IntegerField(blank=True, null=True, help_text="Years of nursing experience")
+    hospital_assignment = models.CharField(max_length=100, blank=True, null=True, help_text="Assigned hospital or department")
+    shift_preference = models.CharField(max_length=50, blank=True, null=True, help_text="Preferred shift (e.g., Day, Night, Rotating)")
+    is_available_for_duty = models.BooleanField(default=True, help_text="Nurse's availability for duty")
     
     # Doctor Type System
     DOCTOR_TYPE_CHOICES = [

@@ -33,6 +33,8 @@ class UserSerializer(serializers.ModelSerializer):
             'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times',
              # Pharmacist-specific fields
             'pharmacy_name', 'pharmacy_license', 'pharmacy_address', 'working_hours', 'is_available',
+            # Nurse fields
+            'nurse_license', 'nursing_qualification', 'nurse_specialization', 'nurse_experience_years', 'hospital_assignment', 'shift_preference', 'is_available_for_duty',
             # Age and Gender fields
             'age', 'gender',
             # Patient-specific fields
@@ -89,6 +91,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             'is_consulting', 'current_patient', 'visiting_days', 'visiting_day_times',
             # Pharmacist-specific fields
             'pharmacy_name', 'pharmacy_license', 'pharmacy_address', 'working_hours', 'is_available',
+            # Nurse fields
+            'nurse_license', 'nursing_qualification', 'nurse_specialization', 'nurse_experience_years', 'hospital_assignment', 'shift_preference', 'is_available_for_duty',
             # Age and Gender fields
             'age', 'gender',
             # Patient-specific fields
@@ -160,6 +164,14 @@ class RegisterSerializer(serializers.ModelSerializer):
                 pharmacy_address=validated_data.get('pharmacy_address', ''),
                 working_hours=validated_data.get('working_hours', ''),
                 is_available=validated_data.get('is_available', True),
+                # Nurse fields
+                nurse_license=validated_data.get('nurse_license', ''),
+                nursing_qualification=validated_data.get('nursing_qualification', ''),
+                nurse_specialization=validated_data.get('nurse_specialization', ''),
+                nurse_experience_years=validated_data.get('nurse_experience_years', None),
+                hospital_assignment=validated_data.get('hospital_assignment', ''),
+                shift_preference=validated_data.get('shift_preference', ''),
+                is_available_for_duty=validated_data.get('is_available_for_duty', False),
                 # Age and Gender fields
                 age=validated_data.get('age', None),
                 gender=validated_data.get('gender', ''),

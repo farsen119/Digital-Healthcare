@@ -26,6 +26,8 @@ export const NoAuthGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     router.navigate(['/patient-dashboard']);
   } else if (user && user.role === 'pharmacist') {
     router.navigate(['/pharmacist-dashboard']);
+  } else if (user && user.role === 'nurse') {
+    router.navigate(['/nurse-dashboard']);
   } else {
     router.navigate(['/']);
   }

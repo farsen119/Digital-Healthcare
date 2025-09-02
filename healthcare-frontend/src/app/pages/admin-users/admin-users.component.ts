@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
+import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-admin-users',
@@ -42,8 +43,16 @@ export class AdminUsersComponent implements OnInit {
     return this.users.filter(user => user.role === 'patient');
   }
 
-  getPharmacists() {
+  getPharmacists(): User[] {
     return this.users.filter(user => user.role === 'pharmacist');
+  }
+
+  getNurses(): User[] {
+    return this.users.filter(user => user.role === 'nurse');
+  }
+
+  editUser(user: User): void {
+    this.startEdit(user);
   }
 
   deleteUser(id: number) {
@@ -100,7 +109,15 @@ export class AdminUsersComponent implements OnInit {
       pharmacy_license: user.pharmacy_license || '',
       pharmacy_address: user.pharmacy_address || '',
       working_hours: user.working_hours || '',
-      is_available: user.is_available || true
+      is_available: user.is_available || true,
+      // Nurse-specific fields
+      nurse_license: user.nurse_license || '',
+      nursing_qualification: user.nursing_qualification || '',
+      nurse_specialization: user.nurse_specialization || '',
+      nurse_experience_years: user.nurse_experience_years || null,
+      hospital_assignment: user.hospital_assignment || '',
+      shift_preference: user.shift_preference || '',
+      is_available_for_duty: user.is_available_for_duty || true
     };
     this.editForm.photo = null; // Reset photo for new upload
   }
@@ -205,6 +222,7 @@ export class AdminUsersComponent implements OnInit {
       if (updateData.consultation_fee === '') updateData.consultation_fee = null;
       if (updateData.height === '') updateData.height = null;
       if (updateData.weight === '') updateData.weight = null;
+      if (updateData.nurse_experience_years === '') updateData.nurse_experience_years = null;
       
       // Handle date_of_birth - ensure it's in correct format or remove if empty
       if (updateData.date_of_birth === '' || !updateData.date_of_birth) {
@@ -241,6 +259,28 @@ export class AdminUsersComponent implements OnInit {
           delete updateData.start_time;
           delete updateData.end_time;
         }
+      }
+      
+      // Handle nurse type specific fields
+      if (updateData.role === 'nurse') {
+        // Remove fields not relevant to nurses
+        delete updateData.specialization; // Use nurse_specialization instead
+        delete updateData.experience_years; // Use nurse_experience_years instead
+        delete updateData.license_number; // Use nurse_license instead
+        delete updateData.hospital; // Use hospital_assignment instead
+      }
+      
+      // Handle pharmacist type specific fields
+      if (updateData.role === 'pharmacist') {
+        // Remove fields not relevant to pharmacists
+        delete updateData.specialization;
+        delete updateData.experience_years;
+        delete updateData.license_number;
+        delete updateData.hospital;
+        delete updateData.consultation_fee;
+        delete updateData.bio;
+        delete updateData.available_days;
+        delete updateData.consultation_hours;
       }
       
       // Remove the temporary time fields
@@ -283,12 +323,18 @@ export class AdminUsersComponent implements OnInit {
     }
   }
 
-  getPhotoUrl(user: any): string {
-    if (user.photo) {
-      if (user.photo.startsWith('http')) {
+  getPhotoUrl(user: User): string {
+    if (user.photo && user.photo.trim() !== '') {
+      // If photo is a full URL, return as is
+      if (user.photo.startsWith('http://') || user.photo.startsWith('https://')) {
         return user.photo;
       }
-      return 'http://localhost:8000' + user.photo;
+      // If photo is a relative path, prepend backend URL
+      if (user.photo.startsWith('/')) {
+        return `http://127.0.0.1:8000${user.photo}`;
+      }
+      // If photo doesn't start with /, add it
+      return `http://127.0.0.1:8000/${user.photo}`;
     }
     return '';
   }
