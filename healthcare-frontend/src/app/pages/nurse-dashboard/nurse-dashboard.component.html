@@ -1,0 +1,447 @@
+<!-- Nurse Dashboard with Scrollable Main Content -->
+<div class="admin-dashboard-layout">
+  <!-- Fixed Sidebar -->
+  <div class="sidebar">
+    <app-nurse-side-navbar></app-nurse-side-navbar>
+  </div>
+
+  <!-- Scrollable Main Content -->
+  <div class="main-content-scrollable">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2><i class="bi bi-heart-pulse me-2"></i> Nurse Dashboard</h2>
+        <div class="mt-2">
+          <span class="badge fs-6" [ngClass]="user?.is_available_for_duty ? 'bg-success' : 'bg-secondary'">
+            {{ user?.is_available_for_duty ? 'Available for Duty' : 'Off Duty' }}
+          </span>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" routerLink="/nurse-patients">
+          <i class="bi bi-people me-2"></i>My Patients
+        </button>
+        <button class="btn btn-success" routerLink="/medicine-reminder">
+          <i class="bi bi-bell me-2"></i>Medicine Reminders
+        </button>
+        <app-dashboard-notification></app-dashboard-notification>
+      </div>
+    </div>
+
+    <!-- Stats Cards Row -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-people me-2"></i>Assigned Patients</h5>
+            <h3 class="card-text">{{ assignedPatients.length }}</h3>
+            <span>{{ urgentPatients.length }} urgent</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-bell me-2"></i>Medicine Reminders</h5>
+            <h3 class="card-text">{{ pendingReminders.length }}</h3>
+            <span>{{ todayReminders.length }} today</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-check-circle me-2"></i>Completed Tasks</h5>
+            <h3 class="card-text">{{ completedTasks.length }}</h3>
+            <span>Today's progress</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-heart-pulse me-2"></i>Health Monitoring</h5>
+            <h3 class="card-text">{{ healthChecks.length }}</h3>
+            <span>Active monitoring</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities Row -->
+    <div class="row mb-4">
+      <!-- Recent Patient Care -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-people me-2"></i>Recent Patient Care</h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="recentPatientCare.length === 0" class="text-center text-muted">
+              <i class="bi bi-people" style="font-size: 2rem;"></i>
+              <p>No recent patient care activities</p>
+            </div>
+            <div *ngFor="let care of recentPatientCare" class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+              <div>
+                <strong>{{ care.patient_name }}</strong>
+                <br>
+                <small class="text-muted">{{ care.care_type }} - {{ care.date | date:'short' }}</small>
+              </div>
+              <span class="badge" [ngClass]="{
+                'bg-success': care.status === 'completed',
+                'bg-warning': care.status === 'in_progress',
+                'bg-danger': care.status === 'urgent'
+              }">{{ care.status }}</span>
+            </div>
+            <div class="text-center mt-3">
+              <a routerLink="/nurse-patients" class="btn btn-outline-info btn-sm">View All Patients</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Medicine Reminders -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-bell me-2"></i>Recent Medicine Reminders</h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="recentReminders.length === 0" class="text-center text-muted">
+              <i class="bi bi-bell" style="font-size: 2rem;"></i>
+              <p>No recent reminders</p>
+            </div>
+            <div *ngFor="let reminder of recentReminders" class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+              <div>
+                <strong>{{ reminder.patient_name }}</strong>
+                <br>
+                <small class="text-muted">{{ reminder.medicine_name }} - {{ reminder.time }}</small>
+              </div>
+              <div class="text-end">
+                <span class="badge" [ngClass]="{
+                  'bg-warning': reminder.status === 'pending',
+                  'bg-success': reminder.status === 'completed',
+                  'bg-danger': reminder.status === 'missed'
+                }">{{ reminder.status }}</span>
+                <br>
+                <small class="text-muted">{{ reminder.date | date:'short' }}</small>
+              </div>
+            </div>
+            <div class="text-center mt-3">
+              <a routerLink="/medicine-reminder" class="btn btn-outline-success btn-sm">View All Reminders</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Duty Status Card -->
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i> Duty Status</h5>
+      </div>
+      <div class="card-body">
+        <!-- Online/Offline Toggle Section -->
+        <div class="row align-items-center mb-4">
+          <div class="col-md-6">
+            <div class="d-flex align-items-center mb-3">
+              <div class="form-check form-switch me-3">
+                <input class="form-check-input" type="checkbox" id="dutyStatus" 
+                       [checked]="user?.is_available_for_duty" (change)="toggleDutyStatus()"
+                       [disabled]="loading">
+                <label class="form-check-label" for="dutyStatus">
+                  <strong>Available for Duty</strong>
+                </label>
+              </div>
+              <span class="badge" [ngClass]="user?.is_available_for_duty ? 'bg-success' : 'bg-secondary'">
+                {{ user?.is_available_for_duty ? 'On Duty' : 'Off Duty' }}
+              </span>
+            </div>
+            <p class="text-muted mb-0">
+              <i class="bi bi-info-circle me-1"></i>
+              Toggle to show your current availability for patient care duties.
+            </p>
+          </div>
+          <div class="col-md-6 text-end">
+            <div class="status-indicator">
+              <div class="status-dot" [ngClass]="user?.is_available_for_duty ? 'online' : 'offline'"></div>
+              <span class="status-text">{{ user?.is_available_for_duty ? 'Available for Patient Care' : 'Currently Off Duty' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nurse Information Section -->
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="text-success"><i class="bi bi-award me-2"></i>Nursing Qualifications</h6>
+            <div class="mb-3">
+              <p class="mb-2">
+                <strong>{{ user?.nursing_qualification || 'Not specified' }}</strong>
+              </p>
+              <small class="text-muted">
+                Your nursing qualification and certification
+              </small>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-success"><i class="bi bi-hospital me-2"></i>Hospital Assignment</h6>
+            <p class="mb-3">
+              <strong>{{ user?.hospital_assignment || 'Not assigned' }}</strong>
+            </p>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <h6 class="text-info"><i class="bi bi-person-badge me-2"></i>Specialization</h6>
+            <div class="mb-3">
+              <p class="mb-1"><strong>Specialization:</strong> {{ user?.nurse_specialization || 'General Nursing' }}</p>
+              <p class="mb-1"><strong>Experience:</strong> {{ user?.nurse_experience_years || '0' }} years</p>
+              <p class="mb-1"><strong>License:</strong> {{ user?.nurse_license || 'Not provided' }}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-warning"><i class="bi bi-clock me-2"></i>Shift Preference</h6>
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Preferred Shift:</strong> {{ user?.shift_preference || 'Not specified' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Note:</strong> Your duty status controls your availability for patient care assignments. 
+          When on duty, you can receive patient care tasks and medicine reminders.
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Card -->
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i> Quick Overview</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 text-center">
+            <div class="stat-item">
+              <i class="bi bi-person-badge text-primary" style="font-size: 2rem;"></i>
+              <h4 class="mt-2">{{ user?.nurse_specialization || 'General' }}</h4>
+              <p class="text-muted">Specialization</p>
+            </div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="stat-item">
+              <i class="bi bi-building text-success" style="font-size: 2rem;"></i>
+              <h4 class="mt-2">{{ user?.hospital_assignment || 'Not assigned' }}</h4>
+              <p class="text-muted">Hospital/Clinic</p>
+            </div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="stat-item">
+              <i class="bi bi-people text-info" style="font-size: 2rem;"></i>
+              <h4 class="mt-2">{{ assignedPatients.length }}</h4>
+              <p class="text-muted">Assigned Patients</p>
+            </div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="stat-item">
+              <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
+              <h4 class="mt-2">{{ user?.shift_preference || 'Flexible' }}</h4>
+              <p class="text-muted">Shift Preference</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Common Stats Row -->
+        <div class="row mt-4">
+          <div class="col-md-4 text-center">
+            <div class="stat-item">
+              <i class="bi bi-award text-success" style="font-size: 1.5rem;"></i>
+              <h5 class="mt-2">{{ user?.nurse_experience_years || '0' }} years</h5>
+              <p class="text-muted">Experience</p>
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="stat-item">
+              <i class="bi bi-person text-primary" style="font-size: 1.5rem;"></i>
+              <h5 class="mt-2">{{ user?.age || 'N/A' }} | {{ user?.gender || 'N/A' }}</h5>
+              <p class="text-muted">Age | Gender</p>
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="stat-item">
+              <i class="bi bi-bell text-warning" style="font-size: 1.5rem;"></i>
+              <h5 class="mt-2">{{ pendingReminders.length }}</h5>
+              <p class="text-muted">Pending Reminders</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient Care Management Card -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-people me-2"></i> Patient Care Management</h5>
+        <div class="d-flex align-items-center">
+          <span class="badge bg-light text-dark me-2">
+            <i class="bi bi-person-check me-1"></i>{{ assignedPatients.length }} Patients
+          </span>
+          <button class="btn btn-light btn-sm" (click)="refreshPatients()" [disabled]="loadingPatients">
+            <i class="bi bi-arrow-clockwise" [class.spin]="loadingPatients"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Patient Statistics -->
+        <div class="row mb-4">
+          <div class="col-md-3 text-center">
+            <div class="queue-stat">
+              <i class="bi bi-people-fill text-primary"></i>
+              <h4 class="mt-2">{{ assignedPatients.length }}</h4>
+              <p class="text-muted">Total Assigned</p>
+            </div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="queue-stat">
+              <i class="bi bi-bell-fill text-warning"></i>
+              <h4 class="mt-2">{{ pendingReminders.length }}</h4>
+              <p class="text-muted">Pending Reminders</p>
+            </div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="queue-stat">
+              <i class="bi bi-check-circle-fill text-success"></i>
+              <h4 class="mt-2">{{ completedTasks.length }}</h4>
+              <p class="text-muted">Completed Today</p>
+            </div>
+          </div>
+          <div class="col-md-3 text-center">
+            <div class="queue-stat">
+              <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+              <h4 class="mt-2">{{ urgentPatients.length }}</h4>
+              <p class="text-muted">Urgent Cases</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assigned Patients List -->
+        <div class="queue-container">
+          <h6 class="text-primary mb-3">
+            <i class="bi bi-list-ol me-2"></i>My Assigned Patients
+          </h6>
+          
+          <!-- Loading State -->
+          <div *ngIf="loadingPatients" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading patient data...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!loadingPatients && assignedPatients.length === 0" class="text-center py-4">
+            <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+            <h5 class="mt-3 text-muted">No Patients Assigned</h5>
+            <p class="text-muted">Patients will appear here when they are assigned to you for care.</p>
+          </div>
+
+          <!-- Assigned Patients -->
+          <div *ngIf="!loadingPatients && assignedPatients.length > 0" class="queue-patients">
+            <div *ngFor="let patient of assignedPatients; let i = index" class="queue-patient-card">
+              <div class="patient-info">
+                <div class="patient-avatar">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="patient-details">
+                  <h6 class="patient-name">{{ patient.patient_name || 'Unknown Patient' }}</h6>
+                  <p class="patient-reason text-muted">
+                    <i class="bi bi-heart-pulse me-1"></i>{{ patient.condition || 'General care' }}
+                  </p>
+                  <div class="patient-meta">
+                    <span class="badge bg-primary me-2">
+                      <i class="bi bi-calendar me-1"></i>{{ patient.assigned_date | date:'short' }}
+                    </span>
+                    <span class="badge bg-info me-2">
+                      <i class="bi bi-bell me-1"></i>{{ patient.reminders_count }} reminders
+                    </span>
+                    <span class="badge" [ngClass]="patient.priority === 'high' ? 'bg-danger' : patient.priority === 'medium' ? 'bg-warning' : 'bg-success'">
+                      <i class="bi bi-flag me-1"></i>{{ patient.priority || 'normal' }} priority
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="patient-actions">
+                <button class="btn btn-primary btn-sm me-2" 
+                        (click)="viewPatientDetails(patient)" 
+                        [disabled]="patient.processing">
+                  <i class="bi bi-eye me-1"></i>View Details
+                </button>
+                <button class="btn btn-success btn-sm me-2" 
+                        (click)="manageReminders(patient)" 
+                        [disabled]="patient.processing">
+                  <i class="bi bi-bell me-1"></i>Reminders
+                </button>
+                <button class="btn btn-info btn-sm" 
+                        (click)="updateHealthStatus(patient)" 
+                        [disabled]="patient.processing">
+                  <i class="bi bi-heart-pulse me-1"></i>Health Status
+                </button>
+              </div>
+
+              <!-- Processing State -->
+              <div *ngIf="patient.processing" class="processing-overlay">
+                <div class="spinner-border spinner-border-sm text-light" role="status">
+                  <span class="visually-hidden">Processing...</span>
+                </div>
+                <span class="ms-2">Processing...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medicine Reminders Card -->
+    <div class="card mb-4">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-bell me-2"></i> Medicine Reminders</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="text-warning"><i class="bi bi-clock me-2"></i>Today's Reminders</h6>
+            <div class="mb-3">
+              <div *ngFor="let reminder of todayReminders" class="alert alert-warning">
+                <strong>{{ reminder.patient_name }}</strong><br>
+                <small>{{ reminder.medicine_name }} - {{ reminder.time }}</small>
+              </div>
+              <div *ngIf="todayReminders.length === 0" class="text-muted">
+                <i class="bi bi-check-circle me-1"></i>No reminders for today
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-info"><i class="bi bi-calendar me-2"></i>Upcoming Reminders</h6>
+            <div class="mb-3">
+              <div *ngFor="let reminder of upcomingReminders" class="alert alert-info">
+                <strong>{{ reminder.patient_name }}</strong><br>
+                <small>{{ reminder.medicine_name }} - {{ reminder.time }}</small>
+              </div>
+              <div *ngIf="upcomingReminders.length === 0" class="text-muted">
+                <i class="bi bi-calendar-x me-1"></i>No upcoming reminders
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-center">
+          <button class="btn btn-warning" routerLink="/medicine-reminder">
+            <i class="bi bi-bell me-2"></i>Manage All Reminders
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

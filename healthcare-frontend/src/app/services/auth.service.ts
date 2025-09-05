@@ -107,22 +107,12 @@ export class AuthService {
   }
 
   updateProfile(data: any): Observable<any> {
-    // Check if we're updating boolean fields (like is_live)
-    const hasBooleanFields = Object.keys(data).some(key => 
-      typeof data[key] === 'boolean' || key === 'is_live'
+    // Check if we have a file upload
+    const hasFile = Object.keys(data).some(key => 
+      data[key] instanceof File
     );
     
-    if (hasBooleanFields) {
-      // Send as JSON for boolean fields
-      return this.http.put(`${this.apiUrl}/users/profile/`, data).pipe(
-        tap((user: any) => {
-          if (isBrowser()) {
-            localStorage.setItem('user', JSON.stringify(user));
-          }
-          this.currentUserSubject.next(user);
-        })
-      );
-    } else {
+    if (hasFile) {
       // Send as FormData for file uploads
       const formData = new FormData();
       for (const key in data) {
@@ -131,6 +121,16 @@ export class AuthService {
         }
       }
       return this.http.put(`${this.apiUrl}/users/profile/`, formData).pipe(
+        tap((user: any) => {
+          if (isBrowser()) {
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+          this.currentUserSubject.next(user);
+        })
+      );
+    } else {
+      // Send as JSON for non-file updates
+      return this.http.put(`${this.apiUrl}/users/profile/`, data).pipe(
         tap((user: any) => {
           if (isBrowser()) {
             localStorage.setItem('user', JSON.stringify(user));

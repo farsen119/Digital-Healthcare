@@ -71,6 +71,14 @@ export class UserService {
   }
 
   /**
+   * Gets all users with the 'nurse' role.
+   */
+  getNurses(): Observable<User[]> {
+    const authHeaders = this.getAuthHeaders();
+    return this.http.get<User[]>(`${this.apiUrl}?role=nurse`, { headers: authHeaders });
+  }
+
+  /**
    * Creates a new user (admin only).
    */
   createUser(userData: any): Observable<User> {

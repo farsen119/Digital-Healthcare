@@ -26,6 +26,8 @@ import { AdminPrescriptionViewComponent } from './pages/admin/admin-prescription
 import { PharmacistDashboardComponent } from './pages/pharmacist-dashboard/pharmacist-dashboard.component';
 import { PharmacistProfileComponent } from './pages/pharmacist-dashboard/pharmacist-profile/pharmacist-profile.component';
 import { PharmacistAddMedicineComponent } from './pages/pharmacist-dashboard/pharmacist-add-medicine/pharmacist-add-medicine.component';
+import { NurseDashboardComponent } from './pages/nurse-dashboard/nurse-dashboard.component';
+import { NurseProfileComponent } from './pages/nurse-dashboard/nurse-profile/nurse-profile.component';
 
 
 import { MedicineStoreComponent } from './pages/medicine_store/medicine-store/medicine-store.component';
@@ -52,6 +54,8 @@ export const routes: Routes = [
   { path: 'pharmacist-dashboard', component: PharmacistDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['pharmacist'] } },
   { path: 'pharmacist-profile', component: PharmacistProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['pharmacist'] } },
   { path: 'pharmacist-add-medicine', component: PharmacistAddMedicineComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['pharmacist'] } },
+  { path: 'nurse-dashboard', component: NurseDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['nurse'] } },
+  { path: 'nurse-profile', component: NurseProfileComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['nurse'] } },
 
   { path: 'book-appointment', component: BookAppointmentComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['patient', 'admin'] } },
   { path: 'doctor-appointments', component: DoctorAppointmentsComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['doctor'] } },

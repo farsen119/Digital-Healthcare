@@ -1,0 +1,576 @@
+/* Admin Dashboard Layout with Scrollable Main Content */
+.admin-dashboard-layout {
+  display: flex;
+  height: calc(100vh - 72px); /* Subtract navbar height (72px) */
+  position: relative;
+  width: 100%;
+}
+
+/* Fixed Sidebar - No background here, handled by sidebar component */
+.sidebar {
+  width: 250px;
+  color: #fff;
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  overflow-y: hidden; /* Prevent sidebar from scrolling */
+  position: relative;
+  z-index: 1000;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Scrollable Main Content */
+.main-content-scrollable {
+  flex: 1;
+  overflow-y: auto; /* This makes only the main content scrollable */
+  height: 100%;
+  padding: 24px;
+  background: #f8f9fa;
+  position: relative;
+  z-index: 1;
+}
+
+/* Nurse Dashboard Styles */
+
+/* Stats Cards */
+.card.bg-primary, .card.bg-success, .card.bg-info, .card.bg-warning {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+}
+
+.card.bg-primary:hover, .card.bg-success:hover, .card.bg-info:hover, .card.bg-warning:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.card.bg-primary .card-title, .card.bg-success .card-title, 
+.card.bg-info .card-title, .card.bg-warning .card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.card.bg-primary .card-text, .card.bg-success .card-text, 
+.card.bg-info .card-text, .card.bg-warning .card-text {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+/* Recent Activities Cards */
+.card {
+  transition: box-shadow 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  border-bottom: none;
+  font-weight: 600;
+}
+
+/* Status Badges */
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4em 0.8em;
+}
+
+/* Button Styling */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Loading Animation */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Status Indicator Styles */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.online {
+  background-color: #28a745;
+  box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+}
+
+.status-dot.offline {
+  background-color: #6c757d;
+  box-shadow: 0 0 0 0 rgba(108, 117, 125, 0.7);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+  }
+}
+
+.status-text {
+  font-weight: 500;
+  color: #495057;
+}
+
+/* Form Switch Styling */
+.form-check-input:checked {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.form-check-input:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+}
+
+/* Stat Items */
+.stat-item {
+  padding: 20px;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+}
+
+.stat-item h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.stat-item p {
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+/* Card Enhancements */
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 600;
+}
+
+/* Button Enhancements */
+.btn-outline-primary:hover {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-outline-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form Enhancements */
+.form-control:focus, .form-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Queue Management Styles */
+.queue-stat {
+  padding: 20px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #dee2e6;
+}
+
+.queue-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.queue-stat i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.queue-stat h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 10px 0 5px 0;
+  color: #495057;
+}
+
+.queue-stat p {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #6c757d;
+}
+
+.queue-container {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.queue-patients {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.queue-patient-card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.queue-patient-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-color: #007bff;
+}
+
+.queue-patient-card .patient-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.patient-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.patient-avatar.accepted {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+}
+
+.patient-details {
+  flex: 1;
+}
+
+.patient-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 5px;
+}
+
+.patient-reason {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.patient-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.patient-meta .badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+
+.patient-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.patient-actions .btn {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.patient-actions .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.processing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+/* Spinner Animation */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-dashboard-layout {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+  
+  .main-content-scrollable {
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .card.bg-primary .card-text, .card.bg-success .card-text, 
+  .card.bg-info .card-text, .card.bg-warning .card-text {
+    font-size: 2rem;
+  }
+  
+  .status-indicator {
+    justify-content: center;
+    margin-top: 15px;
+  }
+  
+  .stat-item {
+    margin-bottom: 15px;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .btn-group .btn {
+    width: 100%;
+  }
+  
+  .queue-patient-card .patient-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .patient-actions {
+    justify-content: center;
+  }
+  
+  .patient-meta {
+    justify-content: center;
+  }
+  
+  .queue-stat {
+    margin-bottom: 15px;
+  }
+}
+
+/* Empty State Styling */
+.text-center.text-muted i {
+  opacity: 0.5;
+}
+
+/* Card Body Padding */
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Recent Activities */
+.border-bottom {
+  border-bottom: 1px solid #f8f9fa !important;
+}
+
+/* Responsive Grid */
+@media (max-width: 576px) {
+  .col-md-6.col-lg-4 {
+    margin-bottom: 1rem;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .btn-group .btn {
+    width: 100%;
+  }
+}
+
+/* Additional styling for better appearance */
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  border-radius: 8px 8px 0 0 !important;
+}
+
+/* Table improvements */
+.table-responsive {
+  border-radius: 0 0 8px 8px;
+}
+
+/* Button group styling */
+.btn-group .btn {
+  border-radius: 6px;
+  margin-right: 5px;
+}
+
+/* Ensure body doesn't scroll */
+body {
+  overflow: hidden;
+}
+
+/* Ensure proper container behavior */
+.container-fluid {
+  padding: 0;
+  margin: 0;
+}
+
+/* Professional Color Scheme */
+.bg-primary {
+  background-color: #007bff !important;
+}
+
+.bg-success {
+  background-color: #28a745 !important;
+}
+
+.bg-info {
+  background-color: #17a2b8 !important;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+/* Hover Effects for Interactive Elements */
+.btn-outline-info:hover {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+.btn-outline-success:hover {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+/* Professional Typography */
+h4 {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+h5 {
+  font-weight: 600;
+  color: #34495e;
+}
+
+h6 {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Professional Shadows */
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Smooth Transitions */
+* {
+  transition: all 0.3s ease;
+}
+
+/* Professional Spacing */
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+/* Table Responsive Improvements */
+@media (max-width: 768px) {
+  .table-responsive {
+    border: none;
+  }
+  
+  .table-responsive .table {
+    font-size: 0.85rem;
+  }
+  
+  .btn-group-sm .btn {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
